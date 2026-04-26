@@ -1,77 +1,77 @@
-# Agent Notes
+# 项目说明
 
-This project is primarily developed as a modification and extension of the paper:
+本项目当前的主要工作，是在下面这篇论文的基础上进行修改与扩展：
 
-- Base paper: `/home/chencheng/routing/paper/knowledge_base/2601.10245v2.pdf`
+- 基础论文：`/home/chencheng/routing/paper/knowledge_base/2601.10245v2.pdf`
 
-## Main Goals
+## 主要目标
 
-### 1. TRIM-Agg Reproduction
+### 1. TRIM-Agg 复现
 
-- Reproduce TRIM-Agg.
-- For SRM/LRM, start with `Qwen3-1.7B` and `Qwen3-14B`.
-- `Qwen3.5` can also be tested as an alternative.
-- First get the following pieces running end to end:
-  - TRIM-Agg PPO router
+- 复现 TRIM-Agg。
+- SRM / LRM 先使用 `Qwen3-1.7B` 和 `Qwen3-14B`。
+- 也可以进一步尝试 `Qwen3.5`。
+- 第一阶段先把下面几部分完整跑通：
+  - TRIM-Agg 的 PPO router
   - accuracy-cost curve
   - LRM usage rate
 
 ### 2. RoRo: Rubric-Guided Process Reward for Stepwise Model Routing
 
-Pipeline:
+整体流程如下。
 
-#### 2.1 Trajectory Construction
+#### 2.1 轨迹构造
 
-- First select samples where SRM-only is wrong but LRM-only is correct.
-- For each sample, sample multiple routing trajectories.
-- For each trajectory, record:
+- 先挑选出 SRM-only 错误、但 LRM-only 正确的样本。
+- 对每个样本采样多条 routing trajectories。
+- 每条 trajectory 需要记录：
   - step-level action
-  - reasoning content
-  - final correctness
+  - 推理内容
+  - 最终正确性
   - LRM cost
 
-#### 2.2 Routing Preference Pair Construction
+#### 2.2 路由偏好对构造
 
-- Construct preference pairs based on:
+- 基于如下效用函数构造 preference pairs：
   - `U(tau) = correctness(tau) - lambda * cost(tau)`
-- Prefer pairs with a clear margin.
-- Focus on the following pair types:
-  - correct low-cost > incorrect trajectory
-  - correct low-cost > correct high-cost
-  - stable trajectory > oscillating trajectory
+- 优先保留 margin 明显的 pair。
+- 重点构造以下几类偏好：
+  - 正确低成本 > 错误轨迹
+  - 正确低成本 > 正确高成本
+  - 稳定轨迹 > 震荡轨迹
 
-#### 2.3 Candidate Routing Rubric Generation
+#### 2.3 Candidate routing rubric 生成
 
-- Use three seed axes to guide the LLM to generate fine-grained rubrics:
+- 用三个 seed axes 引导 LLM 生成细粒度 rubric：
   - timely escalation
   - effective recovery
   - efficient allocation
-- Feed preferred / rejected trajectory pairs to the LLM.
-- Ask the LLM to summarize why the better routing is better.
+- 输入 preferred / rejected trajectory pair。
+- 让 LLM 总结“为什么更好的 routing 更好”。
 
-#### 2.4 Rubric Quality Filtering
+#### 2.4 Rubric 质量筛选
 
-- Refer to ideas from RLCER / RRD, such as answer consistency ratio.
-- Only keep rubrics that can reliably distinguish good and bad routing trajectories.
+- 参考 RLCER / RRD 的思路，例如与答案一致性比例等指标。
+- 只保留那些能够稳定地区分好坏 routing trajectories 的 rubrics。
 
-#### 2.5 Rubric-Based Process Reward
+#### 2.5 Rubric-based process reward
 
-- Use filtered rubrics to compute:
+- 用筛选后的 rubrics 计算：
   - `R_rubric(t) = average(score_j(t))`
-- Final reward:
+- 最终 reward 为：
   - `R = correctness - lambda * cost + beta * R_rubric`
 
-#### 2.6 PPO Router Training
+#### 2.6 PPO router 训练
 
-- Continue to use TRIM-style PPO.
-- Compute reward on the full trajectory.
-- Every routing action in the trajectory participates in the policy update.
+- 继续沿用 TRIM-style PPO。
+- 在完整 trajectory 上计算 reward。
+- trajectory 中每一个 routing action 都参与 policy update。
 
-### 3. Motivation Section Experiments
+### 3. Motivation 章节的启发性实验
 
-- Add exploratory experiments for the Motivation section.
+- 增加用于支撑 Motivation 章节的启发性实验。
 
-## Working Principle
+## 工作原则
 
-- Keep changes aligned with the base paper while extending the routing framework toward RoRo.
-- Prefer small, isolated commits so each completed function can be rolled back cleanly with git history.
+- 代码和实验设计优先保持与基础论文一致，再在其上扩展到 RoRo 方向。
+- 尽量采用小粒度、边界清晰的提交方式，确保每完成一个功能都可以通过 git 历史单独回退。
