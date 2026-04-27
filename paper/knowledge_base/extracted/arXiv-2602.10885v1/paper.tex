@@ -1,0 +1,360 @@
+\documentclass[]{bytedance_seed}
+
+% single-column: \documentclass[]{bytedance_seed}, 
+%Please prioritize using single-column。
+
+% twocolumn: \documentclass[twocolumn]{bytedance_seed}
+
+\usepackage[toc,page,header]{appendix}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{minitoc}
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%
+
+\title{Reinforcing Chain-of-Thought Reasoning with Self-Evolving Rubrics}
+
+\author[1,2,*,\ddagger]{Leheng~Sheng}
+\author[1,*,\dagger]{Wenchang~Ma}
+\author[1]{Ruixin~Hong} 
+\author[3]{\linebreak[4] Xiang~Wang}
+\author[3,\dagger]{An~Zhang}
+% \author[1,\dagger]{Ke~Shen}
+\author[2]{Tat-Seng~Chua}
+
+\affiliation[1]{Seed, ByteDance}
+\affiliation[2]{National University of Singapore}
+\affiliation[3]{University~of~Science~and~Technology~of~China}
+
+\contribution[*]{Equal Contribution}
+\contribution[\ddagger]{Work done at ByteDance Seed}
+\contribution[\dagger]{Corresponding authors}
+
+\abstract{
+Despite chain-of-thought (CoT) playing crucial roles in LLM reasoning, directly rewarding it is difficult: training a reward model demands heavy human labeling efforts, and static RMs struggle with evolving CoT distributions and reward hacking.
+These challenges motivate us to seek an autonomous CoT rewarding approach that requires no human annotation efforts and can evolve gradually. 
+Inspired by recent self-evolving training methods, we propose \textbf{RLCER} (\textbf{R}einforcement \textbf{L}earning with \textbf{C}oT Supervision via Self-\textbf{E}volving \textbf{R}ubrics), which enhances the outcome-centric RLVR by rewarding CoTs with self-proposed and self-evolving rubrics. 
+We show that self-proposed and self-evolving rubrics provide reliable CoT supervision signals even without outcome rewards, enabling RLCER to outperform outcome-centric RLVR.
+Moreover, when used as in-prompt hints, these self-proposed rubrics further improve inference-time performance.
+}
+
+\date{\today}
+
+% \correspondence{
+% An Zhang at \email{an\_zhang@ustc.edu.cn},
+% Ke Shen at \email{shenke@bytedance.com}
+% }
+
+\correspondence{
+An Zhang at \email{an\_zhang@ustc.edu.cn}
+Wenchang Ma at \email{mawenchang.99@bytedance.com}
+}
+
+
+% You can add additional info fields as follows 
+\checkdata[Project Page]{\url{https://alphalab-ustc.github.io/rlcer-alphalab/}}
+
+% New packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{soul}
+\usepackage{wrapfig}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Todonotes is useful during development; simply uncomment the next line
+%    and comment out the line below the next line to turn off comments
+%\usepackage[disable,textsize=tiny]{todonotes}
+\usepackage[textsize=tiny]{todonotes}
+
+
+\usepackage{enumitem}
+\usepackage[table]{xcolor}  % 推荐这个，更通用
+\usepackage{amsthm}     % 通常已经有
+\usepackage{thmtools}   % 这个才提供 \declaretheorem
+\usepackage{tcolorbox}
+\usepackage{tabularx}
+\usepackage{multirow} 
+\usepackage{dblfloatfix}
+
+
+\usepackage{tikz}
+\usetikzlibrary{calc,tikzmark,backgrounds}
+
+% 1) Define a background layer for algorithm highlighting
+\pgfdeclarelayer{algobg}
+\pgfsetlayers{algobg,main}
+
+% 2) Marks used inside algorithmic
+\newcommand{\tikzmk}[1]{%
+  \tikz[remember picture,overlay]\node[inner sep=0pt,outer sep=0pt] (#1) {};%
+}
+
+% 3) Tunable geometry parameters (defaults)
+\newlength{\algoboxshiftx}
+\newlength{\algoboxpadxL}
+\newlength{\algoboxpadxR}
+\newlength{\algoboxpadyT}
+\newlength{\algoboxpadyB}
+
+% Default values (tweak if needed)
+\setlength{\algoboxshiftx}{-0.6em}
+\setlength{\algoboxpadxL}{0.6em}
+\setlength{\algoboxpadxR}{-1.2em}
+\setlength{\algoboxpadyT}{1.7ex}
+\setlength{\algoboxpadyB}{0.8ex}
+
+% 4) Three different background colors
+% \definecolor{RolloutBg}{HTML}{2F6FEB} % base (blue-ish)
+% {234,208,228}
+\definecolor{RolloutBg}{RGB}{234, 208, 228}
+\definecolor{RewardBg}{RGB}{250, 235, 206}
+\definecolor{PolicyBg}{RGB}{217, 215, 219}
+
+% \definecolor{RewardBg}{HTML}{FB8C00}  % base (green-ish)
+% \definecolor{PolicyBg}{HTML}{FB8C00}  % base (orange-ish)
+
+% If you prefer pastel fill directly, you can also define pastel colors instead:
+% \definecolor{RolloutBg}{RGB}{232,241,255}
+% \definecolor{RewardBg}{RGB}{233,248,238}
+% \definecolor{PolicyBg}{RGB}{255,241,230}
+
+% 5) boxit macro (your version; #2 is a COLOR NAME now)
+% \boxit[右下角标签]{颜色}{起点mark}{终点mark}
+\newcommand{\boxit}[4][]{%
+\begin{tikzpicture}[remember picture,overlay]
+\begin{pgfonlayer}{algobg}
+  \coordinate (ALG@NW) at ([xshift=\algoboxshiftx-\algoboxpadxL,yshift=\algoboxpadyT]#3);
+
+  \coordinate (ALG@SE) at ([xshift=\algoboxshiftx+\dimexpr\linewidth+\algoboxpadxR\relax,
+                            yshift=-\algoboxpadyB]#3 |- #4);
+
+  % fill with opacity; rounded corners
+  \fill[#2, opacity=0.14, rounded corners=2pt] (ALG@NW) rectangle (ALG@SE);
+
+  % bottom-right label (optional)
+  \if\relax\detokenize{#1}\relax\else
+    \node[anchor=south east, font=\scriptsize\bfseries, text=black!70]
+      at ([xshift=-0.2em,yshift=0.2ex]ALG@SE) {#1};
+  \fi
+\end{pgfonlayer}
+\end{tikzpicture}%
+}
+
+\newcommand{\ie}{\emph{i.e., }}
+\newcommand{\eg}{\emph{e.g., }}
+\newcommand{\etal}{\emph{et al.}}
+% \newcommand{\st}{\emph{s.t. }}
+\newcommand{\etc}{\emph{etc.}}
+\newcommand{\wrt}{\emph{w.r.t.}~}
+\newcommand{\cf}{\emph{cf. }}
+\newcommand{\aka}{\emph{aka. }}
+
+% \newcommand{\wx}[1]{{\color{black}{#1}}}
+% \newcommand{\wxx}[1]{{\color{blue}{#1}}}
+% \newcommand{\za}[1]{{\color{black}{#1}}}
+% \newcommand{\czb}[1]{{\color{black}{#1}}}
+% \newcommand{\slh}[1]{{\color{orange}{#1}}}
+% \newcommand{\scs}[1]{{\color{purple}{#1}}}
+% \newcommand{\cmr}[1]{{\color{black}{#1}}}
+% \newcommand{\szy}[1]{{\color{black}{#1}}}
+% \newcommand{\warning}[1]{{\color{red}{#1}}}
+% \newcommand{\draft}[1]{{\color{black}{#1}}}
+% \newcommand{\refusalv}[1]{{\color{gray}{#1}}}
+% \newcommand{\concept}[1]{{\color{green}{#1}}}
+% \newcommand{\revision}[1]{{\color{blue}{#1}}}
+% \newcommand{\possible}[1]{{\color{black}{#1}}}
+
+\newcommand{\wx}[1]{{\color{black}{#1}}}
+\newcommand{\wxx}[1]{{\color{blue}{#1}}}
+\newcommand{\za}[1]{{\color{black}{#1}}}
+\newcommand{\czb}[1]{{\color{black}{#1}}}
+\newcommand{\slh}[1]{{\color{black}{#1}}}
+\newcommand{\scs}[1]{{\color{black}{#1}}}
+\newcommand{\cmr}[1]{{\color{black}{#1}}}
+\newcommand{\szy}[1]{{\color{black}{#1}}}
+\newcommand{\warning}[1]{{\color{black}{#1}}}
+\newcommand{\draft}[1]{{\color{black}{#1}}}
+\newcommand{\refusalv}[1]{{\color{black}{#1}}}
+\newcommand{\concept}[1]{{\color{black}{#1}}}
+\newcommand{\revision}[1]{{\color{black}{#1}}}
+\newcommand{\possible}[1]{{\color{black}{#1}}}
+
+
+\definecolor{lightgray}{gray}{0.95}  % 数值越大越浅
+% \definecolor{table_color}{RGB}{239,246,251}
+\definecolor{table_color}{RGB}{252, 223, 208}
+\declaretheorem[name=Theorem,numberwithin=section]{thm}
+
+\newcommand{\yes}[1]{{\color{teal}{#1}}}
+\newcommand{\no}[1]{{\color{red}{#1}}}
+
+
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\Tr}{Tr}
+\let\ab\allowbreak
+
+
+\newcommand\norm[1]{\left\lVert#1\right\rVert}
+\newcommand{\Lapl}{\mathbf{\mathop{\mathcal{L}}}}
+\newcommand{\lapl}{\mathcal{L}}
+\newcommand{\Trans}[1]{{#1}^{\top}}
+\newcommand{\Trace}[1]{tr\left({#1}\right)}
+\newcommand{\Bracs}[1]{\left({#1}\right)}
+\newcommand{\Mat}[1]{\mathbf{#1}}
+\newcommand{\MatS}[3]{\mathbf{#1}^{#2}_{#3}}
+\newcommand{\Space}[1]{\mathbb{#1}}
+\newcommand{\Set}[1]{\mathcal{#1}}
+\newcommand{\vectornorm}[1]{\left|\left|#1\right|\right|}
+\newcommand{\bpi}{\boldsymbol{\pi}}
+\newcommand{\BlockMat}[2]{\left[\begin{matrix}#1\\#2\end{matrix}\right]}
+\newcommand{\BlockMatSquare}[4]{\left[\begin{matrix}#1 & #2\\#3 & #4\end{matrix}\right]}
+\newcommand{\ParaTitle}[1]{\noindent\textbf{#1}}
+\newcommand\myeq{\mathrel{\stackrel{\makebox[0pt]{\mbox{\normalfont\tiny def}}}{=}}}
+\newcommand\eqc{\mathrel{\overset{\makebox[0pt]{\mbox{\normalfont\tiny\sffamily c}}}{=}}}
+
+
+% \newcommand{\CommentBelow}[1]{%
+%   \STATE{\color{gray}\footnotesize //#1}
+% }
+% Safe comment line for algorithmic (no list, no \item)
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+% \newcommand{\CommentBelow}[1]{%
+%   \STATE {\color{gray}\footnotesize // #1}%
+% }
+
+\newcommand{\CommentBelow}[1]{%
+  {\color{gray}\footnotesize // #1}%
+}
+\newcommand{\Cmt}[1]{\hfill{\color{gray}\footnotesize // #1}}
+\newcommand{\BREAK}{\STATE \textbf{break}}
+
+% Define Box
+% \definecolor{good}{RGB}{0,128,0}
+% \definecolor{good}{RGB}{60,140,60}
+% \definecolor{good}{RGB}{66,127,117}
+\definecolor{good}{RGB}{58,113,104}
+\definecolor{bad}{RGB}{180,0,0}
+\definecolor{malboxborder}{RGB}{180,0,0}
+\definecolor{benboxborder}{RGB}{81,91,131}
+\definecolor{malboxbg}{RGB}{255,250,250}
+% \definecolor{malboxbg}{RGB}{255,253,252}
+% \definecolor{benboxbg}{RGB}{248,250,254}
+\definecolor{benboxbg}{RGB}{251,252,254}
+% \definecolor{titlebg}{RGB}{200,200,200}
+\definecolor{titlebg}{RGB}{77,77,77}
+\definecolor{rubricator}{RGB}{220, 105, 123}
+\definecolor{reasoner}{RGB}{22, 78, 164}
+
+\definecolor{performance_color}{RGB}{255, 248, 249}
+% \definecolor{latency_color}{RGB}{242, 253, 255} 
+% 上面是青色
+\definecolor{latency_color}{RGB}{246, 249, 254}
+
+% 
+\newsavebox{\CaseStudy}
+\newsavebox{\CaseStudyApdxOne}
+\newsavebox{\CaseStudyApdxTwo}
+\newsavebox{\CaseStudyApdxThree}
+\newsavebox{\DSRPrompt}
+\newsavebox{\CRPrompt}
+\newsavebox{\GPTPrompt}
+
+\newtcolorbox{gptpromptbox}[1][]{%
+  colback=white,
+  colframe=black,
+  boxrule=1pt,
+  arc=2pt,
+  width=\textwidth,
+  boxsep=2pt,
+  left=2pt,
+  right=2pt,
+  top=2pt,
+  bottom=2pt,
+  title={PROMPT:}, % Title with colon
+  fonttitle=\large\bfseries, % Larger and bold font
+  coltitle=white, % Title text color
+  colbacktitle=titlebg, % Gray background for the title
+  % Remove attached title style (not supported in old versions)
+  #1
+}
+
+\newtcolorbox{promptbox}[1][]{%
+  colback=white,
+  colframe=black,
+  boxrule=1pt,
+  sharp corners,
+  width=\textwidth,
+  % arc=2pt,
+  % boxsep=5pt,
+  % left=5pt,
+  % right=5pt,
+  % top=5pt,
+  % bottom=5pt,
+  boxsep=2pt,
+  left=2pt,
+  right=2pt,
+  top=2pt,
+  bottom=2pt,
+  #1
+}
+
+
+\begin{document}
+\maketitle
+
+%不需要目录就注释掉 注意目录不要和第一页放在一块 要有\newpage
+%\newpage
+%\tableofcontents
+%\newpage
+
+
+% \input{chapters/1_abstract}
+\input{chapters/2_introduction}
+\input{chapters/3_preliminary}
+\input{chapters/4_methodology}
+\input{chapters/5_experiments}
+\input{chapters/6_conclusion}
+
+
+\clearpage
+
+\bibliographystyle{plainnat}
+\bibliography{main}
+
+\clearpage
+
+\beginappendix
+\input{chapters/7_appendix}
+
+
+\end{document}

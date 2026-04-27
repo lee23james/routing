@@ -1,0 +1,54 @@
+% \begin{table}[tbh]
+% \centering
+% % \small
+% \setlength{\tabcolsep}{1.5pt} 
+% \begin{tabular}{lcccccc}
+% \toprule
+% \multirow{2}{*}{\textbf{Method}} & \multicolumn{2}{c}{\textbf{AIME25}} & \multicolumn{2}{c}{\textbf{LCBv6}} \\
+% \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+% & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ \\
+% \midrule
+% LLM          & 46.67 & 220 & 46.86 & 214 \\
+% \rowcolor{gray!20}
+% + Speculative Decoding        & 00.00 & 000 & 00.00 & 000 \\
+% % \midrule
+% SpecReason          & 49.17 & 169 & 47.57 & 189 \\
+% \rowcolor{gray!20}
+% + Speculative Decoding        & 00.00 & 000 & 00.00 & 000 \\
+% % \midrule
+% \approach          & 51.67 & 163 & 48.29 & 160 \\
+% \rowcolor{gray!20}
+% + Speculative Decoding        & 00.00 & 000 & 00.00 & 000 \\
+% \bottomrule
+% \end{tabular}
+% \caption{Evaluation of orthogonality with Speculative Decoding on AIME25 and LCBv6.}  \zeng{Update new results}
+% \label{tab:orthogonality}
+% \end{table}
+
+\begin{table}[tbh]
+\centering
+% \small
+\setlength{\tabcolsep}{0.5pt} 
+\begin{tabular}{lcccccc}
+\toprule
+\multirow{2}{*}{\textbf{Method}} & \multicolumn{2}{c}{\textbf{AIME25}} & \multicolumn{2}{c}{\textbf{LCBv6}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+& Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ \\
+\midrule
+LLM only         & 46.67 & 220 & 46.86 & 214 \\
+\rowcolor{gray!20}
+\quad + Speculative Decoding        & 45.83 & 149 & 46.29 & 166 \\
+% \midrule
+SpecReason          & 49.17 & 169 & 47.57 & 189 \\
+\rowcolor{gray!20}
+\quad + Speculative Decoding        & 49.17 & 140 & 47.14 & 154 \\
+% \midrule
+\approach          & 51.67 & 163 & 48.29 & 160 \\
+\rowcolor{gray!20}
+\quad + Speculative Decoding        & 51.67 & 130 & 48.00 & 137 \\
+\bottomrule
+\end{tabular}
+\caption{Evaluation of orthogonality with Speculative Decoding on AIME25 and LCBv6. We report accuracy (Acc) and average generation latency (Lat) measured in seconds.} 
+\label{tab:orthogonality}
+\vspace{-10pt}
+\end{table}

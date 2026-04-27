@@ -1,0 +1,257 @@
+{
+  "paper_id": "smr_005_glimprouter",
+  "title": "GlimpRouter: Efficient Collaborative Inference by Glimpsing One Token of Thoughts",
+  "authors": [
+    "Wenhao Zeng",
+    "Xuteng Zhang",
+    "Yuling Shi",
+    "Chao Hu",
+    "Yuting Chen",
+    "Beijun Shen",
+    "Xiaodong Gu"
+  ],
+  "affiliation": "Shanghai Jiao Tong University",
+  "year": 2026,
+  "venue": "ACL (preprint)",
+  "venue_type": "conference",
+  "arxiv_id": "2601.05110",
+  "tier": "A*",
+  "must_cite": true,
+  "status": "parsed",
+  "task": [
+    "stepwise_model_routing",
+    "collaborative_inference",
+    "reasoning_acceleration"
+  ],
+  "subtopic": [
+    "initial_token_entropy",
+    "bimodal_distribution",
+    "probe_then_dispatch",
+    "training_free_routing"
+  ],
+  "background": {
+    "problem_context": "Existing step-level routing methods face two fundamental problems: (1) Signal Dilution — methods that average token-level signals (entropy, perplexity) over entire steps dilute critical uncertainty information with high-confidence formatting tokens; (2) Sunk Cost — generate-then-verify methods waste the small model's full step generation when the step is ultimately rejected.",
+    "prior_limitations": [
+      "Step-level average metrics (H_step, PPL_step) suffer from signal dilution: the majority of tokens in a step are high-confidence formatting/syntax tokens that wash out the uncertainty of critical reasoning decisions",
+      "Generate-then-verify methods (RSD, SpecReason) incur sunk costs when steps are rejected — the entire generation of the small model is wasted",
+      "PRM-based methods (RSD, TRIM) require external trained models with domain limitations",
+      "No prior method identified that a single token's entropy can predict step difficulty"
+    ],
+    "key_observation": "The first token of each reasoning step exhibits a distinctive bimodal + heavy-tail entropy distribution (H_init). Low H_init corresponds to routine derivation steps (small model can handle), while high H_init corresponds to cognitive transitions ('Aha moments') that require the large model's stronger capabilities. H_init shows monotonic negative correlation with the similarity between small and large model outputs for that step."
+  },
+  "motivation": "Existing routing signals either average over entire steps (diluting critical uncertainty signals) or require full step generation before evaluation (incurring sunk costs). GlimpRouter discovers that the entropy of a reasoning step's very first token (H_init) is a surprisingly strong predictor of step difficulty, exhibiting a distinctive bimodal distribution. Low entropy first tokens indicate routine derivation (safe for the small model), while high entropy first tokens signal cognitive transitions requiring the large model. This enables a 'Probe-then-Dispatch' paradigm where routing costs only a single token, eliminating both signal dilution and sunk costs.",
+  "novelty_claims": [
+    "Discovery that initial token entropy (H_init) is a strong step difficulty predictor with a unique bimodal distribution — an intrinsic property of LRMs that is stable across datasets and model families",
+    "Probe-then-Dispatch paradigm: routing decision costs only 1 token of computation, achieving minimal routing overhead",
+    "Demonstrates that collaborative inference can surpass standalone large model accuracy (e.g., AIME25: 51.67% vs 46.67% for standalone LLM)",
+    "Formal analysis of signal dilution problem in step-level averaging methods"
+  ],
+  "problem_statement": "Given a small language model (SLM) and a large language model (LLM), design a training-free step-level routing mechanism with minimal overhead that avoids both signal dilution and sunk cost problems.",
+  "core_idea": "The SLM generates only the first token of each reasoning step. The entropy of this token (H_init) is computed from the logit distribution. If H_init ≤ τ (low entropy = confident = routine step), the SLM continues generating the full step. If H_init > τ (high entropy = uncertain = cognitive transition), the LLM takes over and generates the full step. The routing overhead is just 1 token — negligible compared to generating an entire step.",
+  "extended_summary": "GlimpRouter is motivated by the empirical discovery that the first token of each reasoning step has unique statistical properties. Unlike step-level averages (H_step, PPL_step) which exhibit unimodal distributions due to dilution by high-confidence formatting tokens, H_init shows a clear bimodal distribution: a low-entropy cluster corresponding to routine derivation steps and a high-entropy cluster corresponding to cognitive transitions (direction changes, strategy switches, key insights). The authors show that H_init has monotonic negative correlation with the semantic similarity between SLM and LLM outputs for that step, confirming it predicts when the SLM would diverge from the LLM's reasoning. The Probe-then-Dispatch mechanism works as follows: (1) SLM generates only 1 token; (2) compute H_init; (3) if H_init ≤ τ, SLM continues; if H_init > τ, LLM takes over. This achieves: +10.7% accuracy and -25.9% latency on AIME25 compared to standalone LLM. The accuracy improvement occurs because the LLM corrects accumulated logical drift from SLM steps through its self-correction capability. GlimpRouter is orthogonal to token-level SD and can be combined for further acceleration.",
+  "method_pipeline": [
+    {
+      "step": 1,
+      "name": "First token probe",
+      "description": "SLM generates exactly one token for the next reasoning step. This is the 'glimpse' — a minimal probe of what the step will contain"
+    },
+    {
+      "step": 2,
+      "name": "Initial token entropy computation",
+      "description": "Compute H_init = -Σ p_i log p_i from the logit distribution of the first token. This captures the SLM's uncertainty about the step's direction"
+    },
+    {
+      "step": 3,
+      "name": "Threshold-based routing decision",
+      "description": "If H_init ≤ τ (confident): SLM continues generating the full step (routine derivation). If H_init > τ (uncertain): LLM generates the full step (cognitive transition)"
+    },
+    {
+      "step": 4,
+      "name": "Full step generation by selected model",
+      "description": "The selected model (SLM or LLM) generates the complete reasoning step from the current context"
+    },
+    {
+      "step": 5,
+      "name": "Context update and iteration",
+      "description": "The generated step is appended to the reasoning context. LLM implicitly re-evaluates the context through its self-correction capability, potentially correcting drift"
+    }
+  ],
+  "representation": {
+    "input": ["reasoning_problem_query"],
+    "internal": ["first_token_logit_distribution", "H_init_entropy_value"],
+    "output": ["complete_reasoning_chain_with_answer"]
+  },
+  "architecture": {
+    "small_model": "Qwen3-4B",
+    "large_model": "DeepSeek-R1-Distill-Qwen-32B, Qwen3-32B",
+    "routing_mechanism": "Initial token entropy threshold",
+    "routing_paradigm": "probe_then_dispatch",
+    "requires_training": false,
+    "requires_external_model": false,
+    "key_modules": [
+      "SLM first-token generator (1 token only)",
+      "Entropy calculator on first token logits",
+      "Threshold comparator",
+      "SLM or LLM full step generator"
+    ],
+    "routing_signal": "H_init (initial token entropy)",
+    "routing_granularity": "step-level",
+    "routing_overhead": "1 token",
+    "complementary_to_sd": true
+  },
+  "design_choices": [
+    {
+      "choice": "First token entropy rather than step-level average entropy",
+      "rationale": "Step-level averaging suffers from signal dilution: the majority of tokens are high-confidence formatting tokens that wash out the uncertainty of critical reasoning decisions. H_init avoids this by capturing the step's initial direction-setting moment"
+    },
+    {
+      "choice": "Bimodal distribution analysis (empirical validation)",
+      "rationale": "H_init's bimodal distribution is a stable intrinsic property of LRMs, observed across datasets and model families. Low peak = routine derivation, high peak + heavy tail = cognitive transitions"
+    },
+    {
+      "choice": "Probe-then-dispatch rather than generate-then-verify",
+      "rationale": "Only 1 token is generated before the routing decision, making the sunk cost negligible. Generate-then-verify wastes entire step generation when rejected"
+    }
+  ],
+  "learning": {
+    "supervision": "none",
+    "training_strategy": "no_training_required",
+    "key_hyperparameters": [
+      "τ (entropy threshold, controls intervention rate)",
+      "Optimal intervention rate ~20-30% for best accuracy-latency balance"
+    ]
+  },
+  "datasets": [
+    "AIME 2024",
+    "AIME 2025",
+    "GPQA Diamond",
+    "LiveCodeBench v5",
+    "LiveCodeBench v6"
+  ],
+  "evaluation": {
+    "metrics": [
+      "Accuracy (pass@1)",
+      "Latency reduction (%)",
+      "Intervention rate (% of steps routed to LLM)",
+      "Accuracy-latency Pareto curves"
+    ]
+  },
+  "quantitative_results": [
+    {
+      "dataset": "AIME 2025",
+      "metric": "Accuracy",
+      "value": 51.67,
+      "unit": "%",
+      "config": "Qwen3-4B (SLM) + Qwen3-32B (LLM)",
+      "baseline_value": 46.67,
+      "baseline_name": "Standalone Qwen3-32B",
+      "notes": "+10.7% accuracy AND -25.9% latency simultaneously"
+    },
+    {
+      "dataset": "AIME 2025",
+      "metric": "Latency reduction",
+      "value": 25.9,
+      "unit": "%"
+    },
+    {
+      "dataset": "All benchmarks",
+      "metric": "Latency reduction range",
+      "value": "25.2-27.4",
+      "unit": "%"
+    },
+    {
+      "dataset": "AIME 2025",
+      "metric": "Accuracy advantage of H_init vs H_step",
+      "value": 10.7,
+      "unit": "% points",
+      "notes": "H_init dramatically outperforms step-level average entropy"
+    },
+    {
+      "dataset": "AIME 2025",
+      "metric": "Accuracy advantage of H_init vs PPL_step",
+      "value": 8.8,
+      "unit": "% points"
+    },
+    {
+      "dataset": "Combined with SD",
+      "metric": "End-to-end latency",
+      "value": "lowest achievable",
+      "notes": "GlimpRouter + SD achieves the best end-to-end latency among all methods"
+    }
+  ],
+  "baselines_compared": [
+    {
+      "method": "RSD",
+      "delta": "GlimpRouter achieves better Pareto front with zero routing overhead vs RSD's PRM overhead",
+      "metric": "Accuracy-Latency"
+    },
+    {
+      "method": "SpecCoT",
+      "delta": "GlimpRouter achieves comparable accuracy at lower latency due to probe-then-dispatch avoiding sunk costs",
+      "metric": "Accuracy-Latency"
+    },
+    {
+      "method": "SpecReason",
+      "delta": "GlimpRouter's 1-token routing overhead is negligible vs SpecReason's full LLM judgment per step",
+      "metric": "Routing overhead"
+    },
+    {
+      "method": "Random routing",
+      "delta": "Significantly better than random, confirming H_init is a meaningful signal",
+      "metric": "Accuracy"
+    },
+    {
+      "method": "Standalone LLM",
+      "delta": "Collaborative inference EXCEEDS standalone LLM accuracy (+10.7% on AIME25), a key finding",
+      "metric": "Accuracy"
+    }
+  ],
+  "ablation_findings": [
+    {
+      "ablation": "H_init vs H_step vs PPL_step",
+      "effect": "H_init: 51.67% accuracy. H_step: 41.0%. PPL_step: 42.9% on AIME25",
+      "key_insight": "Signal dilution is a real and severe problem. First-token entropy is dramatically more informative than step-level averages"
+    },
+    {
+      "ablation": "Intervention rate (τ sweep)",
+      "effect": "Optimal around 20-30% intervention rate. Too low = SLM handles too many hard steps. Too high = LLM overhead dominates",
+      "key_insight": "The sweet spot exists because LLM's self-correction capability degrades when it intervenes too frequently (context becomes fragmented)"
+    },
+    {
+      "ablation": "Cross-model stability of H_init bimodality",
+      "effect": "Bimodal distribution observed in Qwen3-4B, DeepSeek-R1-1.5B, and other model families",
+      "key_insight": "H_init's bimodal property is an intrinsic feature of LRM reasoning, not model-specific"
+    }
+  ],
+  "main_findings": [
+    "Initial token entropy (H_init) is a powerful step difficulty predictor with a unique bimodal distribution that is stable across datasets and models",
+    "The signal dilution problem is severe: step-level average metrics lose 10+ percentage points of accuracy compared to H_init",
+    "Probe-then-dispatch with 1-token overhead achieves better accuracy-latency tradeoff than generate-then-verify methods",
+    "Collaborative inference can surpass standalone large model accuracy (+10.7% on AIME25) because the LLM corrects accumulated SLM drift through self-correction",
+    "LLM's self-correction capability is the key mechanism enabling collaborative inference to exceed single-model performance"
+  ],
+  "limitations": [
+    "Entropy-based routing may fail when the model is confidently wrong (low H_init but incorrect step)",
+    "Step boundaries still defined by heuristic delimiters",
+    "Threshold τ selection currently empirical; no principled method for automatic calibration",
+    "Single-token probe may not capture complex multi-faceted difficulty"
+  ],
+  "relevance_to_our_work": {
+    "relation": "inspiration_and_comparison",
+    "key_connections": [
+      "GlimpRouter's signal dilution analysis motivates our choice of trajectory-level rubrics rather than step-level signals",
+      "GlimpRouter's insight that collaborative inference can exceed standalone LLM performance supports our finding that routing can improve upon LRM-only accuracy",
+      "GlimpRouter is a routing signal method; our rubric approach is a reward shaping method for training routing policies. These are complementary: GlimpRouter-style signals could inform rubric design",
+      "GlimpRouter demonstrates probe-then-dispatch superiority — our rubric-guided RL router could potentially use H_init as an additional state feature"
+    ]
+  },
+  "keywords": [
+    "initial_token_entropy",
+    "bimodal_distribution",
+    "probe_then_dispatch",
+    "signal_dilution",
+    "self_correction",
+    "training_free_routing",
+    "collaborative_inference"
+  ]
+}

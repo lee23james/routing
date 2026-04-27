@@ -1,0 +1,171 @@
+% \begin{table*}[!h]
+% \centering
+
+% \begingroup
+% \footnotesize
+% \setlength{\tabcolsep}{4pt}
+
+% % --- local-only helpers ---
+% \definecolor{FailBg}{RGB}{253,219,219}   % light red
+% \definecolor{PassBg}{RGB}{214,240,221}   % light green
+% \newcommand{\bad}[1]{\colorbox{FailBg}{#1}}
+% \newcommand{\good}[1]{\colorbox{PassBg}{#1}}
+% \newcommand{\gate}[1]{\textsf{\small Gatekeeper: #1}}
+% \newcommand{\hard}[1]{\textsf{\small Hard Rules: #1}}
+% \newcommand{\prin}[1]{\textsf{\small Principles: #1}}
+% \newcommand{\pass}{\textbf{✔}}
+% \newcommand{\fail}{\textbf{✖}}
+
+% \begin{tabular}{@{}p{0.15\linewidth}p{0.6\linewidth}@{}}
+% \toprule
+% \multicolumn{2}{@{}l}{\textbf{Case Study: Instruction adherence on RewardBench Chat Hard}}\\
+% \midrule
+% \textbf{Prompt} &
+% Describe a vivid and unique character, using strong imagery and creative language. Please answer in  \emph{fewer than two paragraphs}.\\[2pt]
+% \midrule
+% \textbf{Resp A (snippet)} &
+% ``She was a woman of great power and influence\ldots with a deep voice and piercing eyes\ldots''
+% {\small(\emph{single paragraph, on-task})}\\[2pt]
+% \textbf{Resp B (snippet)} &
+% ``
+% \ldots a fierce and determined young woman\ldots {[\textit{paragraph break}]} 
+% \ldots Which of the following is an example of a character\ldots {[\textit{paragraph break}]}; 
+% {A character\ldots Lily\ldots}
+% '' \\
+
+% \textbf{Ground Truth} & {Resp A}.\\
+% \midrule
+% \textbf{RRM-7B} & 
+% ``
+% \ldots both responses are \bad{within that limit} \ldots Assistant 2's response is more detailed\ldots more vivid and unique \ldots \bad{(Choose B)}%
+% '' 
+% \\
+% \textbf{JudgeLRM} & 
+% ``
+% \ldots 
+% In contrast, Assistant 2 provided a more detailed and vivid description, painting a picture of a character named Lily who is not only a leader but also a survivor, a fighter, and a free spirit \ldots \bad{(Choose B)}%
+% ''
+% \\
+% \midrule
+% {\name} \\
+% \midrule
+% \textbf{Rubric} &
+% ``%
+% 1. The response must describe a vivid and unique character. [Hard Rule]  
+
+% 2. The response must use strong imagery and creative language. [Hard Rule]  
+
+% 3. The response must be fewer than two paragraphs. [Hard Rule]  
+
+% 4. The response should employ sensory-rich and evocative language to create vivid mental images. [Principle]  
+
+% 5. The response should use original and creative expressions to avoid clichés and enhance uniqueness. [Principle]  
+
+% 6. The response should maintain a consistent and engaging tone that supports the character’s portrayal. [Principle]  
+
+% 7. The response should present a cohesive and unified portrayal of the character without introducing unrelated details. [Principle]  
+
+% 8. The response should be concise and focused, avoiding unnecessary elaboration. [Principle]
+% '' \\
+% % ``
+% % 1. The response uses strong imagery and creative language to create a vivid and unique character description. [Hard Rule] 
+
+% % 2. The response is written in {fewer than two paragraphs}. [Hard Rule]
+
+% % 3. The response presents a character with distinctive and memorable traits that contribute to a clear and engaging portrayal. [Principle]
+
+% % 4. The response employs sensory details and evocative descriptions to enhance the reader’s mental image. [Principle]
+
+% % 5. The response demonstrates originality and creativity in language and characterization to avoid clichés and generic portrayals. [Principle]
+
+% % 6. The response maintains coherence and focus, ensuring all elements contribute to a unified and compelling character depiction. [Principle]
+
+% % 7. The response balances detail and conciseness, providing enough information to be vivid without unnecessary elaboration. [Principle]
+% % '' \\
+% \cmidrule{2-2}
+% \textbf{Judge} &
+% ``\textit{Gatekeeper Reasoning: {The most objectively verifiable requirement is the paragraph limit, which can be counted without subjective judgment.} \ldots The response must be fewer than two paragraphs} \ldots 
+% Response B \good{fails the paragraph limit} \ldots while Response A satisfies all hard rules and most principles \ldots \good{(Choose A)}%
+% ''
+% \\
+% % \textbf{Judge} &
+% % ``\textbf{Identified Gatekeeper Criterion: The response is written in fewer than two paragraphs.} \ldots 
+% % Response A successfully adheres to all criteria \ldots Response B \good{fails the paragraph count rule} \ldots While Response B offers more vivid and creative language \ldots 
+% % \quad \good{(Choose A)}
+% % ''
+% % \\
+% \bottomrule
+% \end{tabular}
+% \caption{
+% RewardBench case study with {error highlighting}. Baselines favor the longer, imagery-rich response (B) and \emph{miss} the explicit paragraph limit, while {\name} first enforces hard rules and then scores principles.}
+% \label{tab:case-chat–hard}
+% \endgroup
+
+% \end{table*}
+
+
+\begin{table*}[!t]
+\centering
+\renewcommand\arraystretch{0.9}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+% --- local-only helpers ---
+\definecolor{FailBg}{RGB}{253,219,219}   % light red
+\definecolor{PassBg}{RGB}{214,240,221}   % light green
+\newcommand{\bad}[1]{\colorbox{FailBg}{#1}}
+\newcommand{\good}[1]{\colorbox{PassBg}{#1}}
+\newcommand{\pass}{\textbf{✔}}
+\newcommand{\fail}{\textbf{✖}}
+
+\begin{tabular}{@{}p{0.15\linewidth}p{0.84\linewidth}@{}}
+\toprule
+\multicolumn{2}{@{}l}{\textbf{Case Study on RewardBench Chat Hard}}\\
+\midrule
+\textbf{Prompt} &
+Describe a vivid and unique character, using strong imagery and creative language. Please answer in \emph{fewer than two paragraphs}.\\[2pt]
+
+\textbf{Resp A (snippet)} &
+``She was a woman of great power and influence \ldots with a deep voice and piercing eyes \ldots''
+{\small(\emph{single paragraph, on-task})}\\[2pt]
+
+\textbf{Resp B (snippet)} &
+``\ldots a fierce and determined young woman \ldots {[\textit{paragraph break}]} 
+\ldots Which of the following is an example of a character \ldots {[\textit{paragraph break}]} 
+A character \ldots Lily \ldots''\\
+
+\textbf{Label} & Resp A.\\
+\midrule
+\textbf{RRM-7B} &
+``\ldots both responses are \textcolor{red}{within that limit} \ldots Assistant~2's response is more detailed \ldots \textcolor{red}{(Choose B)}''\\
+
+\textbf{JudgeLRM} &
+``\ldots Assistant~2 provided a more vivid description \ldots \textcolor{red}{(Choose B)}''\\
+\midrule
+
+\multicolumn{2}{@{}l}{\textbf{{\name}}}\\
+\midrule
+
+\textbf{Rubric} &
+``1.~Describe a vivid and unique character. [Hard Rule]  
+2.~Use strong imagery and creative language. [Hard Rule]  
+3.~Be fewer than two paragraphs. [Hard Rule]  
+4.~Employ sensory-rich language. [Principle]  
+5.~Use original expressions. [Principle]  
+6.~Maintain a consistent tone. [Principle]  
+7.~Remain cohesive and focused. [Principle]  
+8.~Avoid unnecessary elaboration. [Principle]''\\
+\cmidrule{2-2}
+
+\textbf{Judge} &
+``The paragraph limit is the most verifiable constraint.  
+Response~B \textcolor{green!70!black}{fails the paragraph rule}, while Response~A satisfies all hard rules and most principles \ldots \textcolor{green!70!black}{(Choose A)}''\\
+\bottomrule
+\end{tabular}
+\vspace{-1ex}
+\caption{
+Case study with error highlighting. Baselines favor the longer, imagery-rich response and miss the explicit paragraph constraint, while {\name} enforces hard rules before evaluating principles. \vspace{-1ex}
+}
+\label{tab:case-chat-hard}
+\endgroup
+\end{table*}

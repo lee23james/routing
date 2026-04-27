@@ -1,0 +1,254 @@
+{
+  "paper_id": "smr_004_steer",
+  "title": "Confidence-Guided Stepwise Model Routing for Cost-Efficient Reasoning (STEER)",
+  "authors": [
+    "Sangmook Lee",
+    "Dohyung Kim",
+    "Hyukhun Koh",
+    "Nakyeong Yang",
+    "Kyomin Jung"
+  ],
+  "affiliation": "Seoul National University",
+  "year": 2026,
+  "venue": "AAAI",
+  "venue_type": "conference",
+  "arxiv_id": "2511.06190",
+  "tier": "A*",
+  "must_cite": true,
+  "status": "parsed",
+  "task": [
+    "stepwise_model_routing",
+    "cost_efficient_reasoning",
+    "confidence_based_routing"
+  ],
+  "subtopic": [
+    "logit_confidence",
+    "gaussian_mixture_model",
+    "domain_agnostic_routing",
+    "probe_then_dispatch"
+  ],
+  "background": {
+    "problem_context": "Existing stepwise model routing methods (RSD, SpecReason) depend on either trained Process Reward Models (PRMs) or LLM-as-judge evaluation, both of which introduce external model dependencies. PRMs suffer from domain shift when applied to tasks outside their training distribution, and LLM-as-judge adds significant latency per step. A routing signal that is model-internal, training-free, and domain-agnostic would be ideal.",
+    "prior_limitations": [
+      "PRM-based methods (RSD, TRIM) depend on external trained models that suffer from domain shift and require costly training data collection (e.g., Monte Carlo rollouts)",
+      "LLM-as-judge methods (SpecReason) require a full LLM forward pass for verification, adding per-step latency",
+      "Generate-then-verify paradigm incurs sunk costs: at low acceptance rates, total FLOPs can exceed using the large model alone (since both small and large model are invoked)",
+      "No prior method uses model-internal signals for routing without any external model or training"
+    ],
+    "key_observation": "The small model's own logit distribution contains rich information about its confidence. When the model is confident (high max logit), it is likely generating a correct step; when uncertain (low max logit), the step is likely erroneous and should be routed to a larger model. This confidence signal is free to compute (available from the generation forward pass) and domain-agnostic."
+  },
+  "motivation": "Existing step-level routing methods depend on external trained models (PRM) or expensive LLM-as-judge verification, limiting their domain robustness and introducing additional compute overhead. STEER proposes that the small model's own logit-based confidence is a superior routing signal: it is free to compute (extracted directly from the generation forward pass), requires no external model, is inherently domain-agnostic, and correlates well with step correctness. By calibrating confidence distributions with a Gaussian Mixture Model (GMM), STEER achieves the routing quality of PRM/LLM-judge methods without their costs and domain limitations.",
+  "novelty_claims": [
+    "First domain-agnostic, external model-free stepwise routing framework that uses only model-internal confidence signals",
+    "Introduction of GMM-based posterior routing: confidence distributions are modeled as a mixture of 'confident' and 'unconfident' Gaussians, enabling probabilistic routing decisions",
+    "Probe-then-dispatch paradigm: routing decision is made BEFORE full step generation, avoiding the sunk cost of generate-then-verify methods",
+    "Demonstrates effectiveness across both math reasoning AND general reasoning tasks, unlike PRM-based methods that are math-specific"
+  ],
+  "problem_statement": "Given a small model M_w and a large model M_s, route individual reasoning steps to the appropriate model based solely on model-internal confidence signals, without requiring any external routing model, PRM, or training data collection.",
+  "core_idea": "Extract logit-based confidence scores from the small model during generation. Compute token-level confidence as φ_ij = max(z_ij) (the maximum logit value for each token). Aggregate to step-level confidence Φ_i by averaging over relevant tokens (math expression tokens for math tasks, all tokens for general tasks). Model the distribution of step-level confidence scores as a two-component Gaussian Mixture Model: one Gaussian for 'confident' steps and one for 'unconfident' steps. Compute the posterior probability P(confident|Φ_i) and route to the large model when this falls below a threshold γ.",
+  "extended_summary": "STEER identifies that the small model's maximum logit values contain rich confidence information that is inherently available during generation at zero additional cost. For each token j in step i, the token-level confidence φ_ij is the maximum value in the logit vector (before softmax). The step-level confidence Φ_i aggregates these: for math domains, only logits of mathematical expression tokens are averaged (to avoid dilution by formatting tokens); for general domains, all tokens are averaged. The distribution of step-level confidences across all steps in a batch naturally forms a bimodal pattern — confident steps cluster high, unconfident steps cluster low. STEER fits a two-component GMM to this distribution and computes the posterior P(confident|Φ_i). Steps where P(confident|Φ_i) < γ are routed to the large model. The GMM fitting is done on-the-fly for each batch (group of problems), making it adaptive to the data distribution without any offline training. Key advantage: routing latency is O(1) (a single GMM probability computation), versus O(N) for PRM (a full model forward pass) or O(N²) for LLM-as-judge. STEER achieves +20% accuracy with 48% fewer FLOPs on AIME compared to standalone large model, and generalizes to non-math benchmarks (ACPBench, MuSiQue, KOR-Bench).",
+  "method_pipeline": [
+    {
+      "step": 1,
+      "name": "Step generation with logit extraction",
+      "description": "Small model generates reasoning step. During generation, extract max logit values for each token: φ_ij = max(z_ij)"
+    },
+    {
+      "step": 2,
+      "name": "Step-level confidence aggregation",
+      "description": "Aggregate token-level confidence to step-level: Φ_i = mean(φ_ij) for relevant tokens. For math: only math expression tokens. For general: all tokens"
+    },
+    {
+      "step": 3,
+      "name": "GMM-based confidence calibration",
+      "description": "Fit a 2-component GMM to the distribution of step-level confidences across the current batch. This separates confident (high) and unconfident (low) steps"
+    },
+    {
+      "step": 4,
+      "name": "Posterior routing decision",
+      "description": "Compute P(confident|Φ_i) for each step. If P < γ (threshold), route that step to the large model; otherwise accept the small model's step"
+    },
+    {
+      "step": 5,
+      "name": "Large model regeneration (conditional)",
+      "description": "For routed steps, the large model regenerates the step from the current reasoning context. The large model's step replaces the small model's step"
+    }
+  ],
+  "representation": {
+    "input": ["reasoning_problem_query"],
+    "internal": ["token_level_logit_confidences", "step_level_confidence_scores", "gmm_parameters"],
+    "output": ["complete_reasoning_chain_with_answer"]
+  },
+  "architecture": {
+    "small_model": "Gemma3-Instruct-4B, Qwen2.5-Instruct-1.5B, Qwen2.5-Math-Instruct-1.5B",
+    "large_model": "Gemma3-Instruct-12B, Qwen2.5-Instruct-7B, Qwen2.5-Math-Instruct-7B",
+    "routing_mechanism": "GMM posterior probability on logit-based confidence",
+    "routing_paradigm": "probe_then_dispatch",
+    "requires_training": false,
+    "requires_external_model": false,
+    "key_modules": [
+      "Logit extractor (from generation forward pass, zero additional cost)",
+      "Domain-aware token selector (math expressions vs all tokens)",
+      "Two-component GMM fitter (online, per-batch)",
+      "Posterior probability comparator"
+    ],
+    "routing_signal": "Max logit confidence, GMM-calibrated",
+    "routing_granularity": "step-level",
+    "routing_latency": "O(1) — single GMM probability computation"
+  },
+  "design_choices": [
+    {
+      "choice": "Max logit rather than entropy or max probability as confidence metric",
+      "rationale": "Empirically outperforms both alternatives, especially in borderline scenarios. Max logit is scale-aware (preserves information about magnitude of model certainty) while probability saturates near 1.0 for confident predictions"
+    },
+    {
+      "choice": "GMM calibration rather than raw threshold on confidence",
+      "rationale": "Raw confidence scores vary significantly across model families and tasks. GMM normalizes the distribution relative to the current batch, making the threshold γ interpretable as a posterior probability regardless of absolute confidence scale"
+    },
+    {
+      "choice": "Domain-aware token selection for confidence aggregation",
+      "rationale": "Mathematical expression tokens carry the core reasoning signal. Including formatting and connector tokens ('Therefore', 'Next') dilutes the confidence signal. For general tasks, no such distinction is needed"
+    },
+    {
+      "choice": "Probe-then-dispatch rather than generate-then-verify",
+      "rationale": "Avoids the sunk cost problem of generate-then-verify: if routing decision is made before or during generation, compute is only spent on the model that will actually be used"
+    }
+  ],
+  "learning": {
+    "supervision": "none",
+    "training_strategy": "no_training_required",
+    "key_hyperparameters": [
+      "γ (posterior probability threshold, typically 0.5)",
+      "K (batch/group size for GMM fitting, robust K=1 to K=10)"
+    ]
+  },
+  "datasets": [
+    "MATH-500",
+    "AIME 2024",
+    "OmniMath",
+    "ACPBench",
+    "MuSiQue",
+    "KOR-Bench"
+  ],
+  "evaluation": {
+    "metrics": [
+      "Accuracy",
+      "FLOPs",
+      "Accuracy-FLOPs Pareto curves",
+      "Routing latency",
+      "Large model usage rate"
+    ],
+    "flops_definition": "2 × N_params × n_tokens, standard transformer approximation"
+  },
+  "quantitative_results": [
+    {
+      "dataset": "AIME",
+      "metric": "Accuracy improvement",
+      "value": 20.0,
+      "unit": "% points",
+      "config": "Qwen2.5-Math 1.5B/7B",
+      "notes": "Simultaneously +20% accuracy and -48% FLOPs vs standalone large model"
+    },
+    {
+      "dataset": "AIME",
+      "metric": "FLOPs reduction",
+      "value": 48.0,
+      "unit": "%",
+      "config": "Qwen2.5-Math 1.5B/7B"
+    },
+    {
+      "dataset": "Math benchmarks (aggregate)",
+      "metric": "Pareto dominance",
+      "value": "yes",
+      "notes": "STEER dominates all baselines (RSD, SpecReason, query-level router) on accuracy-FLOPs Pareto curves"
+    },
+    {
+      "dataset": "General reasoning (ACPBench/MuSiQue/KOR-Bench)",
+      "metric": "Pareto dominance",
+      "value": "yes",
+      "notes": "STEER generalizes to non-math tasks, unlike PRM-based methods"
+    },
+    {
+      "dataset": "All",
+      "metric": "Routing latency",
+      "value": "O(1)",
+      "notes": "GMM posterior computation is negligible compared to PRM forward pass (O(N)) or LLM-as-judge"
+    }
+  ],
+  "baselines_compared": [
+    {
+      "method": "RSD (Liao et al. 2025)",
+      "delta": "STEER achieves better Pareto front on all benchmarks. RSD's post-hoc evaluation causes FLOPs to exceed large-model-only at low acceptance rates",
+      "metric": "Accuracy-FLOPs Pareto"
+    },
+    {
+      "method": "SpecReason (Pan et al. 2025)",
+      "delta": "STEER has orders-of-magnitude lower routing latency (O(1) vs LLM forward pass) with comparable accuracy-cost tradeoffs",
+      "metric": "Routing latency + Accuracy-FLOPs"
+    },
+    {
+      "method": "Query-level router (Damani et al.)",
+      "delta": "Step-level routing significantly outperforms query-level routing on all metrics",
+      "metric": "Accuracy-FLOPs"
+    }
+  ],
+  "ablation_findings": [
+    {
+      "ablation": "Confidence metric: max logit vs entropy vs max probability",
+      "effect": "Max logit consistently outperforms alternatives across all model families",
+      "key_insight": "Max logit preserves magnitude information that entropy and probability compress"
+    },
+    {
+      "ablation": "GMM vs raw threshold on confidence",
+      "effect": "GMM significantly outperforms raw thresholding, especially across model families with different confidence scales",
+      "key_insight": "GMM calibration is essential for cross-model generalizability"
+    },
+    {
+      "ablation": "Group size K for GMM fitting",
+      "effect": "Robust across K=1 to K=10. Even K=1 (single problem) gives reasonable results",
+      "key_insight": "The bimodal structure of confidence distributions is robust even with small samples"
+    },
+    {
+      "ablation": "Domain-aware vs domain-agnostic token selection",
+      "effect": "Math expression token selection outperforms all-token averaging for math tasks",
+      "key_insight": "Formatting and connector tokens are always high-confidence and dilute the signal"
+    },
+    {
+      "ablation": "Large model usage vs problem difficulty",
+      "effect": "On OmniMath, large model usage rate increases monotonically with problem difficulty (level 1→10)",
+      "key_insight": "STEER naturally allocates more compute to harder problems without explicit difficulty awareness"
+    }
+  ],
+  "main_findings": [
+    "Model-internal logit confidence is a surprisingly strong routing signal — competitive with PRM and LLM-as-judge while being free to compute and domain-agnostic",
+    "GMM calibration is essential for making confidence-based routing work across different model families and tasks",
+    "STEER achieves +20% accuracy with 48% fewer FLOPs on AIME, dominating all baselines on Pareto curves",
+    "The probe-then-dispatch paradigm avoids the sunk cost problem of generate-then-verify methods",
+    "Cross-domain generalization: STEER works on math AND general reasoning tasks, unlike PRM-based methods"
+  ],
+  "limitations": [
+    "Logit-based confidence is model-specific — different model families have different confidence calibration, hence the need for GMM",
+    "Step boundaries still defined by heuristic delimiters (\\n\\n)",
+    "Batch-level GMM fitting means routing quality may degrade for very small batches (single problem)",
+    "Max logit confidence may not capture all aspects of step quality (e.g., a model can be confidently wrong)"
+  ],
+  "relevance_to_our_work": {
+    "relation": "comparison_and_contrast",
+    "key_connections": [
+      "STEER's zero-cost routing signal concept aligns with our zero-cost rubric scoring — both avoid external model overhead",
+      "STEER evaluates model confidence (how sure the model is), while our rubrics evaluate routing quality (whether the routing decision was good) — these are orthogonal signals",
+      "STEER's probe-then-dispatch paradigm could be combined with our rubric reward: use confidence for initial routing, rubrics for RL training",
+      "STEER's domain-agnostic advantage is relevant: our rubrics are also domain-agnostic since they evaluate routing patterns rather than reasoning content"
+    ],
+    "advantage_of_steer": "No external model dependency, lowest routing latency, works across domains",
+    "advantage_of_our_approach": "Dense reward for RL training (rubrics provide multi-dimensional feedback), explicit routing quality evaluation rather than indirect confidence proxy"
+  },
+  "keywords": [
+    "logit_confidence",
+    "gaussian_mixture_model",
+    "domain_agnostic_routing",
+    "probe_then_dispatch",
+    "zero_cost_routing",
+    "stepwise_model_routing"
+  ]
+}

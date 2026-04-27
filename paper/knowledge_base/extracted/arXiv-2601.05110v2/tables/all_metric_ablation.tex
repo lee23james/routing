@@ -1,0 +1,25 @@
+% ---------------------------------------------------
+\begin{table*}[t]
+\centering
+% \small
+\setlength{\tabcolsep}{5pt} % 调整列间距以适应页面宽度
+\begin{tabular}{lcccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Variants}} & \multicolumn{2}{c}{\textbf{AIME24}} & \multicolumn{2}{c}{\textbf{AIME25}} & \multicolumn{2}{c}{\textbf{LCBv5}} & \multicolumn{2}{c}{\textbf{LCBv6}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ \\
+\midrule
+\textbf{\approach} & \textbf{60.83} & \textbf{143} & \textbf{51.67} & \textbf{163} & \textbf{54.64} & \textbf{160} & \textbf{48.29} & \textbf{160} \\
+\quad w/ step-wise entropy & 58.33 & 163 & 46.67 & 178 & 53.44 & 185 & 47.29 & 194 \\
+\quad w/ step-wise perplexity & 59.17 & 159 & 47.50 & 181 & 53.29 & 181 & 47.43 & 194 \\
+% \quad w/ random score& XX.X & 1XX & 45.83 & 174 & XX.X & 1XX & XX.X & 1XX \\
+
+\bottomrule
+\end{tabular}
+\caption{
+Comprehensive ablation studies of metrics on four benchmarks. 
+We report accuracy (Acc) and average generation latency (Lat) measured in seconds.
+}
+\label{tab:full_metric_ablation}
+\end{table*}
+% ---------------------------------------------------

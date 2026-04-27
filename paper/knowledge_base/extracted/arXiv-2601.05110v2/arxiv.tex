@@ -1,0 +1,881 @@
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[preprint]{acl}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+
+\makeatletter
+\def\@fnsymbol#1{\ensuremath{\ifcase#1\or \dagger\or *\or \ddagger\or
+   \mathsection\or \mathparagraph\or \|\or \dagger\dagger
+   \or \ddagger\ddagger \else\@ctrerr\fi}}
+\makeatother
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewrH1r font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{graphicx}
+
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{algorithm}
+% \usepackage{algorithmic}
+\usepackage{algpseudocode}
+
+\usepackage{xspace}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{colortbl}
+
+
+\usepackage[breakable]{tcolorbox} % 用于创建美观的盒子
+\usepackage{inconsolata}        % 推荐的等宽字体，使代码更专业
+
+
+\newcommand{\todoc}[2]{{\textcolor{#1}{{[#2]}}}}
+\newcommand{\todoblue}[1]{\todoc{blue}{\textbf{#1}}}
+\newcommand{\todogreen}[1]{\todoc{green!50!black}{{#1}}}
+\newcommand{\todored}[1]{\todoc{red}{\textbf{#1}}}
+\newcommand{\todoyellow}[1]{\todoc{yellow!85!black}{\textbf{#1}}}
+\newcommand{\todoviolet}[1]{\todoc{violet}{\textbf{#1}}}
+\newcommand{\gu}[1]{\todoblue{Gu: #1}}
+\newcommand{\zeng}[1]{\textcolor[rgb]{1,0.66,0}{\textbf{[Zeng: #1]}}}
+\newcommand{\zhang}[1]{\todoyellow{Zhang: #1}}
+\newcommand{\shi}[1]{\todoviolet{Shi: #1}}
+\newcommand{\huchao}[1]{\todogreen{HuChao: #1}}
+
+\newcommand{\approach}{{GlimpRouter}\xspace}
+
+
+\title{GlimpRouter: Efficient Collaborative Inference by Glimpsing \\
+One Token of Thoughts}
+%\title{A Glimpse of Thought: Efficient Collaborative Inference by Skimming One Token of Thoughts}
+%\title{A Glimpse of Thought: Accelerating Large Reasoning Models via Start-Token-Guided Routing}
+
+\author{
+  Wenhao Zeng\thanks{Equal contribution.}\quad
+  Xuteng Zhang\footnotemark[1] \quad
+  Yuling Shi \quad
+  Chao Hu \quad \\
+  \textbf{Yuting Chen} \quad
+  \textbf{Beijun Shen} \quad
+  \textbf{Xiaodong Gu}\thanks{Corresponding author} \\
+  Shanghai Jiao Tong University \quad \\
+  \texttt{\{zengwh\_cs, scottzhang, xiaodong.gu\}@sjtu.edu.cn}
+}
+
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Large Reasoning Models (LRMs) achieve remarkable performance by explicitly generating multi-step chains of thought, but this capability incurs substantial inference latency and computational cost. Collaborative inference offers a promising solution by selectively allocating work between lightweight and large models, yet a fundamental challenge remains: determining when a reasoning step requires the capacity of a large model or the efficiency of a small model. Existing routing strategies either rely on local token probabilities or post-hoc verification, introducing significant inference overhead.
+In this work, we propose a novel perspective on step-wise collaboration: the difficulty of a reasoning step can be inferred from its very first token. Inspired by the ``Aha Moment'' phenomenon in LRMs, we show that the entropy of the initial token serves as a strong predictor of step difficulty. 
+Building on this insight, we introduce \approach, a training-free step-wise collaboration framework. \approach employs a lightweight model to generate only the first token of each reasoning step and routes the step to a larger model only when the initial token entropy exceeds a threshold. Experiments on multiple benchmarks demonstrate that our approach significantly reduces inference latency while preserving accuracy. For instance, \approach attains a substantial 10.7\% improvement in accuracy while reducing inference latency by 25.9\% compared to a standalone large model on AIME25. These results suggest a simple yet effective mechanism for reasoning: allocating computation based on a glimpse of thought rather than full-step evaluation.
+\end{abstract}
+
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=\columnwidth]{}
+%     \caption{
+
+%     }
+%     \label{fig:introduction}
+% \end{figure}
+
+
+% --- Introduction Section ---
+\section{Introduction}
+\label{sec:introduction}
+
+Large reasoning models, such as DeepSeek-R1~\cite{guo2025deepseek} and OpenAI o1/o3~\cite{jaech2024openai, openai2025o3}, have demonstrated remarkable performance across a wide range of complex reasoning tasks by explicitly generating structured reasoning steps~\cite{yang2025elaboration,wang2025vrag,wang2025vidorag,chen2025swe,li2025swe,hu2025flowmaltrans,zhang2025cf,zhang2025mmcot}. However, this capability comes at a high cost: extended reasoning chains inevitably incur high inference latency and substantial computational overhead, severely limiting the practicality of LRMs in latency-sensitive and resource-constrained settings.
+
+To alleviate this bottleneck, collaborative inference has emerged as a promising paradigm~\cite{she2025hawkeye, xiao2025proxythinker, qu2025survey}. The key idea is that multiple models with heterogeneous capabilities and costs are orchestrated to jointly solve a task: lightweight models handle routine or easy tasks, while more powerful but expensive models are invoked selectively for difficult ones~\cite{chen2025survey, wang2025mixllm}. 
+Existing collaboration strategies generally fall into two categories. Token-level methods, such as Speculative Decoding~\cite{leviathan2023fast, fu2025r2r}, accelerate generation by allowing a small model to propose candidate tokens that are then verified (and possibly accepted) by a larger model, reducing the number of expensive forward passes. 
+In contrast, step-level methods attempt to route entire reasoning steps between models. They typically depend on \textit{post-hoc} verification, such as LLM-as-a-judge~\cite{shi2025speccot,pan2025specreason}, or on averaged uncertainty metrics (e.g., mean perplexity or entropy)~\cite{cui2025stepwise, zhang2025entropy}.
+
+Despite their promise, determining the optimal allocation of tasks between large and small models remains a fundamental challenge.
+Token-level methods rely primarily on local token probabilities and frequently switch models at a fine granularity, while step-level strategies require evaluating entire reasoning steps before making routing decisions. 
+Both approaches introduce non-trivial computational overhead, which can partially or even fully offset their intended efficiency gains. 
+%Moreover, averaged metrics suffer from a critical ``signal dilution problem'': a single uncertain decision point within a reasoning step can be obscured by many high-confidence tokens that follow, causing the step’s true difficulty to be underestimated~\cite{zeng2025pruning}.
+
+In this work, we advance a new perspective: \textit{Can we judge the difficulty of a reasoning step at the very beginning?} Inspired by the ``Aha Moment'' phenomenon observed in LRMs~\cite{guo2025deepseek}, previous works suggest that the onset of a reasoning step--often marked by discourse cues such as ``Wait'', ``But'', or ``So''--represents a cognitive pivot that shapes the entire subsequent reasoning trajectory~\cite{wang2025beyond,yang2025speculative,zeng2025pruning}. We hypothesize that the information associated with this \textit{initial token} provides a more discriminative signal of step-level difficulty than averaged statistics over the full step.
+To validate this hypothesis, we analyze the uncertainty distribution of the reasoning steps across various tasks (Section~\ref{sec:motivation}). The experimental results show that the entropy of the initial tokens exhibits an exceptionally high variance, indicating it is a powerful discriminator: steps with low initial entropy typically correspond to routine derivations that a small model can readily process, whereas steps with high initial entropy indicate critical cognitive bifurcations that require the collaboration of larger, more powerful models.
+
+Building on this insight, we propose \textbf{\approach}, a novel training-free framework for efficient collaborative inference. At each reasoning step, a lightweight model is first used to generate only the initial token of the step. If the entropy of this token falls below a predefined threshold, the lightweight model proceeds to generate the entire step; otherwise, the generated context is seamlessly handed over to a larger and more capable model. In effect, this mechanism essentially operationalizes the principle of ``\textit{A Glimpse of Thought}'': a minimal signal from the onset of a reasoning step governs the computational budget allocated to its full generation.
+
+We empirically evaluate our approach on a diverse set of reasoning benchmarks, including mathematical reasoning (AIME), challenging general reasoning (GPQA~\cite{rein2024gpqa}), and code generation (LiveCodeBench~\cite{jain2024livecodebench}). 
+Across all benchmarks, \approach achieves a superior trade-off between efficiency and performance. 
+For instance, on the AIME25 benchmark, our method attains a substantial \textbf{10.7\%} improvement in accuracy while simultaneously reducing inference latency by \textbf{25.9\%} compared to a standalone large model. Moreover, we demonstrate that our step-level routing strategy is orthogonal to token-level speculative decoding, enabling complementary and compound speedups when integrated.
+
+Our contributions are summarized as follows:
+\begin{itemize}
+    \setlength{\itemsep}{0pt}
+    \item We perform an analysis of the uncertainty distribution across reasoning steps and identify that the entropy of the initial token serves as an indicator of reasoning difficulty.
+    \item We propose \textbf{\approach}, a simple yet effective mechanism that enables training-free, step-aware collaboration between models.
+    \item Extensive experiments verify that our method significantly reduces latency while maintaining or even enhancing the reasoning efficacy of large models, offering a practical solution for deploying efficient LRMs.
+\end{itemize}
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/distribution.pdf}
+    \caption{
+    Comparison of the distributions of different uncertainty metrics. Unlike other metrics, which exhibit a generic unimodal distribution, the entropy of initial thought tokens ($\mathbf{H}_\text{init}$) displays a distinct bimodal and heavy-tailed distribution. This indicates that $\mathbf{H}_\text{init}$ serves as a discriminative signal, effectively capturing the ``Aha Moments'' that distinguish complex reasoning steps from routine derivations.
+    }
+    \label{fig:distribution}
+    \vspace{-10pt}
+\end{figure*}
+
+
+\section{A Preliminary Study}
+\label{sec:motivation}
+Previous works have suggested that the onset of a reasoning step--often marked by discourse cues such as ``Wait'', ``But'', or ``So''--represents a cognitive pivot that shapes the entire subsequent reasoning trajectory~\cite{wang2025beyond,yang2025speculative,zeng2025pruning,zhang2025gam}. Building on this intuition, we hypothesize that the uncertainty associated with the \textit{initial token} of a reasoning step provides a more discriminative signal of step-level difficulty than statistics aggregated over the full step. In other words, the essential difficulty information is concentrated at the very beginning of each reasoning step. 
+In this section, we analyze the uncertainty distribution for the reasoning steps and examine how different uncertainty metrics correlate with step-wise difficulty.
+
+\subsection{Study Design}
+\label{ssec:metrics}
+%Recent work has demonstrated that the quality and uncertainty of reasoning traces can be effectively estimated using the model's internal token distributions~\cite{kang2025scalable, fu2025deep}. 
+To quantify uncertainty within a reasoning step, we analyze entropy-based metrics derived from the model’s conditional probability distribution $P_\theta$. It is well-established that the internal logits of LLMs serve as a reliable proxy for model confidence~\cite{malinin2020uncertainty, kuhn2023semantic}. 
+Let \(s_k=\{t_1,\ldots,t_L\}\) denote the \(k\)-th reasoning step with \(L\) tokens, and \(\mathbf{c}_k\) be the preceding context of this step.
+
+\paragraph{Step Entropy ($\mathbf{H}_\text{step}$).} $\mathbf{H}_\text{step}$ quantifies the average uncertainty across all tokens in a reasoning step:
+\vspace{-20pt}
+\begin{equation}
+    \mathbf{H}_\text{step}(s_k) = \frac{1}{L} \sum_{i=1}^{L} \mathbf{H}(P_\theta(\cdot | t_{<i}, \mathbf{c}_k))
+\end{equation}
+where $\mathbf{H}(p) = - \sum_{v \in V} p(v) \log p(v)$ denotes the Shannon entropy of a distribution~\cite{shannon1948mathematical}. 
+This metric treats all tokens within the step uniformly by averaging uncertainty across the entire sequence.
+
+\paragraph{Initial Token Entropy ($\mathbf{H}_\text{init}$).} In contrast, \(\mathbf{H}_\text{init}\) captures the uncertainty of the \emph{initial token} for each step:
+\begin{equation}
+    \mathbf{H}_\text{init}(s_k) = \mathbf{H}(P_\theta(t_1 | \mathbf{c}_k))
+\end{equation}
+Unlike step-level averages, $\mathbf{H}_\text{init}$ isolates the uncertainty at the onset of the step, which we hypothesize to be an indicator of the step’s difficulty.
+
+
+% \shi{What types of tokens typically appear as the first token in a reasoning step? Could they be non-semantic formatting symbols (e.g., "1.", "Step 1", etc.) rather than meaningful content words? If so, do we skip such syntax tokens, or can our method still work effectively when $t_1$ is a formatting token like "Step 1"?}
+% \zeng{Considering that $t_1$ might be a formatting marker (e.g., "step"), we believe that high entropy at such positions reflects the model's fundamental uncertainty about the logical trajectory—whether a new step is initiated, the direction of reasoning is changed, or the thought process ends. For example, the "Step" in "Step 1" is typically high-entropy because it initiates a new step; while "Step X" continues from the previous content and is typically low-entropy. Therefore, $\mathbf{H}_\text{init}$ can serve as a reliable indicator of step-level difficulty.}\shi{I see}
+
+As additional baselines, we consider the following commonly used metrics in collaborative inference.
+
+\paragraph{Step-wise Perplexity ($\mathbf{PPL}_\text{step}$).} $\mathbf{PPL}_\text{step}$ measures the exponentiated average negative log-likelihood over the entire step:
+\begin{equation}
+    \mathbf{PPL}_\text{step}(s_k) = \exp\left( -\frac{1}{L} \sum_{i=1}^{L} \log P_\theta(t_i | t_{<i}, \mathbf{c}_k) \right)
+\end{equation}
+Like $\mathbf{H}_\text{step}$, $\mathbf{PPL}_\text{step}$ aggregates uncertainty uniformly across all tokens.
+
+\paragraph{LLM-as-a-Judge.} It assesses the validity of a reasoning step using the large model directly. Given a step $s_k$ and its context $\mathbf{c}_k$, the LLM assigns a scalar score $S \in \{0, 1, \dots, 9\}$.
+% \begin{equation}
+%     \text{LLMJudge}(s_k) = \mathcal{L}(s_k, \mathbf{c}_k)
+% \end{equation}
+% \gu{Please specify the concrete LLM we use in this metric} \zeng{Just the corresponding large LLM in model group}
+We note that this metric requires an additional computationally expensive inference pass and is therefore unsuitable for efficiency-critical routing decisions.
+
+
+We examine the reasoning traces using Qwen3-4B, Qwen3-32B~\cite{yang2025qwen3}, and DeepSeek-R1-Distill-Qwen-32B~\cite{guo2025deepseek} on the AIME and LiveCodeBench datasets~\cite{jain2024livecodebench}, collecting over 10 million tokens of reasoning steps. %This extensive scale ensures the statistical robustness of our observations regarding metric distributions and model alignment.
+
+
+
+
+% % ---------------------------------------------------
+% \begin{figure}[tbh]
+%     \centering
+%     \includegraphics[width=\columnwidth]{figures/sbert_bleu_vs_entropy-v1.pdf}
+%     \caption{Alignment between the outputs generated by small and large models under various $\mathbf{H}_\text{init}$ intervals.} 
+%     \label{fig:similarity}
+% \end{figure}
+% % ---------------------------------------------------
+
+% ---------------------------------------------------
+\begin{figure}[tbh]
+    \centering
+    \includegraphics[width=\columnwidth]{figures/sbert_bleu_vs_entropy.pdf}
+    \caption{Alignment between the outputs generated by small and large models under various $\mathbf{H}_\text{init}$ intervals.} 
+    \label{fig:similarity}
+    \vspace{-10pt} 
+\end{figure}
+% ---------------------------------------------------
+
+
+% ---------------------------------------------------
+\begin{figure*}[tbh]
+    \centering
+    \includegraphics[width=\textwidth]{figures/overview5.pdf}
+    \caption{
+The overall framework of \textbf{\approach}. The collaborative inference pipeline operates in a step-wise manner. At the onset of each reasoning step, the SLM first generates a ``glimpse'' (the initial token $T_k$). GlimpRouter then computes the entropy $\mathbf{H}_\text{init}$ of this token to gauge step difficulty. Based on the threshold, the system dynamically routes the generation: (1) Delegate (Low $\mathbf{H}_\text{init}$): Routine steps are fully generated by the efficient SLM. (2) Intervene (High $\mathbf{H}_\text{init}$): Complex steps signaling cognitive pivots are routed to the capable LLM for robust reasoning. Finally, the LLM generates the conclusive answer based on the aggregated collaborative chain.
+}
+    \label{fig:framework4}
+    \vspace{-10pt}
+\end{figure*}
+% ---------------------------------------------------
+
+
+
+\subsection{Results and Analysis}
+\label{ssec:empirical_analysis}
+
+\paragraph{Information Distribution within Reasoning Steps.} 
+%We first investigate the discriminative capacity of each metric to distinguish between ``trivial'' and ``critical'' steps. 
+Figure~\ref{fig:distribution} illustrates the distributions reflected by the four metrics.
+It is evident that both $\mathbf{PPL}_\text{step}$ and $\mathbf{H}_\text{step}$ exhibit narrow, unimodal distributions clustered around central values. We attribute this to the \emph{signal dilution} effect: a reasoning step typically contains a few critical decision tokens followed by a long sequence of deterministic syntactic tokens. Averaging over the entire step smooths out the local spikes of uncertainty, making these metrics insensitive to the actual difficulty.
+Similarly, the LLM-as-a-Judge distribution is discrete and highly skewed towards high scores (saturation), lacking the granularity required for fine-grained routing thresholds. 
+% Moreover, its prohibitive latency disqualifies it from real-time, efficient inference.
+In contrast, $\mathbf{H}_\text{init}$ presents a distinct bimodal distribution with a heavy tail. The clear separation between the low-entropy peak (routine steps) and the high-entropy tail (complex reasoning) suggests that $\mathbf{H}_\text{init}$ naturally functions as a high-sensitivity discriminator for routing.
+
+\paragraph{Correlations to Model Routing.}
+Motivated by the observation that most information in a reasoning step resides at its onset, we further examine whether this signal can serve as an indicator for model routing, where a lightweight language model can reliably substitute a large model. To this end, we partition reasoning steps into intervals based on $\mathbf{H}_\text{init}$ predicted by the small model. For each interval, we evaluate the alignment between the outputs generated by the small and large models, conditioned on the same preceding context \(\mathbf{c}\). We quantify alignment using two widely used similarity metrics: BLEU-4~\cite{lin2004orange}, which captures lexical overlap, and SBERT~\cite{reimers-2019-sentence-bert}, which measures semantic similarity. %These metrics allow us to assess whether low initial-token uncertainty correlates with the ability of a lightweight model to produce outputs comparable to those of a larger model.
+As shown in Figure~\ref{fig:similarity}, we observe a strictly monotonic negative correlation between $\mathbf{H}_\text{init}$ and both similarity metrics. In the low-$\mathbf{H}_\text{init}$ regime, the small model’s outputs closely align with those of the large model, indicating that such steps can be handled competently by the lightweight model. In contrast, as $\mathbf{H}_\text{init}$ increases, the alignment degrades substantially, reflecting growing divergence in both surface form and semantic content. This strong correlation provides empirical evidence that $\mathbf{H}_\text{init}$ can be a reliable predictor of step-level difficulty, thereby suggesting a routing strategy in which a small model can substitute a large model in low-$\mathbf{H}_\text{init}$ steps without compromising results.
+To provide concrete intuition for this correlation, we present qualitative case studies in Appendix~\ref{app:case_studies}.
+
+
+% \shi{While Table~\ref{tab:similarity} demonstrates a strong correlation between $\mathbf{H}_\text{init}$ and step difficulty, the core hypothesis that ``the first token's entropy represents the entire step's difficulty'' would be substantially strengthened with concrete case studies. It would be valuable to provide qualitative examples in the Appendix showing: (1) Low-$\mathbf{H}_\text{init}$ cases where both the first token and subsequent reasoning are straightforward (e.g., routine algebraic manipulation), (2) High-$\mathbf{H}_\text{init}$ cases where the first token signals genuine uncertainty that persists throughout the step (e.g., choosing between multiple solution strategies). Such case studies would help readers develop intuition about when and why $\mathbf{H}_\text{init}$ works as a difficulty predictor, making the approach more interpretable and defensible against potential challenges.} \zeng{TODO in Appendix}
+
+
+% \input{tables/similarity}
+
+
+
+% \begin{figure*}[t]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{figures/overview.pdf}
+%     \caption{
+%     The overall framework of \textbf{\approach}. 
+%     The pipeline consists of..........}
+%     \label{fig:framework}
+% \end{figure*}
+
+% \begin{figure*}[t]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{figures/overview2.pdf}
+%     \caption{
+%     The overall framework of \textbf{\approach}. 
+%     The pipeline consists of..........}
+%     \label{fig:framework2}
+% \end{figure*}
+
+
+
+% \begin{figure*}[t]
+%     \centering
+%     \includegraphics[width=\textwidth]{figures/overview3.pdf}
+%     \caption{
+%     The overall framework of \textbf{\approach}. 
+%     The pipeline consists of..........}
+%     \label{fig:framework3}
+% \end{figure*}
+
+
+
+% --- Methodology Section ---
+\section{Methodology}
+\label{sec:method}
+
+% In this section, we present \textbf{\approach}, a training-free framework designed to accelerate LRMs through initial-token guided model collaboration. 
+% We first formalize the step-wise collaborative reasoning task as a constrained optimization problem. Subsequently, we introduce our proposed routing mechanism and implementation optimizations that minimize switching overhead. Finally, we describe a hierarchical acceleration strategy that integrates step-level routing with token-level speculative decoding.
+
+
+
+
+
+
+\subsection{Problem Formulation}
+\label{ssec:formulation}
+
+We consider a collaborative inference framework involving a large, high-capacity reasoning model (LLM, $M_L$) and a small computationally efficient model (SLM, $M_S$). 
+Large reasoning models typically output a reasoning process $\mathcal{T}$, often encapsulated within a \texttt{<think>} \dots \texttt{</think>} tag, followed by the final answer $A$. 
+Our framework focuses on accelerating the reasoning process $\mathcal{T}$, while the final answer $A$ is always generated by $M_L$ to ensure correctness.
+Formally, the reasoning process is decomposed into a sequence of steps $\mathcal{T} = \{s_1,\dots, s_K\}$ based on structural delimiters (e.g., double newlines~\cite{pan2025specreason, yang2025speculative}). Each step $s_k$ consists of a sequence of tokens $s_k = (t_1, \dots, t_L)$ and is generated conditioned on the preceding context $\mathbf{c}_k$, which includes the original question and all previous generated steps {\(s_1,\ldots,s_{k-1}\)}.
+The objective of collaborative inference is to dynamically assign each reasoning step $s_k$ to $M_S$ or $M_L$, minimizing overall inference latency while preserving the quality of reasoning required for accurate solutions.
+
+% This can further be formulated as a constrained optimization problem: Let $\mathcal{C}(\cdot)$ denote the computational cost (e.g., latency) and $\mathcal{Q}(\cdot)$ be the reasoning quality. We seek to dynamically assign a binary decision variable $d_k \in \{0, 1\}$ for each step $s_k\in\mathcal{T}$, where $d_k=0$ delegates to $M_S$ and $d_k=1$ intervenes with $M_L$. 
+% The optimization goal is to minimize the total latency subject to a quality constraint:
+
+% \begin{equation}
+% \begin{split}
+% \min_{\{d_k\}_{k=1}^K} 
+% \sum_{k=1}^K \Big[
+%     \mathcal{C}_{\text{probe}}
+%     + (1-d_k)\mathcal{C}(M_S, \mathbf{c}_k) \\
+% \quad
+%     + d_k\mathcal{C}(M_L, \mathbf{c}_k)
+%     + \mathcal{C}_{\text{sys}}
+% \Big]
+% \end{split}
+% \end{equation}
+% \begin{equation*}
+%     \text{s.t.} \quad \mathcal{Q}(\mathcal{T}) \ge \mathcal{Q}(\mathcal{T}_{M_L})
+% \end{equation*}
+% where $\mathbf{c}_k$ denotes the context at step $k$. $\mathcal{C}_{\text{probe}}$ is the cost of the entropy probe, and $\mathcal{C}_{\text{sys}}$ represents the system overhead (e.g., context transfer and routing logic).
+
+
+\subsection{Overview}
+To navigate the efficiency-accuracy trade-off, we propose \textbf{\approach}, a training-free, step-aware collaboration strategy that routes reasoning steps based on the \textit{initial token entropy} ($\mathbf{H}_\text{init}$).
+Figure~\ref{fig:framework4} illustrates the overall pipeline.
+Given an input question, the system operates in a step-wise manner. At the onset of each step, instead of blindly generating the full content, \approach employs $M_S$ to ``glimpse'' the first token, yielding an entropy $\mathbf{H}_\text{init}$ that quantizes the difficulty of the upcoming step: 
+If $\mathbf{H}_\text{init}$ falls below a threshold, the step is deemed routine, and the small model is responsible for continuing the generation.
+Otherwise, the step signals a cognitive pivot, and the context is handed over to a large model for high-quality generation.
+This ``Probe-then-Dispatch'' mechanism ensures that heavy computational resources are allocated solely for critical reasoning steps. Each step is introduced in the following sections.
+The detailed procedure is outlined in Algorithm~\ref{alg:ite_router} in Appendix~\ref{app:alg}.
+
+\subsection{Glimpse: Initial Token Probing} 
+At the beginning of the reasoning step $k$, given the preceding context $\mathbf{c}_k$, the small model $M_S$ is invoked to predict the probability distribution of only the first token $t_{k,1}$. We compute the entropy $\mathbf{H}_\text{init}(s_k)$ of this distribution as a proxy for the cognitive uncertainty of the current reasoning step.
+This probing operation incurs a marginal computational cost equivalent to decoding a single token, unlike methods that necessitate generating an entire reasoning step (typically $L \gg 1$ tokens) before verification. Even in scenarios where the step is subsequently identified as difficult and routed to $M_L$ (thereby discarding the probe), this 1-token overhead is negligible compared to the substantial sunk costs associated with discarding fully generated invalid steps. 
+% Thus, this mechanism ensures high efficiency by strictly limiting the cost of routing decisions.
+
+\subsection{Dynamic Model Routing} 
+Given the entropy of the initial token in the current step, \approach dispatches the generation task to the appropriate model based on a threshold $\tau$:
+
+\noindent \textbf{Delegate ($\mathbf{H}_\text{init}(s_k) \le \tau$):} Low entropy suggests that the small model is confident in the logical progression, and the step is likely routine. Consequently, $M_S$ continues to autoregressively generate the remainder of step $s_k$ until the delimiter is reached. This decision reduces the total cost by maximizing the utilization of the small model.
+
+\noindent \textbf{Intervene ($\mathbf{H}_\text{init}(s_k) > \tau$):} High entropy indicates logical ambiguity or high cognitive load. In this scenario, $M_L$ is selected to generate the step $s_k$. While this incurs a higher computational cost, it leverages the superior reasoning and inherent self-correction capabilities of LRMs~\cite{guo2025deepseek}. Specifically, $M_L$ can rectify potential logical drifts accumulated in the historical context $\mathbf{c}_k$, thereby satisfying the quality constraint. We provide a qualitative analysis of this implicit self-correction behavior in Appendix~\ref{app:case_studies}. 
+% \shi{This self-correction capability is very interesting. It would be valuable to provide a concrete case study in the Appendix demonstrating how $M_L$ detects and corrects logical drifts introduced by $M_S$ in earlier steps.} \zeng{TODO in Appendix}
+
+
+\subsection{Efficient Model Switching}
+A critical requirement for a step-level collaboration system, where every step involves context transitions, is minimizing the model switching overhead. To minimize the system overhead, we leverage prefix caching mechanisms supported by inference engines~\cite{kwon2023efficient, zheng2024sglang}.  
+When routing a request between models, the context $\mathbf{c}_k$, which comprises the question and historical steps, is largely resident in the KV cache from previous interactions. Thus, the context processing is reduced to a highly parallelizable prefill phase rather than a serial re-computation. The resulting switching latency is comparable to decoding a few tokens, ensuring that the computational savings from $M_S$ are not negated by routing overheads.
+
+\subsection{Hierarchical Acceleration}
+\label{ssec:hierarchical}
+
+% \shi{I suggest clarifying the relationship between \approach and Speculative Decoding more explicitly here. Right now, readers might misunderstand that SD is a required component of our method, but our main experiments (Table 1) don't use SD at all? It seems to be only explored as an optional combination in Section 4.3.2. 
+% Perhaps retitle this subsection to something like ``Orthogonality to Token-Level Optimizations'' or ``Compatibility with Token-Level Speculation'' and use language like ``can be further combined'' rather than ``we implement'' will avoid the misunderstanding?} \zeng{you are right}
+
+A distinct advantage of \approach lies in its step-level granularity. This coarse-grained design is inherently orthogonal to token-level optimizations, allowing our framework to be seamlessly integrated with various low-level acceleration techniques to achieve compound speedups. To maximize system throughput, we implement a hierarchical acceleration strategy in Section~\ref{ssec:specdecode}.
+At the inter-step level, \approach acts as a global planner, assigning routine logical steps to $M_S$ to bypass the expensive $M_L$ entirely.
+At the intra-step level, when $M_L$ is invoked, we further accelerate its generation using Speculative Decoding~\cite{leviathan2023fast}. Specifically, we employ a ``Draft-then-Verify'' pipeline where the small draft model $M_S$ proposes token sequences that are verified in parallel by $M_L$.
+
+
+
+
+\input{tables/main_result}
+
+
+
+
+% --- Experiments Section ---
+\section{Experiments}
+\label{sec:experiments}
+
+\subsection{Experimental Setup}
+\label{ssec:setup}
+
+\paragraph{Models and Configurations.}
+We conduct comprehensive experiments using the Qwen3~\cite{yang2025qwen3} and DeepSeek-R1~\cite{guo2025deepseek} families.
+We utilize Qwen3-4B as the small model (SLM) and DeepSeek-R1-Distill-Qwen-32B as the large model (LLM). This setup serves as the default configuration for our results.
+To verify the scalability of \approach, we extend our analysis to Qwen3-32B as the LLM in Section~\ref{sec:main_results} and DeepSeek-R1-Distill-Qwen-1.5B as the SLM in Appendix~\ref{app:scalability}, covering a spectrum of model sizes and architectural pairings.
+
+
+\paragraph{Benchmarks.}
+We evaluate our method on a diverse set of complex reasoning tasks.
+For mathematical reasoning, we employ AIME24 and AIME25, which represent the frontier of mathematical problem-solving. %, requiring rigorous multi-step deduction.
+For general reasoning, we use GPQA-Diamond~\cite{rein2024gpqa}, an expert-written, challenging multiple-choice dataset in biology, physics, and chemistry.
+For code generation, we utilize LiveCodeBench (v5 and v6)~\cite{jain2024livecodebench}, which evaluates the model's ability to solve competitive programming problems.
+
+
+\paragraph{Baselines.}
+We compare \approach against standalone models and state-of-the-art collaborative inference baselines.
+\textbf{Standalone SLM / LLM}: The individual performance of the small and large models, serving as the efficiency and performance boundaries, respectively.
+\textbf{Random}: A method using a random score from 0 to 9 to select the model for inference.
+\textbf{RSD}~\cite{liaoreward}: A reward-guided method that employs a trained Process Reward Model (PRM) to evaluate the quality of the step and determine whether to invoke the large model.
+\textbf{SpecCoT}~\cite{shi2025speccot}: A selection-based collaboration method where the small model generates multiple candidate reasoning steps in parallel. The large model acts as a discriminator to select the optimal step.
+\textbf{SpecReason}~\cite{pan2025specreason}: A verification-based method where the small model generates a step, which is then verified by the large model acting as a judge. Upon rejection, the large model falls back to generation.
+
+
+
+\paragraph{Metrics.}
+We assess the efficiency-performance trade-off using two key metrics.
+\textbf{Pass@1 (Acc):} The percentage of problems solved correctly on the first attempt.
+\textbf{Latency (Lat):} The end-to-end wall-clock time (in seconds) per question, serving as the primary indicator of inference efficiency. 
+
+
+
+% % ---------------------------------------------------
+% \begin{figure*}[t]
+%     \centering
+%     \includegraphics[width=\textwidth]{figures/ablation_threshold-v1.pdf}
+%     \caption{
+%     Sensitivity analysis of collaboration threshold on multiple benchmarks. \approach (red circles) establishes a superior Pareto frontier compared to the SpecReason (blue triangles). 
+%     Dashed lines represent the performance of standalone models.}
+%     \label{fig:tradeoff}
+%     \vspace{-10pt}
+% \end{figure*}
+% % ---------------------------------------------------
+
+% ---------------------------------------------------
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{figures/ablation_threshold.pdf}
+    \caption{
+    Sensitivity analysis of collaboration threshold on multiple benchmarks. \approach (red circles) establishes a superior Pareto frontier compared to the SpecReason (blue triangles). 
+    Dashed lines represent the performance of standalone models.}
+    \label{fig:tradeoff}
+    \vspace{-10pt}
+\end{figure*}
+% ---------------------------------------------------
+
+
+
+
+\paragraph{Implementation Details.}
+All experiments are conducted on NVIDIA A100-80GB GPUs using the vLLM inference engine~\cite{kwon2023efficient}. We employ sampling with a temperature of $0.6$ and a top-p of $0.95$. The maximum budget for reasoning tokens is set to 8192.
+For the hierarchical acceleration strategy, we repurpose the SLM to serve as the token-level drafter for the LLM with a draft length of $n=3$.
+To ensure statistical stability, all reported results are averaged over 4 runs.
+Regarding the entropy threshold $\tau$, since it modulates the trade-off between latency and accuracy, we report the configuration that achieves the optimal balance, maximizing accuracy while securing significant latency reduction, in our main results. Empirically, this corresponds to an \textit{intervention rate} (percentage of steps generated by LLM) of approximately 20\%--30\%. A detailed sensitivity analysis of $\tau$ is provided in Section~\ref{ssec:sensitive}.
+
+
+
+
+\subsection{Main Results}
+\label{sec:main_results}
+
+Table~\ref{tab:main_results} presents the comparative performance of \approach against baselines on five complex reasoning benchmarks. 
+\approach consistently achieves the optimal trade-off between inference latency and reasoning accuracy across different model configurations. In the primary setting using Qwen3-4B as the SLM, our method consistently outperforms the standalone LLM (DeepSeek-R1-Distill-Qwen-32B) in accuracy while delivering substantial speedups.
+Specifically, \approach reduces end-to-end latency by \textbf{25.2\%--27.4\%} across all datasets compared to the LLM-only baseline. 
+For instance, on AIME25, we observe a substantial \textbf{10.7\%} relative improvement in accuracy combined with a \textbf{25.9\%} reduction in latency. 
+% With the smaller DeepSeek-R1-Distill-Qwen-1.5B as $M_S$, \approach continues to surpass the collaborative inference baselines.
+% \shi{It would be insightful to provide a quantitative analysis of the collaboration pattern: what proportion of steps are handled by $M_S$ vs. $M_L$ on average? This would help readers understand the actual collaboration dynamics and the frequency of model switching.} \zeng{Demonstrate in implementation details.}
+
+
+Compared to existing step-level collaboration methods, \approach demonstrates a distinct advantage in efficiency.
+While baselines like RSD, SpecCoT, and SpecReason achieve better accuracy than the SLM-only baseline, they still incur significant latency overheads. 
+% in some cases (e.g., SpecReason on GPQA) even exceeding the latency of the standalone $M_L$.
+For example, SpecReason's latency on GPQA (213s) exceeds even that of the standalone LLM, DeepSeek-R1-Distill-Qwen-32B (176s), negating the benefits of collaboration.
+This inefficiency stems from their routing mechanisms: all methods require generating full reasoning steps (and often multiple candidates) or performing post-hoc verification before making a decision.
+In contrast, \approach determines the routing path based solely on the \textit{initial token entropy}. This ``Probe-then-Dispatch'' mechanism minimizes the computational overhead of the decision process. %, ensuring that the routing cost does not negate the efficiency gains derived from the small model.
+
+
+% \paragraph{Why Collaborative Inference Surpasses $M_L$?}
+A counterintuitive yet compelling result is that our collaborative framework outperforms the accuracy of the standalone large model (e.g., 51.67\% vs. 46.67\% on AIME25). 
+We attribute this to the self-correction capacity of LRMs~\cite{guo2025deepseek, zeng2025thinking}.
+The intervention mechanism in our framework offers more than just text completion. The high entropy at the onset of a step often serves as a manifestation of latent inconsistencies accumulated in the preceding trajectory. When \approach detects this uncertainty and invokes the LLM, the large model does not merely continue the sequence; effective intervention allows it to implicitly re-evaluate the context and rectify prior logical drifts, thereby realigning the reasoning path.
+We provide concrete case studies illustrating this correction behavior in Appendix~\ref{app:case_studies}. 
+% (2) Conciseness and Budget Efficiency: Small models typically generate more concise reasoning chains compared to verbose large models. We also analyze the token consumption of different model scales in Appendix~\ref{app:token_analysis}. Under a fixed reasoning token budget (e.g., 8192 tokens), the conciseness of $M_S$ allows the system to explore more reasoning steps or preserve context window space for the critical derivations handled by $M_L$, thereby reducing the risk of truncation-induced errors.
+
+\subsection{Ablation and Analysis}
+\label{sec:ablation_study}
+
+\paragraph{Sensitivity Analysis of Collaboration Threshold.}
+\label{ssec:sensitive}
+
+The trade-off between inference efficiency and reasoning capability is closely associated with the proportion of steps routed to the large model, referred to as the \textit{intervention rate}. To investigate how this rate impacts the performance, we vary the entropy threshold $\tau$ for \approach and the verification threshold for SpecReason. By varying these thresholds, we modulate the proportion of steps processed by the large model. Figure~\ref{fig:tradeoff} illustrates the accuracy-latency trade-off on multiple benchmarks. 
+The curve of \approach (red) lies strictly above and to the left of the SpecReason baseline (blue), establishing a superior Pareto frontier. 
+Detailed numerical results are provided in Appendix~\ref{app:sensitivity}.
+%The divergence in the trade-off curves, particularly in the high-accuracy regime, highlights the architectural superiority of our routing mechanism. 
+%SpecReason follows a reactive verification workflow (``Generate-then-Verify''), where the small model must generate the full reasoning step first. If $M_L$ rejects the step, the time spent by $M_S$ becomes a sunk cost, and the system incurs the cumulative latency of $M_S$'s generation, $M_L$'s verification, and $M_L$'s regeneration. 
+%In contrast, \approach employs a proactive routing mechanism (``Probe-then-Dispatch''). By assessing difficulty using only the first token, we make a routing decision before committing to the full generation. For critical steps ($h_k > \tau$), the system completely bypasses the' generation of $M_S$ and immediately invokes $M_L$. Consequently, the routing overhead is negligible (effectively 1 token), allowing the system to scale efficiently even when a high proportion of steps require $M_L$'s intervention.
+% Detailed numerical results, including accuracy, latency, and intervention rates, are provided in Appendix~\ref{app:sensitivity}.
+
+
+% \zeng{Line graph results from Ours and SpecReaon on AIME25. More results should be placed in the Appendix.}
+
+
+\paragraph{Impact of Metric Choice.}
+\label{ssec:metric_ablation}
+
+To empirically validate the effectiveness of our $\mathbf{H}_\text{init}$ metric, we conducted an ablation study comparing it against two widely used uncertainty metrics: Step-wise Entropy ($\mathbf{H}_\text{step}$) and Step-wise Perplexity ($\mathbf{PPL}_\text{step}$).
+% , as well as a \textbf{Random} baseline\gu{what is it?}\gu{if time permits, please add this baseline to the main table} \zeng{in most benchmarks, it is faster than ours. doning} .
+Table~\ref{tab:metric_ablation} presents the comparative results on the AIME25 benchmark, while the extended results are detailed in Appendix~\ref{app:metric_ablation}.
+\approach outperforms both step-wise variants by a significant margin, achieving a relative accuracy gain of \textbf{10.7\%} over $\mathbf{H}_\text{step}$ and \textbf{8.8\%} over $\mathbf{PPL}_\text{step}$.
+This result corroborates our \textit{Signal Dilution} hypothesis (Section~\ref{ssec:empirical_analysis}). %Average metrics inherently smooth out local uncertainty spikes of critical tokens with the high confidence of routine syntactic tokens. Consequently, they often fail to identify subtle logical pitfalls. In contrast, $\mathbf{H}_\text{init}$ precisely captures the uncertainty in the cognitive pivot, serving as a highly sensitive discriminator that correctly indicates difficult steps.
+Beyond accuracy, $\mathbf{H}_\text{init}$ offers a fundamental advantage in latency (163s vs. 178s / 181s).
+Implementing routing via step-wise metrics necessitates a ``Generate-then-Measure'' paradigm, where the initial generation becomes a sunk cost if the step is subsequently routed to $M_L$.
+% where the small model must complete the full sequence before the metric can be computed. If a step is subsequently deemed uncertain and routed to $M_L$, the time and computation invested in the initial generation become a sunk cost.
+Conversely, $\mathbf{H}_\text{init}$ operates on a ``Probe-then-Dispatch'' basis, eliminating the overhead of generating invalid draft steps.
+% By determining the routing path via a single-token probe, our method eliminates the overhead of generating invalid draft steps. 
+% This ensures that at comparable intervention rates, \approach achieves significantly lower latency by maximizing the effective throughput of the collaborative system.
+
+
+% ---------------------------------------------------
+\input{tables/metric_ablation}
+% ---------------------------------------------------
+
+
+
+\paragraph{Orthogonal Speedup with Speculative Decoding.}
+\label{ssec:specdecode}
+
+To demonstrate the versatility of our framework, we evaluate the compatibility of \approach with \textbf{Speculative Decoding}, a token-level acceleration technique. Table~\ref{tab:orthogonality} presents the performance metrics when integrating Speculative Decoding into three different inference paradigms: standalone LLM, SpecReason, and \approach.
+As shown in Table~\ref{tab:orthogonality}, integrating Speculative Decoding consistently reduces latency across all methods while maintaining comparable accuracy.
+Crucially, the combination of \textbf{\approach + Speculative Decoding} achieves the lowest end-to-end latency among all configurations. 
+(1) \textbf{Global Synergy:} \approach optimizes the coarse-grained logical flow by routing easy steps to the small model, reducing the total number of calls to the expensive large model.
+(2) \textbf{Local Synergy:} For the difficult steps that are processed by LLM, Speculative Decoding optimizes the fine-grained token generation, mitigating the high per-token cost of the large model.
+By attacking the efficiency bottleneck from both step-level routing and token-level execution, our framework achieves a compound speedup that surpasses either technique applied in isolation.
+Additional results on other benchmarks are available in Appendix~\ref{app:orthogonality}.
+
+
+
+% ---------------------------------------------------
+\input{tables/specdecode}
+% ---------------------------------------------------
+
+
+
+
+\section{Related Work}
+\label{sec:related_work}
+
+\paragraph{Collaborative Inference.}
+Collaborative inference has emerged as a promising paradigm for optimizing the efficiency-performance trade-off by leveraging models of varying capacities. Existing approaches generally operate across three interaction granularities: query-level routing~\cite{chen2023frugalgpt, ding2024hybrid, ong2024routellm}, step-level collaboration~\cite{shi2025speccot, pan2025specreason, liaoreward}, and token-level speculation~\cite{leviathan2023fast, chen2023accelerating, cai2024medusa, li2024eagle}.
+Our \approach distinguishes itself by proposing a training-free, step-level ``Probe-then-Dispatch'' mechanism based on initial token entropy, which effectively eliminates the sunk costs associated with post-hoc verification.
+
+
+\paragraph{Efficient Reasoning.}
+LRMs such as DeepSeek-R1~\cite{guo2025deepseek} and OpenAI o1/o3~\cite{jaech2024openai,openai2025o3} demonstrate that scaling test-time compute via Chain-of-Thought~\cite{wei2022chain} reasoning significantly enhances reasoning capabilities, albeit at the cost of prohibitive latency.
+To mitigate this bottleneck, recent research explores dynamic offloading computation to smaller models~\cite{chen2025survey, wang2025mixllm,qu2025survey}.
+At the query and token levels, methods utilize trained difficulty predictors~\cite{damani2024learning} or trained routers~\cite{fu2025r2r}.  % to optimize resource allocation.
+Most pertinent to logical deduction is step-level collaboration. Existing methods range from training-based reward guidance (RSD)~\cite{liaoreward} to training-free paradigms relying on multi-path selection (SpecCoT)~\cite{shi2025speccot} or post-hoc verification (SpecReason)~\cite{pan2025specreason}.
+Unlike these methods constrained by redundant generation or heavy verification overheads, \approach achieves efficient orchestration via initial token probing.
+
+
+% \paragraph{Efficient Reasoning.}
+% The advent of Chain-of-Thought (CoT) prompting~\cite{wei2022chain} has revolutionized the reasoning capabilities of LLMs. Large Reasoning Models (LRMs) like DeepSeek-R1~\cite{guo2025deepseek} and OpenAI o1/o3~\cite{jaech2024openai, openai2025o3} have demonstrated that scaling test-time compute via extended thinking processes significantly bolsters deductive performance. However, the substantial computational cost and latency associated with these long-context reasoning chains pose challenges for real-time deployment. 
+% To mitigate these overheads, recent research explores offloading reasoning burdens to smaller models through dynamic collaboration across various granularities.
+% At the query level, methods such as input-adaptive allocation~\cite{damani2024learning} train predictors to estimate the difficulty of a prompt, routing only hard queries to larger models.
+% At the token level, standard Speculative Decoding~\cite{leviathan2023fast} offers a training-free baseline for accelerating generation, whereas R2R~\cite{fu2025r2r} trains routers to navigate divergent reasoning paths by selecting optimal tokens from mixed model outputs.
+% Most relevant to our work is step-level collaboration, which aligns naturally with CoT steps. 
+% Regarding training-based approaches, RSD~\cite{liaoreward} introduces a reward-guided mechanism to verify draft steps generated by small models.
+% For training-free paradigms, SpecCoT~\cite{shi2025speccot} utilizes small models to generate multiple reasoning paths for large model selection, while SpecReason~\cite{pan2025specreason} employs a verification-based strategy where steps generated by a small model are validated by a large model.
+% Unlike these methods that often incur overhead from redundant generation or heavy verification, \approach utilizes FTE probes to achieve efficient, proactive model orchestration.
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+In this work, we addressed the critical latency bottleneck of LRMs by proposing \approach. This training-free, step-wise collaborative inference framework orchestrates models of varying capacities.
+% Departing from existing reactive paradigms that rely on redundant generation or post-hoc verification, 
+We introduce the ``Probe-then-Dispatch'' mechanism based on initial token entropy. This approach allows the system to anticipate the step difficulty with negligible overhead.
+% , thereby eliminating the sunk costs associated with invalid drafting.
+Extensive experiments on multiple benchmarks demonstrate that \approach establishes a superior Pareto frontier. % compared to state-of-the-art baselines.
+We hope this work enables efficient reasoning and stimulates research on dynamic computation allocation.
+
+
+\section*{Limitations}
+
+Despite the efficiency gains demonstrated by \approach, we acknowledge several limitations.
+First, our routing mechanism relies on a static entropy threshold. While initial token entropy provides a more continuous and granular signal compared to discrete metrics like LLM-as-a-Judge, a fixed global threshold may not adapt optimally to the varying difficulty distributions across diverse domains or specific query types. Future work could explore adaptive or instance-aware thresholding mechanisms to further refine the efficiency.
+Second, the step-level decomposition in our framework relies on explicit structural delimiters (specifically, double newline characters). Although this formatting pattern is prevalent in Large Reasoning Models, such as the DeepSeek-R1 and Qwen families, this heuristic dependence may limit the framework's direct applicability to models that generate unstructured Chain-of-Thought sequences. Exploring semantic-based segmentation strategies remains a valuable direction for future research.
+
+
+
+% \section*{Acknowledgments}
+
+% This document has been adapted
+% by Steven Bethard, Ryan Cotterell and Rui Yan
+% from the instructions for earlier ACL and NAACL proceedings, including those for
+% ACL 2019 by Douwe Kiela and Ivan Vuli\'{c},
+% NAACL 2019 by Stephanie Lukin and Alla Roskovskaya,
+% ACL 2018 by Shay Cohen, Kevin Gimpel, and Wei Lu,
+% NAACL 2018 by Margaret Mitchell and Stephanie Lukin,
+% Bib\TeX{} suggestions for (NA)ACL 2017/2018 from Jason Eisner,
+% ACL 2017 by Dan Gildea and Min-Yen Kan,
+% NAACL 2017 by Margaret Mitchell,
+% ACL 2012 by Maggie Li and Michael White,
+% ACL 2010 by Jing-Shin Chang and Philipp Koehn,
+% ACL 2008 by Johanna D. Moore, Simone Teufel, James Allan, and Sadaoki Furui,
+% ACL 2005 by Hwee Tou Ng and Kemal Oflazer,
+% ACL 2002 by Eugene Charniak and Dekang Lin,
+% and earlier ACL and EACL formats written by several people, including
+% John Chen, Henry S. Thompson and Donald Walker.
+% Additional elements were taken from the formatting instructions of the \emph{International Joint Conference on Artificial Intelligence} and the \emph{Conference on Computer Vision and Pattern Recognition}.
+
+% Bibliography entries for the entire Anthology, followed by custom entries
+% \bibliography{custom,anthology-overleaf-1,anthology-overleaf-2}
+
+% Custom bibliography entries only
+\bibliography{custom}
+
+
+%\clearpage
+
+\appendix
+
+\vspace{10pt}
+\section{Pseudocode of \approach}
+\label{app:alg}
+
+The pseudocode of \approach is provided in Algorithm~\ref{alg:ite_router}.
+Given an input question, the system operates in a step-wise manner. At the onset of each step, instead of blindly generating the full content, \approach employs $M_S$ to ``glimpse'' the first token, yielding an entropy $\mathbf{H}_\text{init}$ that quantizes the difficulty of the upcoming step: 
+If $\mathbf{H}_\text{init}$ falls below a threshold, the step is deemed routine, and the small model is responsible for continuing the generation.
+Otherwise, the step signals a cognitive pivot, and the context is handed over to a large model for high-quality generation.
+
+\input{tables/algorithm}
+
+\input{tables/ds_scalability}
+
+
+
+
+\section{Scalability across Architectural Pairings}
+\label{app:scalability}
+
+To verify the universality of \approach beyond specific small models (e.g., Qwen3-4B), we extend our evaluation to a homogeneous model family setting. Specifically, we employ DeepSeek-R1-Distill-Qwen-1.5B as the small model (SLM) and DeepSeek-R1-Distill-Qwen-32B as the large model (LLM). 
+
+Table~\ref{tab:ds_scalability} presents the comparative results on the AIME, GPQA-Diamond, and LiveCodeBench benchmarks. 
+Consistent with the observations in our main experiments (Section~\ref{sec:main_results}), \approach continues to exhibit a superior efficiency-performance trade-off compared to baselines.
+Despite the change in the small model, \approach maintains its advantage over reactive baselines such as RSD, SpecReason, and SpecCoT.
+While baselines incur significant latency overhead due to full-step generation and verification, \approach effectively leverages $\mathbf{H}_\text{init}$ to route simpler steps to DeepSeek-R1-Distill-Qwen-1.5B preemptively.
+% As a result, we observe that \approach achieves accuracy comparable\zhang{This is the old way of expression. In the latest table, the result is not "comparable" anymore} to the standalone DeepSeek-R1-Distill-Qwen-32B while reducing inference latency by approximately \textbf{22.6\%}.
+The success of \approach in this DeepSeek-R1-Distill-Qwen-1.5B + DeepSeek-R1-Distill-Qwen-32B setting underscores the robustness of the ``Probe-then-Dispatch'' mechanism. It suggests that the correlation between the initial token's entropy and step-level difficulty is not an artifact of specific datasets or model families, but rather an intrinsic property of large reasoning models. 
+
+
+
+% \section{Analysis of Reasoning Conciseness and Token Consumption}
+% \label{app:token_analysis}
+
+% In Section~\ref{sec:main_results}, we hypothesized that the conciseness of the small model ($M_S$) contributes to the superior performance of \approach under fixed computational budgets. To validate this, we analyze the average token consumption of reasoning chains generated by the standalone $M_S$ (Qwen3-4B) and $M_L$ (DeepSeek-R1-Distill-Qwen-32B) across different benchmarks.
+
+% Figure~\ref{fig:token_consumption} illustrates the average number of tokens generated per problem on the AIME, GPQA-Diamond, and LiveCodeBench benchmarks. 
+% We observe a consistent pattern: the large reasoning model ($M_L$) consumes significantly more tokens, often \textbf{x.x$\times$ to x.x$\times$} more than the small model ($M_S$) to solve the same problem.
+% This disparity stems from the inherent behavioral differences between the models. 
+
+% This difference in the token economy has profound implications for system reliability under fixed context windows. 
+% In practical deployments, the maximum reasoning generation budget is strictly capped (e.g., 8192 tokens in our experiments). The verbosity of $M_L$ increases the risk of truncation-induced errors, where the reasoning process is abruptly terminated before a final answer is reached.
+% \approach effectively mitigates this risk by leveraging the conciseness of $M_S$. By delegating low-entropy (routine) steps to the efficient $M_S$, the system conserves the token budget. This strategy essentially reserves the valuable context window space for critical high-entropy steps where $M_L$'s extensive reasoning is indispensable, thereby maximizing the likelihood of reaching a correct solution within the limit.
+
+
+% \begin{figure}[h]
+%     \centering
+%     % \includegraphics[width=\linewidth]{figures/token_consumption.pdf} 
+%     \caption{Comparison of average token consumption per query. The large model ($M_L$) exhibits significantly higher verbosity compared to the small model ($M_S$) across all benchmarks. \zeng{Replace with actual bar chart: Y-axis=Benchmarks, X-axis=Avg Token Count, Grouped Bars=(LLM, SLM)}}
+%     \label{fig:token_consumption}
+% \end{figure}
+
+
+
+\input{tables/threshold_table}
+
+
+
+\section{Detailed Sensitivity Analysis of Collaboration Thresholds}
+\label{app:sensitivity}
+
+In this section, we present the comprehensive numerical results that underpin the sensitivity analysis discussed in Section~\ref{ssec:sensitive}. We examine the impact of varying the thresholds on the intervention rate, defined as the percentage of reasoning steps generated by the large model ($M_L$), and the resulting efficiency-performance trade-offs.
+We evaluate two distinct routing mechanisms: 
+We sweep the Initial Token Entropy ($\mathbf{H}_\text{init}$) threshold $\tau \in \{0.01, 0.1, 0.6, 0.9, 1.8\}$. A lower $\tau$ makes the system more cautious, triggering $M_L$ more frequently (Higher Intervention).
+We vary the verification confidence threshold $\sigma \in \{6, 7, 8, 9\}$ of SpecReason. A stricter threshold leads to higher rejection rates, forcing $M_L$ to regenerate steps more frequently (Higher Intervention).
+
+Table~\ref{tab:sensitivity_data} details the performance metrics on the AIME and LiveCodeBench benchmarks.
+A critical observation is the scaling behavior of latency with respect to the intervention rate.
+For \approach, latency increases linearly and modestly as the intervention rate rises. This is because the overhead of checking the first token is negligible; the latency cost is purely the difference between $M_L$ and $M_S$ generation speeds.
+In stark contrast, SpecReason exhibits a super-linear latency spike as the intervention rate increases. Taking AIME25 as an example, at an intervention rate of approximately $\sim 50\%$, the latency of SpecReason is significantly higher than that of \approach. This confirms the ``Sunk Cost'' hypothesis: SpecReason must waste time generating a full draft by $M_S$ before $M_L$ can intervene, whereas \approach proactively dispatches the task, eliminating redundant computation.
+Furthermore, comparing iso-accuracy configurations (e.g., \approach with \textbf{$\tau=0.9$} vs. SpecReason with \textbf{$\sigma=9$}, both achieving 51.67\% on AIME25), our method consistently achieves lower latency. This numerical evidence substantiates the visual trend observed in the Pareto frontier (Figure~\ref{fig:tradeoff}), demonstrating that $\mathbf{H}_\text{init}$ is more efficient than post-hoc verification.
+
+
+
+\input{tables/all_metric_ablation}
+
+\input{tables/all_specdecode}
+
+
+
+
+\section{Extended Analysis of Metric Choice}
+\label{app:metric_ablation}
+
+In Section~\ref{ssec:metric_ablation}, we demonstrate the superiority of the initial token entropy ($\mathbf{H}_\text{init}$) on the AIME25 benchmark. We extend the ablation study to include AIME24, AIME25, LiveCodeBench v5, and LiveCodeBench v6.
+Table~\ref{tab:full_metric_ablation} presents the comprehensive results comparing \approach against Step-wise Entropy ($\mathbf{H}_\text{step}$) and Step-wise Perplexity ($\mathbf{PPL}_\text{step}$).
+
+Across all four benchmarks, \approach employing $\mathbf{H}_\text{init}$ consistently achieves the highest accuracy.
+This universal superiority strongly supports the \textbf{Signal Dilution} hypothesis. Step-wise metrics, by averaging uncertainty over the entire sequence length $L$, allow high-confidence syntactic tokens to obscure the signals from critical reasoning nodes.
+In contrast, $\mathbf{H}_\text{init}$ focuses exclusively on the cognitive pivot (the initial token), providing a sharper, undiluted signal that effectively distinguishes between routine steps and complex logical bifurcations.
+Regarding efficiency, the results highlight a fundamental structural advantage of our method.
+On every benchmark, the step-wise metrics incur higher latency than \approach, despite operating at similar intervention rates.
+This is because step-wise metrics operate on a ``Generate-then-Measure'' paradigm: the small model must fully generate a step before its difficulty can be assessed. If the step is subsequently rejected and routed to the large model, the initial generation becomes a sunk cost.
+\approach, leveraging the ``Probe-then-Dispatch'' mechanism, assesses difficulty before generation. This proactive routing eliminates invalid drafting, ensuring that computational resources are allocated with maximal efficiency.
+
+
+\section{Extended Analysis of Orthogonality with Speculative Decoding}
+\label{app:orthogonality}
+
+In Section~\ref{ssec:specdecode}, we demonstrated the compatibility of \approach with Speculative Decoding on specific benchmarks. To verify that this compound speedup is a universal property of our framework, we extend the evaluation to the full suite of benchmarks: AIME24, AIME25, LiveCodeBench v5, and LiveCodeBench v6.
+Table~\ref{tab:full_orthogonality} details the performance metrics for three inference paradigms (Standalone LLM, SpecReason, and \approach), both with and without Token-level Speculative Decoding.
+
+As evidenced in Table~\ref{tab:full_orthogonality}, integrating Speculative Decoding yields consistent latency reductions across all methods and benchmarks.
+For the standalone LLM, latency drops by approximately \textbf{22\%--32\%}.
+For the collaborative methods (SpecReason and \approach), the token-level acceleration further compresses the execution time of the large model's generation phases.
+Importantly, this speedup is achieved with negligible impact on reasoning accuracy.
+Crucially, the combination of \textbf{\approach + Speculative Decoding} achieves the lowest end-to-end latency across all experimental configurations.
+Even when the strong baseline, SpecReason, is accelerated by Speculative Decoding, it remains consistently slower than our enhanced framework (e.g., 140s vs. 130s on AIME25).
+This gap highlights a fundamental architectural distinction:
+Token-level speculation can only accelerate the generation process; it cannot recover the sunk costs of invalid steps discarded during reactive verification.
+SpecReason still pays the penalty for generating and rejecting full steps.
+In contrast, \approach leverages $\mathbf{H}_\text{init}$ to proactively route steps, minimizing the number of tokens that need to be generated in the first place. When combined with Speculative Decoding, which accelerates the tokens that must be generated by $M_L$, we achieve a multiplicative effect on efficiency.
+This confirms that \approach serves as an ideal \textbf{Global Planner}, perfectly complementing \textbf{Local Executors} like Speculative Decoding to establish a new state-of-the-art Pareto frontier.
+
+
+
+
+\section{Case Studies}
+\label{app:case_studies}
+
+\subsection{Case Study 1: Correlation between Initial Token Entropy (\texorpdfstring{$\mathbf{H}_\text{init}$}{H init}) and Reasoning Difficulty}
+
+We provide a concrete example to show the correlation between $\mathbf{H}_\text{init}$ and reasoning difficulty. The case visualizes how \approach dynamically allocates computational resources based on the cognitive load of each step.
+The case below illustrates a representative trajectory from the AIME benchmark. We observe a clear dichotomy in $\mathbf{H}_\text{init}$ values corresponding to the nature of the reasoning steps:
+\begin{itemize}
+    \item \textbf{Low $\mathbf{H}_\text{init}$ (Routine Execution):} Steps 1-2 and 5-12 exhibit extremely low $\mathbf{H}_\text{init}$ values (e.g., $0.0046$, $0.0008$). These steps involve factual restatements or mechanical algorithmic operations (e.g., recursive division by 2). The small model ($M_S$) demonstrates high confidence and generates these tokens accurately, validating our ``Delegate'' strategy.
+    \item \textbf{High $\mathbf{H}_\text{init}$ (Cognitive Bifurcation):} A critical spike in entropy occurs at the onset of Step 3 ($\mathbf{H}_\text{init}$: $1.8985$). Here, the reasoning process transitions from problem setup to solution planning. The small model's draft (starting with ``Maybe'') reflects uncertainty in selecting the counting method. 
+\end{itemize}
+
+% ---------------------------------------------------
+\begin{tcolorbox}[
+    breakable,
+    colback=white,       % 背景改为白色更清晰
+    colframe=gray!60,    % 边框灰色
+    boxrule=0.8pt,       % 稍微加粗边框
+    arc=2mm,
+    fonttitle=\bfseries,
+    coltitle=black,
+    title={A Case of Correlation between Initial Token Entropy ($\mathbf{H}_\text{init}$) and Reasoning Difficulty}
+]
+\small
+
+\textbf{Question:} \\
+Alice chooses a set $A$ of positive integers. Bob lists all finite nonempty sets $B$ whose maximum is in $A$. Bob's list has $2024$ sets. Find the sum of the elements of $A$.
+
+\vspace{0.2cm}
+\hrule
+\vspace{0.2cm}
+
+\textbf{Reasoning Trace via \approach:}
+
+% --- Step 1 ---
+\noindent \textbf{Step 1} \texttt{[SLM]} {\scriptsize ($\mathbf{H}_\text{init}$: \textcolor{teal}{0.2369})} \\
+First, Alice chooses a set $A$, and Bob lists all nonempty sets $B$ whose maximum is in $A$; there are $2024$ such sets.
+
+% --- Step 2 ---
+\noindent \textbf{Step 2} \texttt{[SLM]} {\scriptsize ($\mathbf{H}_\text{init}$: \textcolor{teal}{0.3485})} \\
+If $A=\{2\}$, then $B$ can be $\{2\}$ or $\{1,2\}$, giving $2^{2-1}=2$ sets. Generally, the number of sets corresponds to a sum of powers of 2.
+
+% --- Step 3 (CRITICAL) ---
+\vspace{0.1cm}
+\noindent \colorbox{red!10}{\parbox{\dimexpr\linewidth-6pt}{
+\textbf{Step 3 (Critical Pivot)} \\
+\textbf{Content ($M_S$):} ``Maybe I can try to find...'' {\scriptsize ($\mathbf{H}_\text{init}$: \textcolor{red}{\textbf{1.8985}} $> \tau$)} \\
+$\hookrightarrow$ \textbf{Action:} \textcolor{red}{\textbf{Intervene ($M_L$)}} \\
+\textbf{Content ($M_L$):} The most efficient way is to divide $2024$ by $2$ repeatedly to find its binary representation directly.
+}}
+\vspace{0.1cm}
+
+% --- Step 5 (Back to SLM) ---
+\noindent \textbf{Step 4} \texttt{[SLM]} {\scriptsize ($\mathbf{H}_\text{init}$: \textcolor{teal}{0.0046})} \\
+Compute $2024/2=1012$, remainder $0$.
+
+% --- Step 6 ---
+\noindent \textbf{Step 5} \texttt{[SLM]} {\scriptsize ($\mathbf{H}_\text{init}$: \textcolor{teal}{0.0008})} \\
+Then $1012/2=506$, remainder $0$.
+
+% --- Step 7 ---
+\noindent \textbf{Step 6} \texttt{[SLM]} {\scriptsize ($\mathbf{H}_\text{init}$: \textcolor{teal}{0.0102})} \\
+Next $506/2=253$, remainder $0$.
+
+% --- Steps 8-10 (Summarized for brevity) ---
+\noindent \textbf{Steps 7-10} \texttt{[SLM]} {\scriptsize ($\mathbf{H}_\text{init}$ values: \textcolor{teal}{0.0055, 0.0032, 0.0041})} \\
+\textit{[...Routine division steps: $253 \to 126 \to 63 \to 31$...]}
+
+% --- Step 11 ---
+\noindent \textbf{Step 11} \texttt{[SLM]} {\scriptsize ($\mathbf{H}_\text{init}$: \textcolor{teal}{0.1205})} \\
+So the binary representation is $11111101000_2$. This corresponds to powers $2^{10}, \dots, 2^3$. Since the term is $2^{a-1}$, the elements are $a \in \{11, 10, 9, 8, 7, 6, 4\}$.
+
+% --- Step 12 ---
+\noindent \textbf{Step 12} \texttt{[SLM]} {\scriptsize ($\mathbf{H}_\text{init}$: \textcolor{teal}{0.0020})} \\
+Finally, the sum is $11+10+9+8+7+6+4 = \boxed{55}$.
+
+\end{tcolorbox}
+
+% ---------------------------------------------------
+
+
+
+\subsection{Case Study 2: Self-Correction Mechanism in LRMs}
+
+% \paragraph{Analysis: Rectifying Logical Hallucinations.}
+The case below demonstrates the system's ability to detect and correct potential logical errors during the reasoning process. 
+In combinatorics problems involving grid paths, an accurate definition of geometric properties is a prerequisite for calculation.
+\begin{itemize}
+    \item \textbf{Logical Instability:} In Step 3, the small model establishes the relationship between ``direction changes'' and ``path segments''. It produces content containing a factual error: equating four direction changes to \textit{four} segments (the correct number is $4+1=5$).
+    \item \textbf{Correction via Intervention:} Upon triggering the high-entropy threshold in Step 4, \approach invokes the large model ($M_L$). Crucially, $M_L$ does not merely complete the SLM's erroneous sentence. Instead, it re-evaluates the context and generates a correct premise: ``that means it has five straight segments.'' 
+    \item \textbf{Outcome:} By correcting the hallucinated step and injecting the correct geometric reasoning, $M_L$ steers the trajectory back to a valid path. Subsequently, $M_S$ successfully performs the routine combinatorial calculations (Steps 5-6) based on the corrected logic.
+\end{itemize}
+
+% ---------------------------------------------------
+
+\begin{tcolorbox}[
+    colback=white,
+    colframe=gray!60,
+    boxrule=0.8pt,
+    arc=2mm,
+    fonttitle=\bfseries,
+    coltitle=black,
+    title={A Case of the Self-correction Mechanism in LRMs}
+]
+\small
+
+\textbf{Question:} \\
+Consider the paths of length $16$ that follow the lines from the lower left corner to the upper right corner on an $8\times 8$ grid. Find the number of such paths that change direction exactly four times.
+
+\vspace{0.2cm}
+\hrule
+\vspace{0.2cm}
+
+\textbf{Reasoning Trace via \approach:}
+
+% --- Step 1 ---
+\noindent \textbf{Step 1} \texttt{[SLM]} {\scriptsize ($\mathbf{H}_\text{init}$: \textcolor{teal}{0.2457})} \\
+So, the problem is about paths on a grid where you start at (0,0) and end at (8,8), moving only right (R) or up (U), each step being a unit move.
+
+% --- Step 2 ---
+\noindent \textbf{Step 2} \texttt{[SLM]} {\scriptsize ($\mathbf{H}_\text{init}$: \textcolor{teal}{0.3914})} \\
+Let me recall that in such grid paths, a path that goes from (0,0) to (8,8) can be represented as a sequence of right (R) and up (U) moves.
+
+% --- Step 3 (CRITICAL ERROR CAUGHT) ---
+\vspace{0.1cm}
+\noindent \colorbox{red!10}{\parbox{\dimexpr\linewidth-6pt}{
+\textbf{Step 3 \texttt{[SLM]} (Logical Divergence)} \\
+Suppose a path starts... four direction changes mean the path has \textit{four segments}. \\
+\textbf{Step 4 \texttt{[LLM]} (Logical Correction)} \\
+Wait, if a path changes direction exactly four times, that means it has \textit{five straight segments}. Because each change of direction adds a new segment. For example, starting with R gives R-U-R-U-R.
+}}
+\vspace{0.1cm}
+
+% --- Step 5 ---
+\noindent \textbf{Step 5} \texttt{[SLM]} {\scriptsize ($\mathbf{H}_\text{init}$: \textcolor{teal}{0.4949})} \\
+Let me recall that the number of compositions of n into k positive integers is C(n-1, k-1). Because it's equivalent to placing k-1 dividers in the n-1 gaps between n items.
+
+% --- Step 6 ---
+\noindent \textbf{Step 6} \texttt{[SLM]} {\scriptsize ($\mathbf{H}_\text{init}$: \textcolor{teal}{0.2771})} \\
+Therefore, the total number is $2 \times [\binom{7}{2} \times \binom{7}{1}] = 2 \times 21 \times 7 = \boxed{294}$.
+
+\end{tcolorbox}
+% ---------------------------------------------------
+
+
+
+\end{document}

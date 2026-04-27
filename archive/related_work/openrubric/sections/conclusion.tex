@@ -1,0 +1,15 @@
+% \vspace{-0.5ex}
+\section{Conclusion}
+\label{sec:conclusion}
+\vspace{-0.5ex}
+We present \dataset{},  a large-scale dataset and framework for scalable and high-quality rubric generation.
+By decomposing evaluation into hard rules and principles through Contrastive Rubric Generation and applying preference–label consistency filtering, we construct interpretable and discriminative rubric signals that better align with human judgment.
+Our rubric-based reward model, \modelname{}, delivers an average 8.4\% improvement across benchmarks and further boosts policy performance on diverse benchmarks with offline reinforcement learning. 
+These results position rubrics-as-rewards as a practical foundation for transparent and generalizable LLM alignment. 
+% For future work, we will extend rubric generation to more open-ended tasks and leverage rubrics as intermediate supervision within RLHF pipelines.
+
+\section*{Limitations}
+While \dataset{} demonstrates strong empirical gains, several limitations remain.
+First, our rubric generation relies on contrastive signals from preference data and inherited model judgments. Although preference-label consistency filtering reduces noise, the resulting rubrics may still reflect biases present in the underlying models and datasets, particularly for subjective or culturally nuanced criteria.
+Second, our framework focuses on pairwise comparative evaluation; extending rubric-based rewards to absolute scoring or multi-response ranking scenarios remains an open challenge.
+Finally, we primarily evaluate rubric-based rewards in offline preference optimization. How such structured rewards interact with fully online RLHF pipelines, exploration dynamics, and long-horizon policy learning remains an important direction for future work.

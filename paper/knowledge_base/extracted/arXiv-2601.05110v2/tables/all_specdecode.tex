@@ -1,0 +1,35 @@
+% ---------------------------------------------------
+\begin{table*}[t]
+\centering
+% \small
+\setlength{\tabcolsep}{5pt} % 调整列间距以适应页面宽度
+\begin{tabular}{lcccccccc}
+\toprule
+\multirow{2}{*}{\textbf{Method}} & \multicolumn{2}{c}{\textbf{AIME24}} & \multicolumn{2}{c}{\textbf{AIME25}} & \multicolumn{2}{c}{\textbf{LCBv5}} & \multicolumn{2}{c}{\textbf{LCBv6}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
+ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ \\
+\midrule
+% --- Baseline: LLM Only ---
+LLM only & 57.50 & 197 & 46.67 & 220 & 52.40 & 219 & 46.86 & 214 \\
+\rowcolor{gray!20}
+\quad + Speculative Decoding & 56.67 & 139 & 45.83 & 149 & 51.80 & 165 & 46.29 & 166 \\
+\midrule
+% --- Baseline: SpecReason ---
+SpecReason & 57.50 & 158 & 49.17 & 169 & 53.59 & 185 & 47.57 & 189 \\
+\rowcolor{gray!20}
+\quad + Speculative Decoding & 57.50 & 133 & 49.17 & 140 & 53.29 & 151 & 47.14 & 154 \\
+\midrule
+% --- Ours: GlimpRouter ---
+\approach & 60.83 & 143 & 51.67 & 163 & 54.64 & 160 & 48.29 & 160 \\
+\rowcolor{gray!20}
+\quad + Speculative Decoding & 60.00 & 116 & 51.67 & 130 & 54.34 & 134 & 48.00 & 137 \\
+\bottomrule
+\end{tabular}
+\caption{
+Comprehensive evaluation of orthogonal speedup with Speculative Decoding across four benchmarks. 
+We report accuracy (Acc) and average generation latency (Lat) measured in seconds.
+Rows highlighted in gray indicate the integration of token-level speculative decoding. 
+} 
+\label{tab:full_orthogonality}
+\end{table*}
+% ---------------------------------------------------

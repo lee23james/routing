@@ -1,0 +1,41 @@
+\begin{table}[t]
+\centering
+\renewcommand\arraystretch{0.95}
+\resizebox{0.7\linewidth}{!}{%
+% \arrayrulecolor{black!50}
+\begin{tabular}{l|cc|cc|c}
+\toprule
+\multirow{2}{*}{\textbf{Model}} 
+& \multicolumn{2}{c|}{\textbf{Arena-Hard}} 
+& \multicolumn{2}{c|}{\textbf{AlpacaEval}} 
+& \multirow{2}{*}{\textbf{AVG}} \\ 
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+& \textbf{Vanilla} & \textbf{SC} 
+& \textbf{Vanilla} & \textbf{LC} &  \\ 
+\midrule
+% \rowcolor{lightblue!5}
+GPT-4 (0314)                 & 50.0 & 50.0 & 22.1 & 35.3 & 39.4 \\ 
+UltraIF~\citep{an2025ultraif}   & 31.4 & -- & -- & -- & -- \\
+\midrule
+Qwen2.5-7B-Instruct          & 51.3 & 42.8 & 33.5 & 36.2 & 41.0 \\
++ SFT (Distilled)            & 32.6 & 29.2 & 36.1 & 33.3 & 32.8 \\
++ DPO (via Skywork)          & 55.1 & 50.3 & 44.8 & \bf 41.5 & 47.9 \\
++ DPO (via ArmoRM)           & 50.8 & 46.4 & 37.6 & 38.1 & 43.2 \\
++ DPO (via Ultrafbk.)        & 52.8 & 47.9 & 33.7 & 38.7 & 43.3 \\
++ DPO (via AI Judge)         & 51.0 & 44.4 & 28.8 & 33.4 & 39.4 \\
++ DPO (via RLCF)             & \bf 54.6 & 48.4 & 36.2 & 37.1 & 44.1 \\ 
+\midrule
+\rowcolor{lightblue!10}
++ DPO (via \name)            & 52.9 & \textbf{53.1} & \textbf{47.0} & 41.3 & \textbf{48.6} \\ 
+\bottomrule
+\end{tabular}%
+}
+\caption{
+Comparison of different alignment strategies applied to Qwen2.5-7B-Instruct on \textbf{Arena-Hard} and \textbf{AlpacaEval}. 
+% Results are reported for vanilla models and style/length-controlled settings. 
+Baseline results are from \citet{viswanathan2025checklists}. 
+SC and LC stands for Style-controlled and Length-controlled. 
+Best results are in \textbf{bold}.
+}
+\label{tab:alpaca}
+\end{table}

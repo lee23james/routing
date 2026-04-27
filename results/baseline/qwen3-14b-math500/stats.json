@@ -1,0 +1,11 @@
+{
+  "tag": "qwen3-14b-math500",
+  "total": 500,
+  "correct": 457,
+  "accuracy": 91.4,
+  "avg_tokens": 4575.1,
+  "avg_gflops": 128102.9,
+  "af_ratio": 0.7135,
+  "total_time_s": 85884.8,
+  "timestamp": "2026-04-22T17:56:21.120271"
+}

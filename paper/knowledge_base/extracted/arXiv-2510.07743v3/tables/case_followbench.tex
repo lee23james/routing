@@ -1,0 +1,104 @@
+\begin{table*}[!t]
+\centering
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+
+% --- local-only helpers ---
+\definecolor{FailBg}{RGB}{253,219,219}   % light red
+\definecolor{PassBg}{RGB}{214,240,221}   % light green
+% \newcommand{\bad}[1]{\colorbox{FailBg}{#1}}
+% \newcommand{\good}[1]{\colorbox{PassBg}{#1}}
+\newcommand{\bad}[1]{\textcolor{red}{#1}}
+\newcommand{\good}[1]{\textcolor{green!70!black}{#1}}
+\newcommand{\gate}[1]{\textsf{\small Gatekeeper: #1}}
+\newcommand{\hard}[1]{\textsf{\small Hard Rules: #1}}
+\newcommand{\prin}[1]{\textsf{\small Principles: #1}}
+\newcommand{\pass}{\textbf{✔}}
+\newcommand{\fail}{\textbf{✖}}
+% 
+\begin{tabular}{@{}p{0.15\linewidth}p{0.6\linewidth}@{}}
+\toprule
+\multicolumn{2}{@{}l}{\textbf{Case Study on FollowBench}}\\
+\midrule
+\textbf{Prompt} &
+Would you consider direct air carbon capture as a significant financial venture? In addition to sharing your perspective, {incorporate a quote from a recent news article or study} to substantiate your viewpoint, and concisely summarize it. Also, ensure to mention the publication date of the referenced source. Furthermore, briefly discuss the potential {economic implications} based on your source.\\
+\midrule
+\textbf{Resp A (snippet)} &
+``Direct air carbon capture (DAC) is a promising technology \ldots According to a recent study published in \textit{Nature Energy} in \textit{March 2023} \ldots In conclusion, while there are still challenges to overcome, the recent study suggests that DAC has the potential to become a financially viable option.'' \\
+
+\textbf{Resp B (snippet)} &
+```\ldots
+Would you consider direct air carbon capture as a significant financial venture? \textit{Yes, I absolutely believe} \ldots
+a recent report from \textit{BloombergNEF}, published on \textit{May 16, 2024}, titled \ldots 
+BNEF's projection highlights several key economic implications: 1. \ldots''\\
+\textbf{Ground Truth} & {Resp B}.\\
+
+\midrule
+\textbf{RM-R1-7B (DS)} &
+``
+\dots
+looking at Chatbot A's response. It starts by explaining DAC briefly and then moves into the study from Nature Energy in 2023 \ldots
+Chatbot B' \ldots The quote is from BloombergNEF, but the \bad{publication date isn't provided} \ldots
+\bad{(Choose A)}%
+''
+\\
+\textbf{RM-R1-7B (Qwen)} &
+``
+\ldots 
+Chatbot A follows all instructions by providing a quote from a recent study
+\ldots 
+Chatbot B appears to have misunderstood the prompt \ldots \bad{doesn't provide a proper citation} \bad{with the requested publication date}
+\ldots 
+\bad{(Choose A)}%
+''
+\\
+
+\midrule
+
+
+{\name} \\ \midrule
+\textbf{Rubric} &
+``1. The response must explicitly state whether direct air carbon capture is considered a significant financial venture. [Hard Rule]  
+2. The response must include a direct quotation from a recent news article or study. [Hard Rule]  
+3. The response must provide a concise summary of the quoted source. [Hard Rule]  
+4. The response must mention the publication date of the referenced source. [Hard Rule]  
+5. The response must briefly discuss the potential economic implications based on the source. [Hard Rule]  
+6. The response should integrate the cited evidence seamlessly into the argument to support its claims. [Principle]  
+7. The response should maintain a clear and logical structure, guiding the reader through the argument. [Principle]  
+8. The response should use precise and concise language, avoiding unnecessary verbosity. [Principle]
+9. The response should ensure that all supporting details are directly relevant to the central argument. [Principle]  
+10. The response should present a balanced analysis by acknowledging both potential benefits and challenges. [Principle]%
+'' \\
+% ``1. The response must address whether direct air carbon capture is considered a significant financial venture. [Principle]
+
+% 2. The response must incorporate a quote from a recent news article or study to substantiate its viewpoint. [Hard Rule]
+
+% 3. The response must concisely summarize the quoted source. [Hard Rule]
+
+% 4. The response must mention the publication date of the referenced source. [Hard Rule]
+
+% 5. The response must briefly discuss the potential economic implications based on the source. [Hard Rule]
+
+% 6. The response must be written in a clear and understandable manner. [Principle]
+
+% 7. The response must be well-organized and easy to follow. [Principle]
+
+% 8. The response must be free of factual errors. [Principle]
+
+% 9. The response must be relevant to the topic of direct air carbon capture and its financial aspects. [Principle]
+% '' \\
+\cmidrule{2-2}
+\textbf{Judge} &
+``The most objective rule is the requirement to explicitly state whether direct air carbon capture is considered a significant financial venture \ldots
+Response A fails \ldots \good{not explicitly stating whether DAC is} \ldots \good{(Choose B)}%
+''\\
+\bottomrule
+\end{tabular}
+\caption{
+FollowBench case study with error highlighting.
+Baselines pick A due to a hallucinated “missing date” and missed stance requirement; RUBRIC-RM correctly picks B.}
+% Case study 2 with error highlighting. Baselines overvalue academic-looking prose and misreading the date requirement, whereas {\name} prioritizes hard rules and makes correct decision.}
+\label{tab:case-follow}
+\endgroup
+\end{table*}

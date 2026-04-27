@@ -1,0 +1,11 @@
+{
+  "tag": "qwen3-14b-aime",
+  "total": 133,
+  "correct": 77,
+  "accuracy": 57.89,
+  "avg_tokens": 11492.1,
+  "avg_gflops": 321779.4,
+  "af_ratio": 0.1799,
+  "total_time_s": 48323.3,
+  "timestamp": "2026-04-22T07:30:17.058189"
+}

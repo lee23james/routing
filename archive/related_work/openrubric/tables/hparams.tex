@@ -1,0 +1,105 @@
+\begin{table}[t!]
+\centering
+\resizebox{0.45\linewidth}{!}{%
+\begin{tabular}{lcc}
+\toprule
+\textbf{}       & \textbf{Parameter} & \textbf{Value} \\
+\midrule
+{\textit{{\name} SFT}} \\
+\midrule
+\multirow{7}{*}{Rubric-Generator}
+& Epochs & 1 \\
+& Cutoff Length & 3072 \\
+& Batch Size & 128 \\
+& Optimizer & AdamW\\
+& Learning Rate & $8 \times 10^{-6}$\\
+& LR Schedule & Cosine \\
+& Warmup & 0.05 \\
+\midrule
+\multirow{7}{*}{Judge-Generator}
+& Epochs & 2 \\
+& Cutoff Length & 6144 \\
+& Batch Size & 64 \\
+& Optimizer & AdamW \\
+& Learning Rate & $5 \times 10^{-6}$\\
+& LR Schedule & / \\
+& Warmup & / \\
+\midrule
+% \multicolumn{2}{@{}l}
+{\textit{Policy Model DPO}} \\
+\midrule
+\multirow{8}{*}{Policy Model}
+& Epochs & 1 \\
+& Cutoff Length & 2048 \\
+& Batch Size & 64 \\
+& Optimizer & AdamW \\
+& Learning Rate & $3 \times 10^{-7}$\\
+& LR Schedule & / \\
+& Warmup & / \\
+& SFT mixing weight & 0.1 \\
+& $\beta$ & 0.1 \\
+\bottomrule
+\end{tabular}
+}
+\caption{
+Hyper-parameters used in {\name} and policy model training. 
+}
+\label{tab:train}
+\end{table}
+
+
+
+
+
+
+
+\begin{table}[t!]
+\centering
+\resizebox{0.45\linewidth}{!}{%
+\begin{tabular}{lcc}
+\toprule
+\textbf{}       & \textbf{Parameter} & \textbf{Value} \\
+\midrule
+% \multicolumn{2}{@{}l}
+{\textit{{\dataset} Curation}} \\
+\midrule
+\multirow{5}{*}{Rubric-Generator}
+& Model & GPT-4.1-Mini \\
+& Maximum Tokens & 768 \\
+& Temperature & 0.0 \\
+& Top-$P$ & / \\
+& Top-$K$ & / \\
+\midrule
+\multirow{5}{*}{Judge-Generator}
+& Model & Gemini-2.5-Flash-Lite \\
+& Maximum Tokens & 2048 \\
+& Temperature & 0.0 \\
+& Top-$P$ & / \\
+& Top-$K$ & / \\
+\midrule
+% \multicolumn{2}{@{}l}
+{\textit{{\name} Inference}} \\
+\midrule
+\multirow{6}{*}{Rubric-Generator}
+& Base-Model & Qwen-3-4B/8B (Default) \\
+& Maximum Tokens & 1024 \\
+& Temperature & 0.0\\
+& Top-$P$ & / \\
+& Top-$K$ & / \\
+& Enable-thinking & False \\
+\midrule
+\multirow{6}{*}{Judge-Generator}
+& Model  & Qwen-3-4B/8B (Default) \\
+& Maximum Tokens & 4096 \\
+& Temperature & 0.7 \\
+& Top-$P$ & 1.0 \\
+& Top-$K$ & -1 (All) \\
+& Enable-thinking & False \\
+\bottomrule
+\end{tabular}
+}
+\caption{
+Sampling parameters used in {\dataset} curation and {\name} inference. 
+\vspace{-1ex}}
+\label{tab:sample}
+\end{table}

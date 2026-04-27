@@ -1,0 +1,227 @@
+{
+  "paper_id": "rub_001_openrubrics",
+  "title": "OpenRubrics: Towards Scalable Synthetic Rubric Generation for Reward Modeling and LLM Alignment",
+  "authors": [
+    "Nayoung Choi",
+    "Wonik Jang",
+    "Hoyoung Yoon",
+    "Taehyeong Kim",
+    "Hyemi Jo",
+    "Jiho Jin",
+    "Hwaran Lee",
+    "Kyomin Jung"
+  ],
+  "affiliation": "Seoul National University; KAIST",
+  "year": 2025,
+  "venue": "ACL",
+  "venue_type": "conference",
+  "arxiv_id": "2510.07743",
+  "tier": "A*",
+  "must_cite": true,
+  "status": "parsed",
+  "task": [
+    "rubric_generation",
+    "reward_modeling",
+    "llm_alignment"
+  ],
+  "subtopic": [
+    "contrastive_rubric_generation",
+    "preference_label_consistency",
+    "rubric_conditioned_reward_model"
+  ],
+  "background": {
+    "problem_context": "Reward models are central to LLM alignment (RLHF, DPO), but traditional scalar reward models compress multi-dimensional response quality into a single number, losing interpretability and diagnostic power. Different prompts require different quality criteria (safety, accuracy, creativity), yet standard RMs apply a one-size-fits-all evaluation.",
+    "prior_limitations": [
+      "Scalar reward models lack interpretability — cannot explain WHY a response scores high or low",
+      "Pairwise preference judgments lose information about which specific quality dimensions differentiate chosen vs rejected responses",
+      "Manual rubric creation is expensive and doesn't scale",
+      "Direct rubric generation (from prompt alone) often misses critical discriminative criteria"
+    ],
+    "key_observation": "Rubrics can provide structured, multi-dimensional evaluation criteria that are prompt-specific. When generated contrastively (by comparing chosen and rejected responses), rubrics capture the exact dimensions that differentiate good from bad responses. These rubrics can condition reward models to produce more accurate, interpretable, and decomposable reward signals."
+  },
+  "motivation": "Traditional reward models compress multi-dimensional response quality into a single scalar, losing interpretability and the ability to diagnose specific quality failures. Different prompts demand fundamentally different quality criteria. OpenRubrics proposes generating prompt-specific evaluation rubrics at scale, using contrastive generation from preference pairs to capture discriminative quality dimensions, then training rubric-conditioned reward models that provide structured, interpretable reward signals.",
+  "novelty_claims": [
+    "OpenRubrics: first large-scale, open-source dataset of 15,000+ (prompt, rubric) pairs for reward modeling",
+    "Contrastive Rubric Generation (CRG): generates rubrics by contrasting chosen and rejected responses, producing rubrics with higher discriminative power than direct generation from prompts alone",
+    "Preference-label consistency filtering: self-supervised quality filter that retains only rubrics whose evaluations are consistent with ground-truth preference labels",
+    "RUBRIC-RM: rubric-conditioned reward model surpassing size-matched baselines by 8.4% on RewardBench and transferring to policy model training on instruction-following and biomedical tasks"
+  ],
+  "problem_statement": "Given a collection of (prompt, chosen_response, rejected_response) preference triples, generate high-quality, prompt-specific rubrics that can condition reward models to produce accurate, interpretable, multi-dimensional reward signals for LLM alignment.",
+  "core_idea": "Generate rubrics contrastively: given a prompt and its chosen/rejected responses, ask an LLM to identify the specific quality criteria that distinguish them. This produces rubrics with high discriminative power. Filter rubrics via preference-label consistency: evaluate random responses using the rubric and check if the rubric's scores align with known preference labels. Train a rubric-conditioned reward model: input = (prompt, rubric, response) → structured reward score, enabling decomposable and interpretable evaluation.",
+  "extended_summary": "OpenRubrics classifies rubrics into two types: Hard Rules (verifiable explicit constraints like format or language requirements, derived from prompt instructions) and Principles (implicit quality standards like coherence or creativity, requiring semantic understanding). Contrastive Rubric Generation (CRG) takes a preference triple (prompt, chosen, rejected) and asks an LLM to generate rubric criteria that explain WHY the chosen response is better. This is more informative than Direct RG (prompt-only), which often produces generic criteria missing the discriminative signal. Preference-label consistency filtering checks each rubric by evaluating both chosen and rejected responses: a valid rubric should consistently score the chosen higher. This self-supervised filter removes noisy rubrics that would introduce reward hacking. RUBRIC-RM is trained with input (prompt, rubric, response) → reward score. On RewardBench, the 2B RUBRIC-RM outperforms all size-matched baselines by 8.4%. The rubrics transfer to policy model training via DPO, improving instruction-following (IF-Eval) and biomedical QA tasks.",
+  "method_pipeline": [
+    {
+      "step": 1,
+      "name": "Rubric taxonomy classification",
+      "description": "Classify rubric criteria into Hard Rules (verifiable constraints from prompt) and Principles (implicit quality standards)"
+    },
+    {
+      "step": 2,
+      "name": "Contrastive Rubric Generation (CRG)",
+      "description": "Given (prompt, chosen, rejected), generate rubric criteria that explain why chosen > rejected. Uses LLMs (GPT-4o, Claude 3.5 Sonnet, Gemma-2-27B)"
+    },
+    {
+      "step": 3,
+      "name": "Preference-label consistency filtering",
+      "description": "For each rubric, evaluate multiple response pairs. Retain only rubrics where rubric scores are consistent with known preference labels (chosen > rejected)"
+    },
+    {
+      "step": 4,
+      "name": "RUBRIC-RM training",
+      "description": "Train reward model conditioned on rubric: input = (prompt, rubric, response) → reward score. Architecture: Gemma-2-2B-it or 9B-it with rubric prepended to input"
+    },
+    {
+      "step": 5,
+      "name": "Policy model training (downstream)",
+      "description": "Use RUBRIC-RM to generate preference pairs for DPO/RLHF training of policy models"
+    }
+  ],
+  "representation": {
+    "input": ["prompt", "rubric_criteria_list", "response"],
+    "internal": ["per_criterion_scores", "criterion_weights"],
+    "output": ["structured_reward_score"]
+  },
+  "architecture": {
+    "rubric_generators": "GPT-4o, Claude 3.5 Sonnet, Gemma-2-27B",
+    "reward_model": "Gemma-2-2B-it, Gemma-2-9B-it",
+    "key_modules": [
+      "CRG rubric generator (contrastive LLM prompting)",
+      "Preference-label consistency filter",
+      "Rubric-conditioned reward model"
+    ]
+  },
+  "design_choices": [
+    {
+      "choice": "Contrastive generation (CRG) rather than direct rubric generation",
+      "rationale": "Direct RG produces generic criteria that often miss the key discriminative dimensions. CRG leverages the contrast between chosen/rejected to identify exactly what matters"
+    },
+    {
+      "choice": "Hard rules + Principles taxonomy",
+      "rationale": "Two fundamentally different types of quality criteria: verifiable constraints (can be checked programmatically) vs implicit standards (require judgment). Separating them enables targeted evaluation strategies"
+    },
+    {
+      "choice": "Preference-label consistency for filtering",
+      "rationale": "Self-supervised: no human annotation needed. A good rubric should, by definition, score preferred responses higher. This elegantly filters noisy rubrics that would cause reward hacking"
+    }
+  ],
+  "learning": {
+    "supervision": "supervised (preference data for rubric generation and RM training)",
+    "loss_functions": ["Bradley-Terry preference loss for reward model"],
+    "training_strategy": "Two-stage: rubric generation (LLM prompting) → reward model training (fine-tuning)",
+    "data_scale": "15,000+ (prompt, rubric) pairs"
+  },
+  "datasets": [
+    "RewardBench",
+    "RMBench",
+    "IF-Eval (instruction following)",
+    "Biomedical QA"
+  ],
+  "evaluation": {
+    "metrics": [
+      "RewardBench accuracy (overall and per-category)",
+      "RMBench score",
+      "IF-Eval accuracy (policy model downstream)",
+      "Biomedical QA accuracy (policy model downstream)"
+    ]
+  },
+  "quantitative_results": [
+    {
+      "dataset": "RewardBench",
+      "metric": "Accuracy",
+      "value": "+8.4",
+      "unit": "% over baselines",
+      "config": "RUBRIC-RM 2B (Gemma-2-2B-it)",
+      "notes": "Surpasses all size-matched baselines"
+    },
+    {
+      "dataset": "RewardBench",
+      "metric": "Accuracy",
+      "value": "competitive with GPT-4o",
+      "config": "RUBRIC-RM 9B",
+      "notes": "9B model approaches commercial model performance"
+    },
+    {
+      "dataset": "RewardBench Safety",
+      "metric": "Hard rules contribution",
+      "value": "especially significant",
+      "notes": "Hard rules are most impactful for safety-related evaluations"
+    },
+    {
+      "dataset": "IF-Eval",
+      "metric": "Improvement",
+      "value": "significant",
+      "notes": "Policy model trained with RUBRIC-RM preferences shows instruction-following improvement"
+    },
+    {
+      "dataset": "Biomedical QA",
+      "metric": "Generalization",
+      "value": "positive transfer",
+      "notes": "Rubrics generalize to unseen domains"
+    }
+  ],
+  "baselines_compared": [
+    {
+      "method": "Direct Rubric Generation (prompt-only)",
+      "delta": "CRG produces rubrics with significantly higher discriminative power",
+      "metric": "Discriminative power"
+    },
+    {
+      "method": "Size-matched scalar RMs",
+      "delta": "+8.4% on RewardBench (2B model)",
+      "metric": "RewardBench accuracy"
+    },
+    {
+      "method": "Without filtering",
+      "delta": "Filtering improves rubric quality and downstream RM accuracy",
+      "metric": "Rubric quality"
+    }
+  ],
+  "ablation_findings": [
+    {
+      "ablation": "CRG vs Direct RG",
+      "effect": "CRG produces significantly more discriminative rubrics, especially for subtle quality differences",
+      "key_insight": "Contrastive comparison exposes quality dimensions that prompt-only analysis misses"
+    },
+    {
+      "ablation": "With vs without preference-label consistency filtering",
+      "effect": "Filtering improves both rubric quality and downstream RM performance",
+      "key_insight": "10-20% of generated rubrics are noisy and filtering prevents reward hacking"
+    },
+    {
+      "ablation": "Hard rules only vs Principles only vs Both",
+      "effect": "Both combined outperforms either alone. Hard rules dominate for safety; principles dominate for quality",
+      "key_insight": "The two rubric types capture complementary quality dimensions"
+    }
+  ],
+  "main_findings": [
+    "Contrastive generation produces significantly higher quality rubrics than direct generation by leveraging preference contrasts",
+    "Preference-label consistency is an effective self-supervised filter for rubric quality",
+    "Rubric-conditioned RMs outperform scalar RMs by 8.4% at the same model size",
+    "Rubrics provide interpretability: each reward score can be traced to specific criteria",
+    "Rubrics generalize across domains (instruction-following → biomedical QA)"
+  ],
+  "limitations": [
+    "Requires preference data (chosen/rejected pairs) for CRG",
+    "LLM-generated rubrics may inherit biases from the generator model",
+    "Rubric quality depends on the generator LLM's capability",
+    "Scalability limited by LLM inference cost for rubric generation"
+  ],
+  "relevance_to_our_work": {
+    "relation": "methodological_inspiration",
+    "key_connections": [
+      "OpenRubrics' contrastive generation inspires our rubric design from correct/incorrect trajectory pairs",
+      "Preference-label consistency filtering directly maps to our rubric validation: we check if rubric scores correlate with answer correctness",
+      "We adapt the rubric concept from response quality evaluation to routing quality evaluation",
+      "Our rule-based rubrics offer zero-cost scoring (vs LLM-as-judge), which OpenRubrics doesn't achieve"
+    ],
+    "key_difference": "OpenRubrics evaluates RESPONSE quality; our rubrics evaluate ROUTING DECISION quality. OpenRubrics requires LLM-as-judge for scoring; our rubrics are deterministic functions of trajectory features"
+  },
+  "keywords": [
+    "rubric_generation",
+    "contrastive_generation",
+    "reward_modeling",
+    "llm_alignment",
+    "preference_consistency",
+    "interpretable_evaluation"
+  ]
+}

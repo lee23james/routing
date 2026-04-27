@@ -1,0 +1,64 @@
+{
+   "stamp" : true,
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "main.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "example_paper.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figs/deltas_levels_prms.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figs/fig1_v3-1.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figs/fig1_v3.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figs/fig1_v4.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figs/flops_vs_accuracy.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figs/illustrate.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figs/illustrate_v2.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "figs/illustration_v3.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "icml2025.bst"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "icml_numpapers.pdf"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "rebuttal.md"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "rsd_reference.bib"
+      }
+   ],
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

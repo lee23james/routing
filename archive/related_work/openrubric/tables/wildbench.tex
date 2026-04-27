@@ -1,0 +1,26 @@
+\begin{table}[h!]
+\centering
+\renewcommand\arraystretch{0.99}
+\resizebox{0.7\linewidth}{!}{%
+\begin{tabular}{@{}l|cccccc@{}}
+\toprule
+\textbf{Method} & \textbf{Creative} & \textbf{Planning} & \textbf{Math} & \textbf{Info seeking} & \textbf{Coding} & \textbf{WB Score} \\ \midrule
+Claude-3.5-Sonnet$^{*}$                       & 55.6     & 55.6     & 50.2 & 55.5         & 56.5   & 54.7     \\
+GPT-4-turbo$^{*}$                             & 58.7     & 56.2     & 51.0 & 57.2         & 55.1   & 55.2     \\
+GPT-4o-mini$^{*}$                           & 60.1     & 58.2     & 54.0 & 57.4         & 57.2   & 57.1     \\ \midrule
+Qwen2.5-7B-Instruct$^{*}$                     & 50.1     & 51.8     & 47.1 & 50.7         & 45.0   & 48.7     \\
++DRIFT$^{*}$                                  & 52.5     & 53.2     & 50.6 & 52.4         & 50.3   & 51.7    \\
++DPO (via RLCF)                         & 51.4     & 52.7     & 49.0 & 51.3         & 48.8   & 50.5     \\
++DPO (via RLMT (PPO))                    & 52.1        & 52.6        & 45.2    & 51.4            & 48.3      & 49.7       \\ \midrule
+\rowcolor{lightblue!10}
++DPO (via {\name})                    & \bf 54.8        &\bf 55.5        &\bf 51.5    &\bf 54.1            &\bf 52.9      &\bf 53.6      \\ \bottomrule
+\end{tabular}%
+}
+\caption{
+Comparison of different alignment strategies applied to Qwen2.5-7B-Instruct on \textbf{WildBench}. 
+Results are reported for task-specific scores and task macro WB score. 
+Baseline results with "$*$" are from \cite{wang2025drift}. We evaluate RLCF and RLMT with their official checkpoints.
+Best results are in \textbf{bold}.
+}
+\label{tab:wildbench}
+\end{table}

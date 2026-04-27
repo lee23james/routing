@@ -1,0 +1,5 @@
+\section{Related Work \ruipan{prob need to add some more}}
+
+There has been some early work aimed at reducing the inference latency of LRMs. Sky-T1-Flash~\cite{sky_t1_flash} addresses the problem of overthinking by fine-tuning models to curb unnecessary reasoning, thereby reducing the length of reasoning chains and, consequently, latency. While this approach reduces computation by curtailing reasoning depth, it does not fully leverage the potential of doing approximations on easier intermediate reasoning steps for efficiency.
+
+Dynasor-CoT~\cite{certaindex,dynasor_cot} takes a different approach by probing intermediate model confidence and terminating the reasoning process early when the model exhibits sufficient confidence in its current output. This early-exit strategy helps mitigate latency and is complementary to \name{}.

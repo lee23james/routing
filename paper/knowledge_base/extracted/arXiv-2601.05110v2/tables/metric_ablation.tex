@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\setlength{\tabcolsep}{10pt}
+\begin{tabular}{lcc}
+    \toprule
+    \textbf{Variants} & \textbf{Acc $\uparrow$} & \textbf{Lat $\downarrow$} \\
+    \midrule
+    \textbf{\approach} & \textbf{51.67} & \textbf{163} \\
+    \quad w/ step-wise entropy & 46.67 & 178 \\
+    \quad w/ step-wise perplexity & 47.50 & 181 \\
+    % \quad w/ random score & 45.83 & 174 \\
+    \bottomrule
+\end{tabular}
+\caption{Ablation study of different metrics on AIME25. We report accuracy (Acc) and average generation latency (Lat) measured in seconds.}
+\label{tab:metric_ablation}
+\vspace{-10pt}
+\end{table}

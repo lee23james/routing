@@ -1,0 +1,59 @@
+\section{Related Works}
+\subsection{LLM Reasoning with RL}
+Reinforcement learning has become an essential technique for incentivizing chain-of-thought (CoT) reasoning in LLMs \cite{RL4LRM, Survey-LLMs}.
+A milestone paradigm is reinforcement learning with verifiable rewards (RLVR) \cite{DeepSeekMath, O1, Deepseek-R1}, where LLMs are trained on verifiable tasks such as math problems \cite{AIME}, puzzle solving \cite{ARC-AGI-2}, and code execution \cite{LiveCodeBench}, by rewarding final-answer correctness using task-specific verifiers.
+Since such tasks are intrinsically difficult to reward-hack, RLVR tends to encourage LLMs to produce longer CoTs before answering, thereby improving reasoning performance \cite{Deepseek-R1, O1}.
+However, despite its effectiveness in incentivizing reasoning, most RLVR training remains outcome-centric and provides no direct supervision over the CoT itself, lacking guidance on how the model should reason.
+While several efforts have tried to mitigate this by assigning process rewards using additional reward models (RM) \cite{PRM8K}, training such RMs requires labor-intensive training data collection \cite{PRM8K, PRIME, ProcessBench}, and a static RM often fails to keep pace with the evolving CoT distribution during training \cite{Deepseek-R1}.
+Therefore, such challenges hinder the combination of RLVR training with CoT supervision criteria for rewarding in practice.
+
+\subsection{Self-Evolving in LLMs}
+A critical step toward general artificial intelligence lies in the ability to self-evolve with little or no human intervention \cite{self-evolving-survey}. 
+Recent work has made progress via self-training and self-play, where a single policy model $\pi_\theta$ can self-generate training data \cite{AbsoluteZero, SSP, SPICE}, or self-provide reward signals during learning \cite{SPIN, SeRL, SRLM}. 
+The self-evolving capabilities can further be strengthened with techniques such as multi-role reinforcement learning, where a single policy model $\pi_\theta$ is prompted to play different roles (\eg reasoner, data generator, or reward provider) and trained with role-specific rewards \cite{AbsoluteZero, SPICE, Alignmen-Waltz}.
+Therefore, these advances in such self-evolving methods suggest the possibilities of self-proposing criteria for CoT supervision, while this direction remains largely under-explored.
+
+\subsection{Reinforcement Learning with Rubrics}
+Recently, reinforcement learning with rubrics has emerged as a promising way to provide fine-grained and interpretable reward signals \cite{Rubicon, Rubrics-as-Rewards, HealthBench, Chasing-the-Tail}.
+Here, rubrics are structured, checkable evaluation criteria (\ie explicit requirements for assessing outputs) \cite{Rubrics-as-Rewards} that decompose high-level objectives into multi-facet supervision signals \cite{DR-Tulu}, enabling RL to extend towards non-verifiable and open-ended domains \cite{RuscaRL, Rubrics-as-Rewards}.
+However, existing work largely applies rubrics to score response quality, leaving their effectiveness for CoT supervision underexplored.
+Moreover, most approaches rely on predefined or static rubrics, which may become mismatched as model behaviors evolve during training \cite{DR-Tulu}.
+To address these gaps, we introduce a framework that self-proposes rubrics as CoT supervision criteria and continually evolves them throughout training, integrating rubric-based RL for CoT supervision with self-evolving training.
+
+
+\section{Preliminaries}
+In this section, we briefly review the necessary background that forms the foundation of our work, including incentivizing LLM reasoning with RL in Section \ref{sec:pre-training} and multi-role RL under a single policy in Section \ref{sec:pre-masrl}. 
+
+    \subsection{Incentivizing LLM Reasoning with RL} \label{sec:pre-training}
+In this work, we focus on incentivizing LLMs to reason with RL, where the policy model is optimized by rewarding the high-quality rollouts.
+
+\textbf{Rollout.}
+Given a question $\mathcal{Q}$, the policy model $\pi_{\theta}$ attempts to solve it by generating a response that contains a CoT $\hat{\mathcal{C}}$ followed by an answer $\hat{\mathcal{A}}$, which can be formulated as:
+\begin{equation}
+\hat{\mathcal{C}}, \hat{\mathcal{A}} \sim \pi_{\theta}(\cdot \mid\mathcal{Q}).
+\end{equation}
+\textbf{Rewarding.}
+After rollouts generation, rewards are assigned based on response quality, which can depend on: (i) the CoT $\hat{\mathcal{C}}$ and (ii) the answer $\hat{\mathcal{A}}$.
+In the widely adopted RLVR paradigm, rewards typically depend solely on the correctness of the predicted answer $\hat{\mathcal{A}}$:
+\begin{equation}\label{eq:outcome_reward}
+r = \psi( \mathbb{I}(\mathcal{A},\hat{\mathcal{A}})),
+\end{equation}
+where $\mathbb{I}(\cdot,\cdot)$ is an answer correctness indication function which returns $1$ if two answers $\mathcal{A}$ and $\hat{\mathcal{A}}$ are equivalent and $0$ otherwise, and a reward assignment function $\psi$ maps this correctness signal $\mathbb{I}(\mathcal{A},\hat{\mathcal{A}})$ to a binary reward $r$.
+Through such RLVR training, the policy model $\pi_\theta$ gradually learns to answer questions, which is often associated with producing longer CoTs \cite{Deepseek-R1}.
+% thereby achieving higher answer accuracy.
+However, under the RLVR paradigm, the CoT $\hat{\mathcal{C}}$ itself is rarely rewarded directly due to practical implementation challenges \cite{Deepseek-R1}, while the lack of such supervision may induce sub-optimal reasoning strategies \cite{PRM8K}.
+
+\subsection{Multi-Role RL Under a Single Policy Model} \label{sec:pre-masrl}
+Recently, studies have shown that a single policy model $\pi_\theta$ can effectively learn multiple roles by assigning role-specific rewards \cite{AbsoluteZero, SPIRAL}:
+\begin{equation}\label{eq:reward-role}
+r^{\text{role}_i} \rightarrow \pi^{\text{role}_i}_\theta,
+\end{equation}
+where $r^{\text{role}_i}$ denotes the reward assigned to $\text{role}_i$, and $\pi^{\text{role}_i}_\theta$ represents the same underlying policy model $\pi_\theta$ instantiated under the prompt $\mathcal{P}^{\text{role}_i}$ corresponding to that role.
+
+A typical application under this framework is to let the model simultaneously act as a reasoner and a data generator, achieving RL training starting from no human-labeled data \cite{AbsoluteZero, AlphaZero, SSP}. 
+More broadly, this multi-role, single-policy setup provides a natural substrate for self-evolving training: different roles instantiated from the same model can compete \cite{AbsoluteZero, SPICE} or collaborate \cite{Alignmen-Waltz, SPIRAL}, continuously improving the learning signals and behaviors \cite{MAS-Survey}.
+Building on this view, we investigate whether the same policy can simultaneously serve as a reasoner and a CoT rubrics generator (\ie rubricator). 
+With role-specific rewards, the rubricator is encouraged to produce useful CoT supervision criteria, which in turn enables the self-evolution of CoT rewarding. 
+In this case, the reasoner and rubricator collaborate together for better reasoning.
+
+

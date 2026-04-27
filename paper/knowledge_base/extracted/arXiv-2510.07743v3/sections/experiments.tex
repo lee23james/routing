@@ -1,0 +1,390 @@
+\section{Experiment}
+% \subsection{Datasets and Experiment Settings}
+
+% \subsubsection{Datasets and Evaluation Metrics.}
+
+% \subsubsection{Baselines.}
+
+% \subsubsection{Implementation Details.}
+% RM-R1~\citep{chen2025rm}
+% RRM~\citep{guo2025reward}
+% JudgeLRM~\citep{chen2025judgelrm}
+
+% Reward modeling benchmark:
+
+% RewardBench~\citep{rewardbench}
+% RM-Bench~\citep{liu2025rmbench}
+% FollowBench~\citep{followbench}
+% InfoBench~\citep{infobench}
+% IFBench~\citep{ifbench}
+% PPE-IFEval~\citep{ppe}
+% RewardBench2 \citep{malik2025rewardbench2}
+
+
+% Policy Model benchmark:
+% Follow \citep{viswanathan2025checklists}, use IF benchmarks
+% IFEval~\citep{zhou2023instruction}, InFoBench~\citep{infobench}
+% Healthbench/medical reward modeling benchmark
+
+\subsection{Datasets and Experiment Settings}
+\label{subsec:datasets-settings}
+
+\noindent \textbf{Training data.}
+We train both components of {\name}: the \emph{rubric generator} and the \emph{judge}, on the curated {\dataset} as presented in Sec.~\ref{sec:rubrics_gen}. Rubrics are produced with contrastive signals from chosen/rejected responses and filtered by preference–label consistency before use. Unless otherwise noted, we use the science-related slice of OpenRubrics to better match our domain study on HealthBench/medical evaluation.
+
+\noindent \textbf{Backbone and variants.}
+Both the rubric generator and the judge are fine-tuned from Qwen-3-8B (``{\name}-8B'') unless specified. At inference time, {\name} follows the two-stage process as detailed in Sec \ref{sec:rm_train}. We also report an ensemble variant, \textit{voting@5}, which aggregates five independently sampled judge trajectories by majority vote.
+
+\noindent \textbf{Baselines.}
+We compare {\name} against strong, same-scale white-box reward (judge) models: JudgeLRM-7B~\citep{chen2025judgelrm}, RRM-7B~\citep{guo2025reward}, and RM-R1-7B~\citep{chen2025rm}.
+We also report larger RM-R1-14B~\citep{chen2025rm} and API judges for reference when available. To isolate the benefit of rubric-aware fine-tuning, we include naive {Qwen-3-8B (Rubric+Judge)} that directly prompts the base model to produce rubrics and then make judgments.
+
+\noindent \textbf{Evaluation benchmarks and metrics.}
+We evaluate {\name} as a pairwise reward model on popular reward-modeling benchmarks: \emph{RewardBench} (Chat, Chat-Hard)~\citep{rewardbench}, \emph{RM-Bench}~\citep{liu2025rmbench}, \emph{PPE-IFEval}~\citep{ppe}, \emph{FollowBench}~\citep{followbench}, \emph{InfoBench}~\citep{infobench}, \emph{IFBench}~\citep{ifbench}, and \emph{RewardBench2} (Precise-IF, Focus)~\citep{malik2025rewardbench2}. 
+While \emph{FollowBench} and \emph{InfoBench} were originally designed to assess instruction-following capabilities of LLMs, we adapt them to pairwise evaluation settings by sampling two responses from the same model (Qwen-3-8B/14B), where one response adheres to all specified constraints and the other violates some of them. 
+For the domain study we additionally report HealthBench/medical results. We follow each benchmark’s official splits and scoring rules, reporting accuracy, win-rate or other specific scores.
+
+Due to space limits, additioanl implementation details are deferred to Appendix \ref{apd:implementation_details}. 
+
+\input{tables/main_table}
+
+\subsection{Performance of {\name}}
+We first validate the performance of {\name} for reward modeling. For a more systematic evaluation, we test both 4B and 8B variants of {\name}, which use Qwen3-4B/8B as backbones. %{\name}-4B and {\name}-8B 
+Table~\ref{tab:main_results} reports the results of {\name}. 
+% Table~\ref{tab:main_results} reports the performance of our proposed {\name} across multiple benchmarks. We highlight following main findings:
+
+\noindent \textbf{Outperforming Comparable Reward Models.} 
+Both {\name}-4B and 8B surpass all existing 7B-scale white-box baselines (e.g., JudgeLRM, RRM, RM-R1). Notably, {\name}-4B (\textbf{68.4}) outperforms the strongest 7B competitors (max 61.7), with {\name}-8B further improving to \textbf{70.1}. This confirms that rubric-aware training yields more reliable signals than generic preference learning, even with reduced parameter counts. \\
+% Both {\name}-4B and {\name}-8B outperform existing 7B-scale white-box reward models such as JudgeLRM-7B, RRM-7B, and RM-R1-7B.
+% {\name}-4B achieves an average score of 65.6, already higher than JudgeLRM-7B (53.8), RRM-7B (57.8), and RM-R1-7B variants (59.4–61.7), while {\name}-8B further improves to 68.5.
+% These results demonstrate that rubric-aware training produces more reliable and generalizable reward signals even under smaller model scales, outperforming models trained with generic preference-based supervision.
+\noindent \textbf{Majority Voting Further Enhances Performance.} 
+We also evaluate {\name}-voting@5, which aggregates predictions via majority voting across five independent judge trajectories.
+{\name}-4B-voting@5 reaches \textbf{70.3}, and {\name}-8B-voting@5 achieves the best overall average of \textbf{73.0}, surpassing much larger models such as RM-R1-14B (71.7) and the Rubric+Judge API (71.3).
+These results highlight the stability benefits of rubric-based ensembles. \\
+\noindent \textbf{Effectiveness of Rubric-Aware Fine-Tuning.} 
+Directly using Qwen-3-8B to generate rubrics and judge yields only 57.7. In contrast, {\name} achieves \textbf{70.1}. This \textbf{+12.4} gain validates our core contribution: high-quality rubrics derived via \textit{contrastive generation} and \textit{consistency filtering} are essential for effective reward modeling. \\
+\noindent \textbf{Strength on IF Benchmarks.}
+{\name} excels on benchmarks requiring fine-grained instruction adherence. On FollowBench and InfoBench, we achieve \textbf{81.5} and \textbf{83.8} respectively, substantially outperforming baselines like JudgeLRM and RRM. This demonstrates that rubrics capture nuanced constraints better than scalar reward models. \\
+% In addition to absolute improvements, {\name} shows particularly strong advantages on the IF Evaluation Benchmarks, which measure fine-grained instruction following capabilities. 
+% For example, on {FollowBench} and {InfoBench}, {\name} achieves 73.1 and 78.6, respectively, substantially outperforming other 7B-scale baselines such as JudgeLRM-7B (79.8 / 62.7) and RRM-7B (65.5 / 68.2). 
+% These results demonstrate that rubric-based training is especially effective at capturing instruction adherence and nuanced response qualities, where conventional reward models often struggle.  
+In the remaining experiments, we use {\name-8B} as our reward model unless specified. 
+
+
+\input{tables/ifeval_infobench}
+\input{tables/alpaca_arena}
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.99\linewidth]{figures/1008_exp/IFBench_bar_chart_wrapped.pdf}
+    \caption{Comparison of policy models on IFBench. Results of baselines except RLCF are from \citet{bhaskar2025language}. We evaluate RLCF with its official checkpoint. \vspace{-1.5ex}}
+    \label{fig:ifbench}
+\end{figure}
+
+\input{tables/wildbench}
+\subsection{Policy Models with {\name}}
+\subsubsection{Instruction-Following Evaluation}
+We further evaluate the effectiveness of using {\name} as a reward model for policy optimization on instruction-following tasks, including IFEval, InfoBench, and IFBench. The results are shown in Table~\ref{tab:ifeval} and Figure~\ref{fig:ifbench}.  \\ 
+\noindent \textbf{Improved Performance on IFEval and InfoBench.} 
+Using {\name} yields the best overall performance among open-source reward-model baselines: the resulting policy model reaches \textbf{79.5} on IFEval (vs.\ 76.0 with Skywork/ArmoRM) and \textbf{83.0} on InfoBench, approaching much larger commercial systems. These results indicate that \emph{rubric-based rewards provide more reliable optimization signals} for constrained instruction following.
+
+% When serving as the reward model in Direct Preference Optimization (DPO), {\name} enables the trained policy model to achieve the best overall performance among all open-source counterparts. 
+% On IFEval, the {\name}-trained policy achieves an average score of \textbf{79.5}, surpassing policies trained with Skywork (76.0) and ArmoRM (76.0). 
+% On InfoBench, the {\name}-based policy reaches 83.0, outperforming other DPO-trained policies and approaching the performance of much larger commercial systems. 
+% These results highlight that rubrics provide more reliable optimization signals for constrained instruction-following.
+
+\noindent \textbf{Clear Gains on Complex Instruction Following (IFBench).} 
+Figure~\ref{fig:ifbench} shows that the policy model optimized with {\name} achieves \textbf{30.3} on IFBench, substantially higher than RLCF (28.2) and RLMT-based methods (22.4--22.8). 
+Compared with both supervised fine-tuning variants and reinforcement learning baselines, {\name} provides stronger inductive biases, enabling policies to better capture fine-grained instruction adherence.
+
+Overall, these results demonstrate that {\name}, when used as a reward model, provides a substantially stronger training signal that improves the instruction-following capability of learned policies.
+
+% {\name} further delivers clear gains on complex instruction following: the optimized policy achieves a new SoTA of \textbf{30.3} on IFBench, surpassing RLCF (28.2) and RLMT variants (22.4--22.8). Overall, {\name} contributes a \textbf{strong inductive bias toward fine-grained instruction adherence}, outperforming both SFT variants and RL baselines.
+
+
+
+% \begin{wrapfigure}{r}{8cm}
+% \vspace{-0.2in}
+% \centering
+% \includegraphics[width=0.95\linewidth]{figures/IFBench_bar_chart_wrapped.pdf}
+% \caption{Comparison of trained policy models on IFBench. Results of baselines except RLCF are from \citet{bhaskar2025language}. We evaluate RLCF with its official official checkpoint.}
+% \label{fig:ifbench}
+% \vspace{-0.2in}
+% \end{wrapfigure}
+
+
+% Unlike prior scalar or generative reward models that often fail to enforce strict formats or nuanced constraints, rubrics supply explicit and interpretable guidance, leading to consistent improvements across multiple benchmarks. 
+% This demonstrates that {\name}-based training not only improves absolute performance but also establishes a robust foundation for building policy models aligned with human instructions.
+
+
+\subsubsection{General Alignment Evaluation}
+We evaluate policy model trained with {\name} on alignment benchmarks Arena-Hard, AlpacaEval, and WildBench (Tables~\ref{tab:alpaca} and \ref{tab:wildbench}). 
+
+With DPO optimization, {\name} achieves the best overall average score (\textbf{48.6}) among all open-source reward models. 
+On Arena-Hard (style-controlled), it obtains \textbf{53.1}, outperforming Skywork (50.3), Ultrafeedback (47.9), and RLCF (48.4). 
+On AlpacaEval, it reaches \textbf{47.0}, surpassing Skywork (44.8) and ArmoRM (37.6). 
+On WildBench, aligning Qwen2.5-7B-Instruct with {\name} yields the best macro WB score of \textbf{53.6}, improving over the base model (48.7) by +4.9 and outperforming DPO with RLCF (50.5), RLMT (49.7), and DRN (51.7), with consistent gains across all task categories.
+% . The gains are consistent across all task categories (Creative/Planning/Math/Info seeking/Coding). 
+These results show that rubric-based signals provide reliable gains across both vanilla and controlled settings.
+% We evaluate policies trained with {\name} on human preference alignment benchmarks Arena-Hard and AlpacaEval (Table~\ref{tab:alpaca}). 
+
+% With DPO optimization, {\name} achieves the best overall average score (\textbf{48.6}) among all open-source reward models. 
+% On Arena-Hard (style-controlled), it obtains \textbf{53.1}, outperforming Skywork (50.3), Ultrafeedback (47.9), and RLCF (48.4). 
+% On AlpacaEval, it reaches \textbf{47.0}, surpassing Skywork (44.8) and ArmoRM (37.6). 
+% These results show that rubric-based signals provide reliable gains across both vanilla and controlled settings. 
+
+
+
+
+
+\subsection{{\name} for BioMedical Domain}
+
+In this section we further study the effectiveness of {\name} in more specialized biomedical domain, following \citet{arora2025healthbench}.
+% Experiments here are again conducted from two aspects: (i) how {\dataset} results in better reward modeling ability in {\name}; (ii) how does {\name} leads to stronger policy models.
+The Rubric and Judge are \texttt{Qwen-3-8B} backbones fine-tuned with {\dataset} data from science-related domains.
+% , see Sec \ref{sec:data_construct} for more details about our data. 
+
+\noindent \textbf{Performance on HealthBench.}
+% \label{subsec:healthbench}
+{\name} outperforms comparable-size reasoning reward models on HealthBench, achieving \textbf{68.3}, exceeding RRM-7B (63.3) and RM-R1-7B variants (55.4/66.9), and approaching RM-R1-14B (69.9).
+Majority voting further boosts performance: {\name}-{voting@5} reaches \textbf{72.9}, narrowing the gap to 14B reasoning models and API-based judges. 
+A key finding is the importance of domain- specific rubric SFT. 
+Directly prompting \texttt{Qwen-3-8B} with a Rubric+Judge pipeline yields only 51.8, whereas {\name} improves performance by \textbf{+16.5}. 
+This highlights our core contribution: {contrastive, domain-tuned rubric training produces higher-precision, science-aware evaluation signals than on-the-fly rubric generation}.
+
+% % \paragraph{RM performance.}
+% As in general domains, {\name} outperforms comparable-size \emph{generative reasoning}
+% reward models on {HealthBench}: our model obtains
+% \textbf{68.3}, exceeding {RRM-7B} (63.3) and two 7B-level variants of {RM-R1}
+% (55.4/66.9). 
+% Notably, {\name} matches the competitiveness of much larger {RM-R1-14B} (69.9).
+% Moreover, consistent with previous results, majority voting
+% further enhances {\name} performance: {\name}-\emph{voting@5} attains {72.9}
+% (+4.6 over single-pass judge), narrowing the gap to much larger 14B
+% reasoning models (e.g., {RM-R1-14B} up to 74.7) and approaching
+% API-based references (69.9 – 73.5).
+% These gains clearly reflect the effectiveness of {\name} trained with {\dataset}.
+
+% % \paragraph{Benefit over naïve rubric pipelines \& importance of domain SFT.}
+% {The second noticeable gain lies in the importance of domain-specific SFT. 
+% Compared to directly prompting  \texttt{Qwen-3-8B} with the proposed ``Rubric+Judge'' pipeline, which only reaches score 51.8, 
+% {\name} (68.3) yields remarkable improvement on {HealthBench} (+16.5).
+% % same as on than on
+% % more general benchmarks (+9.6 according to Table~\ref{tab:main_results}).
+% This pronounced gap highlights the importance of domain-specific rubric
+% data and rubric-aware SFT: contrastive rubric training and preference–label
+% consistency produce higher-precision, science-aware criteria that transfer
+% more effectively to health tasks than rubrics generated on-the-fly.
+% }
+
+\begin{figure*}[h!]
+    \centering
+    \begin{subfigure}{0.7\linewidth}
+        \includegraphics[width=\linewidth]{figures/1008_exp/Health_bar_chart.pdf}
+        \caption{\centering Judges and Reward Models.}
+        \label{fig:Health_bar_chart}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.29\linewidth}
+        \includegraphics[width=\linewidth]{figures/1008_exp/health_policy.pdf}
+        \caption{\centering Trained Policy Models.}
+        \label{fig:health_policy}
+    \end{subfigure}
+    \vspace{-4ex}
+    \caption{Comparison of different judges, reward models, and trained policy models on HealthBench. \vspace{-0.5ex}}
+    \label{fig:health}
+\end{figure*}
+
+
+\noindent \textbf{Preference Optimization with {\name} on HealthBench.} 
+We use {\name} as the preference judge for DPO on HealthBench.
+Starting from Qwen-2.5-7B-Instruct (21.6), DPO with ArmoRM and RM-R1-7B improves performance to 22.5 and 22.7, respectively.
+In contrast, DPO with {\name} achieves the best result at \textbf{23.8}, yielding a consistent \textbf{+1.1--1.3} gain over strong 7B reasoning rewards. 
+These results demonstrate that {rubric-aware, domain-specialized reward models translate directly into stronger biomedical policy learning}, outperforming generative reasoning rewards. 
+
+% We further validate that our {\name}, which achieves higher reward modeling performance as presented in the previous section, can successfully translate into stronger {policy} model
+% learning.
+% Here we compare using {\name} as the preference judge for DPO on {HealthBench} against two baselines expanding {both reasoning-based RM-R1-7B (Qwen-2.5-Inst), and non-reasoning based} ArmoRM~\citep{wang2024interpretable}. 
+% Specifically, we use Qwen-2.5-7B-Instruct as the base policy model and collect independent 4 responses from it to each question in HealthBench.
+% The preference pairs are labeled with different reward models, upon which the base model is finetuned with DPO. 
+
+
+% The DPO performance results are reported in Figure~\ref{fig:health_policy}.
+% According to the Figure, 
+% holding the policy backbone and DPO recipe fixed, replacing baseline judges with
+% {\name} consistently yields the best downstream performance.
+% Starting from the base model ({21.6}), DPO via {ArmoRM} reaches
+% {22.5} and via {RM-R1-7B} reaches {22.7}, whereas
+% {DPO via {\name}} attains {23.8}, the highest among all settings.
+% This results in 1.1 to 1.3 absolute gain over strong 7B reasoning rewards echoes
+% our findings that rubric-aware, domain-tuned signals provide cleaner preferences for policy optimization than generative reasoning at a similar scale. 
+
+
+% \begin{figure}[h!]
+%     \centering
+%     \includegraphics[width=0.6\textwidth]{figures/1008_exp/Health_policy.pdf}
+%     \caption{Comparison of trained policy models on HealthBench.}
+%     \label{fig:health-policy}
+% \end{figure}
+
+% \input{tables/compute_speed}
+% \begin{table}[h!]
+
+
+% \begin{minipage}{0.55\textwidth}
+
+% \end{minipage}
+% \hfill
+% \begin{minipage}{0.4\textwidth}
+% \centering
+% \captionof{table}{
+% Computing speed of different judge and reward models on 100 randomly chosen samples using vLLM.
+% }
+% \resizebox{\linewidth}{!}{%
+% \begin{tabular}{lc}
+% \toprule
+% \textbf{}       & \textbf{Compute Time (sec.)} \\
+% \midrule
+% JudgeLRM-7B                 & 25.71 \\
+% RRM-7B                      & 203.4  \\
+% RM-R1-7B (Qwen-2.5-Inst)    & 260.37 \\
+% RM-R1-7B (DeepSeek-Dist)    & 170.76 \\
+% RM-R1-14B (Qwen-2.5-Inst)   & 322.79 \\
+% RM-R1-14B (DeepSeek-Dist)   & 382.02 \\ 
+% \midrule
+% \rowcolor{lightblue!10}
+% {\name-8B}                  & 130.77 \\
+% \bottomrule
+% \end{tabular}
+% }
+% \end{minipage}
+\input{tables/case_chat_hard}
+
+\subsection{Efficiency Comparison}
+\label{subsec:efficiency}
+% \begin{wraptable}{r}{0.4\textwidth}
+% \vspace{-7ex} % tweak if needed
+% \centering
+% \caption{Computing speed on 100 samples (vLLM).}
+% \label{tab:speed}
+% \resizebox{\linewidth}{!}{
+% \begin{tabular}{lc}
+% \toprule
+% & \textbf{Compute Time (sec.)} \\
+% \midrule
+% JudgeLRM-7B               & 25.71 \\
+% RRM-7B                    & 203.4 \\
+% RM-R1-7B (Qwen-2.5-Inst)  & 260.37 \\
+% RM-R1-7B (DeepSeek-Dist)  & 170.76 \\
+% RM-R1-14B (Qwen-2.5-Inst) & 322.79 \\
+% RM-R1-14B (DeepSeek-Dist) & 382.02 \\
+% \midrule
+% \rowcolor{lightblue!10}
+% {\name-8B}                & 130.77 \\
+% \bottomrule
+% \end{tabular}
+% }
+% \vspace{-2ex}
+% \end{wraptable}
+
+\begin{table}[t]
+  \centering
+  \renewcommand\arraystretch{0.92}
+  \resizebox{0.4\textwidth}{!}{%
+    \begin{tabular}{lc}
+      \toprule
+      & \textbf{Compute Time (sec.)} \\
+      \midrule
+      JudgeLRM-7B               & 25.71 \\
+      RRM-7B                    & 203.4 \\
+      RM-R1-7B (Qwen-2.5-Inst)  & 260.37 \\
+      RM-R1-7B (DeepSeek-Dist)  & 170.76 \\
+      RM-R1-14B (Qwen-2.5-Inst) & 322.79 \\
+      RM-R1-14B (DeepSeek-Dist) & 382.02 \\
+      \midrule
+      \rowcolor{lightblue!10}
+      {\name-8B}                & 130.77 \\
+      \bottomrule
+    \end{tabular}%
+  }
+  \vspace{-1ex}
+  \caption{Computing speed on 100 samples (vLLM).\vspace{-1.5ex}}
+  \label{tab:speed}
+\end{table}
+
+% In this section we analyze the computing cost for {\name} inference. 
+Table~\ref{tab:speed} reports wall-clock time on 100 randomly sampled prompts from RewardBench2. 
+Despite using two \texttt{Qwen-3-8B} components (rubric generator + judge), {\name} runs in \textbf{130.77s}, which is \textbf{no slower} than existing reasoning reward models, including RRM-7B (203.4s) and RM-R1-7B/14B (170.8–382.0s). It is substantially faster than 14B R1 variants and competitive with strong 7B reasoning baselines. 
+Efficiency stems from our architecture: rather than long Chain-of-Thought decoding, we use short rubric generation followed by a lightweight judge. 
+Moreover, rubrics are amortizable and can be cached for reuse across many examples, removing rubric generation cost during large-scale scoring. 
+Although JudgeLRM achieves lower latency, it lacks the explicit, interpretable signals necessary for downstream policy optimization. % Notably, our {\name} (130.77 sec), whose \emph{rubric generator} and \emph{judge} are both \texttt{Qwen-3-8B}, is \textbf{not slower} than existing reasoning reward models such as {RRM-7B} (203.4 sec) and {RM-R1-7B/14B} (170.76 – 382.02 sec). In particular, it is markedly faster than the 14B {R1} variants and competitive with the stronger 7B reasoning baselines, while operating at the 8B scale.
+% We attribute the speed gap to the different computation patterns. Prior reasoning reward models execute long chain-of-thought traces before emitting a final judgment, incurring substantial decoding latency. In contrast, our approach \emph{decomposes} evaluation into two focused stages—(i) generating or retrieving a rubric and (ii) applying a lightweight judge conditioned on that rubric—so each step remains short and targeted.
+% A further practical advantage is that rubrics are \emph{amortizable}: once produced, they can be computed offline and cached for reuse across many examples, eliminating rubric generation cost at scoring time. This property makes {Rubric-RM} especially attractive for large-scale preference optimization, where repeated judgments dominate runtime. While {JudgeLRM-7B} achieves the lowest raw latency (25.71 sec), it does not provide the explicit rubric signal that enables our method’s interpretability and downstream policy optimization.
+
+
+
+\subsection{Case Studies}
+\label{subsec:case-study}
+We conclude this section with a case study that illustrates how {\name} handles challenging inputs and improves reward modeling. 
+Table~\ref{tab:case-chat-hard} shows the case study on RewardBench, where both responses are vivid, but the instruction requires \emph{fewer than two paragraphs}. The baselines miss this hard constraint and incorrectly prefer the longer answer, exhibiting a verbosity bias and an instruction violation. In contrast, \modelname{} first applies a simple structural check to reject the non-compliant candidate, then compares higher-level qualities (e.g., imagery, originality, focus), and selects the correct response. This example shows how long CoT can still overlook explicit constraints, while rubric-based decomposition makes such failures clear. 
+
+% The second case study, as shown in Table~\ref{tab:case-follow} in Appendix \ref{app:case}, is harder. Both answers look polished and the gap is subtle. The baselines make evidence-related factual errors—for example, claiming the better response lacks a date or citation—even though it includes a direct quote with an explicit publication date (May~16,~2024) and concrete figures (\$387B cumulative investment). \name instead treats recency and verifiability as hard requirements (quote, date, concise summary, and economic implications) and chooses the response that satisfies them. This highlights robustness to citation hallucinations and to being swayed by academic-looking prose.
+
+% Across both cases, generative reasoning RMs fail for two common reasons: (i) they miss explicit hard rules (structure and evidence), and (ii) they are vulnerable to hallucinated or weakly verifiable references. By enforcing hard requirements before scoring softer qualities, \name makes decisions more reliable and easier to interpret on difficult examples.
+
+
+
+% \subsection{Case Studies}
+% \label{subsec:case-study}
+% We end up this section with concrete case studies on how {\name} addresses challenging inputs and leads to better reward modeling. 
+% We present two instances drawn from RewardBench and FollowBench benchmarks respectively, with baselines chosen
+% from \emph{same-size} generative reasoning reward models. 
+% Namely, we use {JudgeLRM-7B} and {RRM-7B} in Case 1, and
+% two {RM-R1-7B} variants (DeepSeek-Dist, Qwen-2.5-Inst)
+% for Case~2. The detailed results are shown in
+% Table~\ref{tab:case-chat–hard} and Table~\ref{tab:case-follow} respectively.
+
+% \input{tables/case_chat_hard}
+% \input{tables/case_followbench}
+
+% \paragraph{Case 1 (RewardBench).} Both responses contain vivid descriptions, but the instruction explicitly
+% requires \emph{fewer than two paragraphs}. Two baseline RMs overlook this
+% hard requirement and \textit{incorrectly} prefer the longer response, exhibiting a certain
+% {verbosity bias} and resulting in {instruction violations}. In contrast,
+% {\name} first applies the {Gatekeeper} ``paragraph count'' to reject the
+% non-compliant candidate, and then scores principles ``imagery/originality/focus'',
+% ultimately selects the \textit{correct} answer. This example highlights how
+% chain-of-thought fails to fulfill constraint in the instruction,
+% while rubric-judge decompositions successfully makes the requirement explicit and failure case clear. 
+
+% % \paragraph{Case 2 (FollowBench).}
+% % This example is more challenging: both answers are longer and the quality gap is
+% % subtle. Baselines nevertheless produce factual mistakes about the evidence, e.g.,
+% % asserting that the better response lacks a date/citation, despite it
+% % {correctly providing} quotes with a clear publication date ({May 16, 2024}) and concrete figures (\$387B cumulative investment). 
+% % Our rubric-aware judge identifies \emph{recency} and \emph{verifiability} as
+% % hard requirements (quote, date, concise summary, and economic implications),
+% % and favors the response that meets them. This demonstrates {\name}'s robustness
+% % to \emph{citation hallucinations} and over-weighting of “academic-looking”
+% % prose that misled generative reasoning RMs.
+
+% \paragraph{Case 2 (FollowBench).}
+% This example is more challenging: both answers are long and superficially well-written, making the quality gap subtle.
+% Baselines nonetheless make evidence-related factual errors—for instance, claiming that the better response lacks a date or citation—despite it providing a direct quote with an explicit publication date (May~16,~2024) and concrete figures (\$387B cumulative investment).
+% In contrast, our rubric-aware judge treats \emph{recency} and \emph{verifiability} as hard requirements (quote, date, concise summary, and economic implications) and selects the response that satisfies them.
+% This highlights \name's robustness to \emph{citation hallucinations} and to being swayed by “academic-looking” prose that can mislead generative reasoning RMs.
+
+
+% \paragraph{Takeaways.}
+% Across both cases, baseline reward models with long CoT capabilities still fail for two recurring reasons:
+% (i)~they overlook explicit hard rules (structural and evidentiary constraints),
+% and (ii)~they are vulnerable to hallucinated or weakly verifiable references.
+% By contrast, {\name} enforces gatekeepers before scoring higher-level qualities,
+% yielding interpretable decisions and improved accuracy on difficult examples.
+% We also observe that the gatekeeper stage reduces false positives from
+% off-task/overlong content and elevates \emph{verifiability-aware} judging in
+% domains (e.g., science/finance) where recency and source integrity matter.
+
+
+

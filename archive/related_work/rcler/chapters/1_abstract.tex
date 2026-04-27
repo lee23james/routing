@@ -1,0 +1,9 @@
+\begin{abstract}
+Chain-of-thought (CoT) plays a crucial role in LLM reasoning, yet outcome-centric reinforcement learning with verifiable rewards (RLVR) typically optimizes only final-answer correctness, leaving CoTs largely unrewarded and potentially inducing sub-optimal reasoning strategies. 
+While important, directly rewarding CoT is challenging mainly for two practical reasons: training a reward model (RM) for CoT rewarding typically requires substantial human efforts, and a static RM may fail to align with the dynamic CoT distribution changes during training and also be vulnerable to reward hacking. 
+These challenges motivate us to seek an autonomous CoT rewarding approach that requires no human annotation efforts and can evolve gradually. 
+Inspired by recent self-evolving training methods, we propose \textbf{RLCER} (\textbf{R}einforcement \textbf{L}earning with \textbf{C}oT Supervision via Self-\textbf{E}volving \textbf{R}ubrics), which enhances the outcome-centric RLVR by rewarding CoTs with self-proposed and self-evolving rubrics.
+We show that these self-proposed and self-evolving rubrics provide meaningful CoT supervision even without outcome rewards, and RLCER outperforms the vanilla outcome-centric RLVR across datasets and LLM backbones. 
+Additionally, we demonstrate that the generated rubrics can also explicitly guide better reasoning, since using them as in-prompt hints further improves the LLM reasoning performance at inference time. 
+\end{abstract}
+

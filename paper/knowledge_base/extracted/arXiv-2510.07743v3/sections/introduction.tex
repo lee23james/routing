@@ -1,0 +1,31 @@
+\vspace{-2mm}
+\section{Introduction}
+\label{sec:intro}
+\vspace{-1mm}
+Reward modeling is central to reinforcement learning from human feedback (RLHF) and is widely used to align large language models (LLMs) with human preferences~\citep{ouyang2022training,wu2023fine,bhaskar2025language}. 
+By assigning a scalar score~\citep{ouyang2022training} or preference label~\citep{chen2025rm} to each response, reward modeling provides the optimization signal during training and steers the policy LLM toward generating helpful and harmless responses.
+
+% [Paragraph 2] Why rubrics? Introduce motivation for rubrics and limitations for existing RL with rubrics works
+While lots of efforts have been paid on RL with \emph{verifiable reward} (RLVR)~\citep{guo2025deepseek,yue2025does}, many high-value applications of LLMs, such as long-form question answering, general helpfulness, operate in inherently subjective domains where correctness cannot be sufficiently captured by binary signals. 
+To bridge this gap, \emph{rubrics-as-rewards (RaR)}~\citep{gunjal2025rubrics} have emerged as a new paradigm for reward modeling. 
+Rubrics include structured natural language criteria that decompose quality into interpretable and measurable dimensions, providing a more consistent and transparent evaluation framework than scalar judgments. For policy models, rubrics also enable optimization to be guided by explicit principles.
+
+Despite their great promise, the construction of high-quality rubrics remains an open challenge. Existing benchmarks~\citep{arora2025healthbench} curate rubrics with the effort from domain experts, which is costly and difficult to scale. Recent works~\citep{huang2025reinforcement,viswanathan2025checklists,gunjal2025rubrics} typically generate rubrics via direct prompting LLMs, but those approaches suffer from limited quality control over rubrics and can be prohibitively expensive when relying on commercial APIs.
+
+
+
+In this work, we present \dataset{}, a large collection of (prompt, rubrics) pairs to facilitate rubric-generation model training. 
+Specifically, we prompt the LLM to generate two complementary types of rubrics: \emph{hard rules}, which capture explicit and objective constraints specified in the prompt, and \emph{principles}, which summarize implicit and generalizable qualities of strong responses. This design allows the rubrics to capture both surface-level requirements and deeper dimensions of quality.
+Although hard rules are typically straightforward to extract, the principles are more subtle and require fine-grained reasoning. To address this, we propose \emph{Contrastive Rubric Generation} (CRG), which conditions on user queries paired with both chosen and rejected responses. By leveraging negative contrasts, CRG encourages the model to identify discriminative qualities that distinguish stronger answers from weaker ones, yielding more comprehensive and ranking-aware rubric signals. 
+To further ensure reliability and reduce the noise, we apply preference-label consistency through rejection sampling, retaining only rubrics that yield correct preference predictions.
+
+Our contributions are three-fold:
+\begin{itemize}[leftmargin=0.4cm]
+\item We introduce \dataset{}, a large-scale and diverse collection of rubrics. This dataset enables both rubric generation models and rubric-informed reward modeling at scale.
+
+\item We distinguish between two fundamental types of rubrics and propose a \emph{contrastive rubric generation} strategy that trains models to produce comprehensive and discriminative rubrics from prompts and responses. Besides, we introduce \emph{preference–label consistency} that improves the quality and reliability of the rubric.
+
+\item We conduct extensive experiments on eight benchmark datasets, where \modelname{} consistently outperforms strong baselines by 8.4\%. Moreover, when integrated into policy optimization, \modelname{} consistently yields notable gains on challenging instruction following and medical benchmark.
+% enables the policy model to achieve strong performance on challenging instruction following and medical benchmarks with an average gain of 2.9\%. 
+Case studies further verify the benefits of combining hard rules and principles, showing that rubrics help reduce false positives from overly long outputs.
+\end{itemize}

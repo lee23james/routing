@@ -1,0 +1,14 @@
+\section{Related Works}
+\label{sec:related_work}
+
+\paragraph{Reward Modeling.} 
+Standard reward models assign scalar scores to responses by applying a ranking loss under the Bradley–Terry framework~\citep{bradley1952rank,liu2025skywork}. To enhance reasoning capability, generative reward models (GenRMs) incorporate synthesized Chains of Thought (CoT), enabling more accurate reward estimation~\citep{ankner2024critique,yu-etal-2025-self,zhang2025generative,liang-etal-2025-generative}. Beyond the pointwise setting, pairwise reward models have been proposed to directly compare multiple responses~\citep{xu2025unified,liu2025pairjudge}. 
+More recently, reinforcement learning has been leveraged to further optimize reward models, enabling them to reason explicitly over comparisons and thereby achieve stronger alignment performance~\citep{chen2025judgelrm,chen2025rm,whitehouse2025j1,guo2025reward}. 
+Orthogonal to these efforts, our work focuses on improving reward modeling quality with structured rubrics. By introducing rubric-based evaluation signals, we complement existing approaches with an additional layer of interpretability that yield performance gains.
+
+\paragraph{Rubrics as Rewards.}  
+Recent work has explored rubrics for both evaluation and alignment.
+Rubrics provide structured assessments of model generations~\citep{arora2025healthbench,hashemi2024llm,pathak2025rubric,lin2025wildbench}, guide instruction following and domain adaptation~\citep{viswanathan2025checklists,gunjal2025rubrics}, improve safety via rule-based rewards~\citep{mu2024rule}, and have been combined with verifiable rewards for reasoning tasks~\citep{huang2025reinforcement,zhou2025breaking}.
+Yet most existing approaches rely on prompting frontier LLMs to generate rubrics, which limits scalability and consistency. 
+{Our work introduces a more scalable framework for \emph{high quality synthetic rubric generation}}, improving both reward quality and interpretability at a cheaper cost.
+Concurrently, \citet{zhang2025chasing} also investigate rubric generation, but focus on \emph{iterative refinement} to mitigate reward over optimization, whereas we emphasize scalable synthesis and rubric–preference consistency.

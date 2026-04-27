@@ -1,0 +1,24 @@
+\begin{abstract}
+Reward modeling lies at the core of reinforcement learning from human feedback (RLHF), yet most existing reward models rely on scalar or pairwise judgments that fail to capture the multifaceted nature of human preferences.
+Recent studies have explored \emph{rubrics-as-rewards} (RaR) that uses structured criteria to capture multiple dimensions of response quality. However, producing rubrics that are both reliable and scalable remains a key challenge.
+In this work, we introduce \textbf{\dataset{}}, a diverse, large-scale collection of (prompt, rubric) pairs for training rubric-generation and rubric-based reward models. 
+To elicit discriminative and comprehensive evaluation signals, we introduce \emph{Contrastive Rubric Generation} (CRG), which derives both hard rules (explicit constraints) and principles (implicit qualities) by contrasting preferred and rejected responses. We further remove noisy rubrics via preserving preference–label consistency. Across multiple reward-modeling benchmarks, our rubric-based reward model, \modelname{}, surpasses strong size-matched baselines by 8.4\%. These gains transfer to policy models on instruction-following and biomedical benchmarks. 
+\vspace{2mm}
+
+\textit{Keywords: Rubrics-as-Rewards, Reward Modeling, LLM Alignment, Synthetic Data}
+
+\vspace{5mm}
+
+\coloremojicode{1F4C5} \textbf{Date}: \today
+
+% \coloremojicode{1F3E0} \textbf{Projects}: \href{https://wangrongsheng.github.io}{https://wangrongsheng.github.io}
+
+% \github{} \textbf{Code Repository}: \href{AAAA}{AAAA} \
+
+\coloremojicode{1F917} \textbf{Model Weights \& Checkpoints}: \href{https://huggingface.co/OpenRubrics/models}{https://huggingface.co/OpenRubrics/models}
+
+\coloremojicode{1F4DA} \textbf{Datasets}: \href{http://huggingface.co/OpenRubrics/datasets}{http://huggingface.co/OpenRubrics/datasets}
+
+\coloremojicode{1F4E7} \textbf{Contact}: \href{mailto:liu3351@purdue.edu}{liu3351@purdue.edu}; \href{mailto:ran.xu@emory.edu}{ran.xu@emory.edu}; \href{mailto:hwang28@albany.edu}{hwang28@albany.edu}
+
+\end{abstract}

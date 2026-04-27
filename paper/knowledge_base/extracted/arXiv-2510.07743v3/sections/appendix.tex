@@ -1,0 +1,84 @@
+% \newpage
+
+\appendix
+
+% \section{\hspace{-4mm} \centering Appendix}
+% \section{\centering Appendix}
+
+% \vspace{3mm}
+
+% This appendix provides additional details on the technical implementation of our arXiv template, along with examples to assist users in customizing and utilizing its features effectively. The template leverages modern LaTeX packages such as \texttt{geometry}, \texttt{fontspec}, and \texttt{microtype} to ensure precise control over layout and typography, while advanced functionalities like automated metadata generation and multi-column layouts are designed for ease of use. Notably, Qwen and DeepSeek contributed significantly to optimizing code efficiency and refining design elements, particularly in handling complex equations and improving figure/table placement. Below are sample code snippets demonstrating key features, including title page setup, multi-column formatting, and bibliography management. Users are encouraged to experiment with these examples to tailor the template to their specific needs while maintaining a professional and visually appealing presentation.
+
+
+\begin{figure}[t]
+  \centering
+   \vspace{-1ex}
+  \includegraphics[width=0.5\linewidth]{figures/pie_chart_judge.pdf}
+  \caption{The data distribution for {\dataset} (in \# pairwise judge). \vspace{-2ex}}
+  \label{fig:pie_chart_judge}
+\end{figure}
+
+\section{Additional Rubric Statistics}
+We present additional rubric statistics in the number of preference pairs in Figure~\ref{fig:pie_chart_judge}.
+
+\section{Additional Implementation Details}
+\label{apd:implementation_details}
+\subsection{Decoding and efficiency protocol}
+All models are run under matched decoding budgets (temperature, max tokens, and stop conditions per benchmark recommendations). We use unified execution stack vLLM~\citep{kwon2023efficient} for throughput-fair comparisons. For efficiency (Table~\ref{tab:speed}), we measure wall-clock time to score a fixed set of prompts; note that rubrics from stage~(i) are cacheable and can be reused across examples, amortizing the cost in large-scale judging and preference optimization.
+
+
+% \subsection{Reproducibility.}
+% Our {\name} (via SFT) and policy models (via DPO;~\citet{rafailov2023direct}) are trained with LLaMA-Factory~\citep{zheng2024llamafactory}.
+% % We use LLaMA-Factory~\citep{zheng2024llamafactory} to train {\name} (via SFT) and policy models (via DPO;~\citet{rafailov2023direct}). 
+% For evaluation, we use the benchmarks’ official scripts where available. 
+% To facilitate reproducibility, we release our training and inference configuration in Appendix \ref{app:hparams}. Prompts, including rubric templates, are provided in Appendix \ref{app:prompts}.
+
+
+
+
+\subsection{Hyper-parameters}
+\label{app:hparams}
+
+
+Table \ref{tab:train} details the hyper-parameters used in {\name} and policy model training, which were conducted in LLaMA-Factory~\citep{zheng2024llamafactory}. 
+Moreover, 
+Table \ref{tab:sample} presents sampling parameters used in {\dataset} curation and {\name} inference. 
+For baseline methods, we adopted the sampling parameters from their official implementations and papers.  
+
+\input{tables/hparams}
+\input{tables/case_followbench}
+
+\subsection{Additional Case Study}
+\label{app:case}
+Another example is shown in Table \ref{tab:case-follow}. This example is more challenging: both answers are longer and the quality gap is
+subtle. Baselines nevertheless produce factual mistakes about the evidence, e.g.,
+asserting that the better response lacks a date/citation, despite it
+\emph{correctly providing} a BloombergNEF quote with a \emph{May 16, 2024}
+publication date and concrete figures (\$387B cumulative investment). Our
+rubric-aware judge identifies \emph{recency} and \emph{verifiability} as
+hard requirements (quote, date, concise summary, and economic implications),
+and favors the response that meets them. This demonstrates {\name}'s robustness
+to \emph{citation hallucinations} and over-weighting of “academic-looking”
+prose that misled generative reasoning RMs.
+
+
+\subsection{Prompts}
+\label{app:prompts}
+
+We present the prompts we used in this subsection. 
+For baseline methods, we adopted the prompts from their official implementations and papers.  
+
+\clearpage
+\input{tables/prompt_rubric_listwise}
+
+\clearpage
+\input{tables/prompt_rubric_pairwise}
+
+% \clearpage
+\input{tables/prompt_judge_general}
+
+% \clearpage
+\input{tables/prompt_judge_medical}
+
+% \clearpage
+\input{tables/prompt_sft_rubric}

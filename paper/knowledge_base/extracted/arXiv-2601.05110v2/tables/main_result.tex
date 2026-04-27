@@ -1,0 +1,108 @@
+% \begin{table*}[t]
+% \centering
+% \label{tab:experiment_results}
+% % \small
+% \begin{tabular}{lcccccccccc}
+% \toprule
+% \multirow{3}{*}{\textbf{Method}} & \multicolumn{2}{c}{\textbf{AIME24}} & \multicolumn{2}{c}{\textbf{AIME25}} & \multicolumn{2}{c}{\textbf{GPQA}} & \multicolumn{2}{c}{\textbf{LCB v5}} & \multicolumn{2}{c}{\textbf{LCB v6}} \\
+% \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9} \cmidrule(lr){10-11}
+%  & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ \\
+% \midrule
+% Small Model & 48.33 & 99  & 45.00 & 105 & 61.11 & 76  & 47.90 & 100 & 43.71 & 94 \\
+% Large Model & 57.50 & 197 & 46.67 & 220 & 61.62 & 176 & 52.40 & 219 & 46.86 & 214 \\
+
+% \midrule
+
+% SpecCoT     & 60.00 & 159 & 50.00 & 175 & 62.75 & 135 & 53.29 & 168 & 47.14 & 165 \\
+% SpecReason  & 57.50 & 158 & 44.17 & 169 & 63.76 & 213 & 53.59 & 185 & 47.57 & 189 \\
+% \midrule
+% \approach & \textbf{60.83} & \textbf{143} & \textbf{51.67} & \textbf{163} & \textbf{64.02} & \textbf{129} & \textbf{54.64} & \textbf{160} & \textbf{48.29} & \textbf{160} \\
+% \bottomrule
+% \end{tabular}
+% \caption{Performance comparison of different methods on multiple benchmarks. Acc denotes accuracy (percentage), and Lat denotes inference latency (seconds).}
+% \end{table*}
+
+
+% \begin{table*}[t]
+% \centering
+% % \small
+% \setlength{\tabcolsep}{4.5pt} % 稍微缩小列间距以适应页面宽度
+% \begin{tabular}{llcccccccccc}
+% \toprule
+% \multirow{2}{*}{\textbf{SLM}} & \multirow{2}{*}{\textbf{Method}} & \multicolumn{2}{c}{\textbf{AIME24}} & \multicolumn{2}{c}{\textbf{AIME25}} & \multicolumn{2}{c}{\textbf{GPQA}} & \multicolumn{2}{c}{\textbf{LCBv5}} & \multicolumn{2}{c}{\textbf{LCBv6}} \\
+% \cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10} \cmidrule(lr){11-12}
+%  & & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ \\
+% \midrule
+% % --- 1.5B Group ---
+% \multirow{5}{*}{\textbf{DS-1.5B}} 
+% & SLM only & 25.83 & 60  & 26.67 & 57  & 15.91 & 37  & 15.12 & 66  & 20.29 & 62 \\
+% & Random & 43.33 & 127 & 28.33 & 135 & 46.46 & 88 & 37.13 & 142 & 33.71 & 138 \\
+% % & LLM only & 00.00 & 000 & 00.00 & 000 & 00.00 & 000 & 00.00 & 000 & 00.00 & 000 \\
+% & RSD & 46.67 & 162 & 35.83 & 173 & 49.90 & 123 & 41.32 & 198 & 37.71 & 197 \\
+% & SpecCoT    & 50.00 & 158 & 30.83 & 168 & 51.01 & 121 & 37.96 & 193 & 37.03 & 184 \\
+% & SpecReason & 45.83 & 152 & 31.67 & 171 & 53.41 & 159 & 38.08 & 192 & 38.26 & 190 \\
+% & \approach & \textbf{51.67} & 145 & \textbf{39.17} & 166 & \textbf{54.04} & 117 & \textbf{45.66} & 189 & \textbf{43.57} & 182 \\
+
+% \midrule
+% % --- 4B Group ---
+% \multirow{5}{*}{\textbf{Qwen3-4B}} 
+% & SLM only & 48.33 & 99  & 45.00 & 105 & 61.11 & 76  & 47.90 & 100 & 43.71 & 94 \\
+% & Random & 56.67 & 137 & 48.33 & 147 & 62.50 & 114 & 52.25 & 142 & 47.00 & 131 \\
+% % & LLM only & 57.50 & 197 & 46.67 & 220 & 61.62 & 176 & 52.40 & 219 & 46.86 & 214 \\
+% & RSD & 58.33 & 167 & 45.83 & 171 & 63.64 & 146 & 51.95 & 180 & 45.71 & 178 \\
+% & SpecCoT    & 60.00 & 159 & 50.00 & 175 & 62.75 & 135 & 53.29 & 168 & 47.14 & 165 \\
+% & SpecReason & 57.50 & 158 & 49.17 & 169 & 63.76 & 213 & 53.59 & 185 & 47.57 & 189 \\
+% & \approach & \textbf{60.83} & 143 & \textbf{51.67} & 163 & \textbf{64.02} & 129 & \textbf{54.64} & 160 & \textbf{48.29} & 160 \\
+
+% \midrule
+% - & LLM only & 57.50 & 197 & 46.67 & 220 & 61.62 & 176 & 52.40 & 219 & 46.86 & 214 \\
+% \bottomrule
+% \end{tabular}
+% \caption{
+% Performance comparison with DeepSeek-R1-Distill-Qwen-1.5B and Qwen3-4B as SLM ($M_S$). LLM ($M_L$) is fixed as DeepSeek-R1-Distill-Qwen-32B. Acc and Lat represent Accuracy (Pass@1, \%) and Average Latency (s), respectively. The best performance within each collaborative group is highlighted in bold.
+% } \zeng{update new results}
+% \label{tab:main_results}
+% \end{table*}
+
+
+
+\begin{table*}[t]
+\centering
+% \small
+\setlength{\tabcolsep}{3.5pt} % 稍微缩小列间距以适应页面宽度
+\begin{tabular}{llcccccccccc}
+\toprule
+\multirow{2}{*}{\textbf{LLM}} & \multirow{2}{*}{\textbf{Method}} & \multicolumn{2}{c}{\textbf{AIME24}} & \multicolumn{2}{c}{\textbf{AIME25}} & \multicolumn{2}{c}{\textbf{GPQA}} & \multicolumn{2}{c}{\textbf{LCBv5}} & \multicolumn{2}{c}{\textbf{LCBv6}} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8} \cmidrule(lr){9-10} \cmidrule(lr){11-12}
+ & & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ & Acc $\uparrow$ & Lat $\downarrow$ \\
+\midrule
+- & SLM only & 48.33 & 99  & 45.00 & 105 & 61.11 & 76  & 47.90 & 100 & 43.71 & 94 \\
+\midrule
+% --- 1.5B Group ---
+\multirow{5}{*}{\textbf{Qwen3-32B}} 
+& LLM only & 60.00 & 220 & 48.33 & 231 & 61.87 & 194 & \textbf{52.69} & 249 & \textbf{47.43} & 241 \\
+& Random & 56.67 & 134 & 47.50 & 136 & 61.74 & 128  & 51.20 & 147 & 44.00 & 146 \\
+& RSD      & 59.17 & 167 & 47.50 & 173 & 62.50 & 165 & 51.05 & 209 & 46.29 & 208 \\
+& SpecCoT    & 58.33 & 161 & 48.33 & 170 & 61.62 & 163 & 51.05 & 195 & 45.71 & 192 \\
+& SpecReason & 60.00 & 160 & 49.17 & 162 & 62.63 & 181 & 51.50 & 213 & 46.29 & 214 \\
+& \approach & \textbf{60.83} & 145 & \textbf{51.67} & 147 & \textbf{63.01} & 142 & \textbf{52.69} & 162 & 47.14 & 165 \\
+
+\midrule
+% --- 4B Group ---
+\multirow{5}{*}{\textbf{DeepSeek-32B}} 
+& LLM only & 57.50 & 197 & 46.67 & 220 & 61.62 & 176 & 52.40 & 219 & 46.86 & 214 \\
+& Random & 56.67 & 137 & 48.33 & 147 & 62.50 & 114 & 52.25 & 142 & 47.00 & 131 \\
+% & LLM only & 57.50 & 197 & 46.67 & 220 & 61.62 & 176 & 52.40 & 219 & 46.86 & 214 \\
+& RSD & 58.33 & 167 & 45.83 & 171 & 63.64 & 146 & 51.95 & 180 & 45.71 & 178 \\
+& SpecCoT    & 60.00 & 159 & 50.00 & 175 & 62.75 & 135 & 53.29 & 168 & 47.14 & 165 \\
+& SpecReason & 57.50 & 158 & 49.17 & 169 & 63.76 & 213 & 53.59 & 185 & 47.57 & 189 \\
+& \approach & \textbf{60.83} & 143 & \textbf{51.67} & 163 & \textbf{64.02} & 129 & \textbf{54.64} & 160 & \textbf{48.29} & 160 \\
+
+\bottomrule
+\end{tabular}
+\caption{
+Performance comparison with Qwen3-32B and DeepSeek-R1-Distill-Qwen-32B as LLM, and SLM is fixed as Qwen3-4B. Acc and Lat represent Accuracy (Pass@1, \%) and Average Latency (s), respectively. The best performance within each group is highlighted in bold.
+}
+\label{tab:main_results}
+\vspace{-10pt}
+\end{table*}

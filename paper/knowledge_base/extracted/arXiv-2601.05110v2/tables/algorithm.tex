@@ -1,0 +1,69 @@
+% % --- Algorithm Block (Spanning Two Columns) ---
+% \begin{algorithm*}[tbh]
+% % \small
+% \caption{Step-wise Collaborative Inference via \approach}
+% \label{alg:fte_router}
+% \begin{algorithmic}[1]
+% \Require Query $q$, Large Model $M_L$, Small Model $M_S$, Threshold $\tau$
+% \Ensure Composite Reasoning Chain $\hat{\mathcal{T}}$
+
+% \Function{CollaborativeInference}{$q$, $M_L$, $M_S$,  $\tau$}
+%     \State Initialize $\hat{\mathcal{T}} \leftarrow \emptyset$, $k \leftarrow 1$
+%     \While{not finished}
+%         \State \textbf{Construct Context:} 
+%         \State $\mathbf{c}_k \leftarrow \text{FormatContext}(q, \hat{\mathcal{T}})$ \Comment{Concatenate query and preceding steps}
+        
+%         \State \textbf{Probe Generation:}
+%         \State $P_{first} \leftarrow M_S.\text{forward}(\mathbf{c}_k)$ \Comment{Get logits of the first token}
+%         \State $h_k \leftarrow \text{CalculateEntropy}(P_{first})$
+        
+%         \State \textbf{Dynamic Routing:}
+%         \If{$h_k > \tau$}
+%             \State $\hat{s}_k \leftarrow M_L.\text{generate}(\mathbf{c}_k)$ \Comment{Large model generates the step}
+%         \Else
+%             \State $\hat{s}_k \leftarrow M_S.\text{generate}(\mathbf{c}_k)$ \Comment{Small model completes the step}
+%         \EndIf
+        
+%         \State Append $\hat{s}_k$ to $\hat{\mathcal{T}}$
+%         \State $k \leftarrow k + 1$
+%     \EndWhile
+%     \State \Return $\hat{\mathcal{T}}$
+
+% \EndFunction
+% \end{algorithmic}
+% \end{algorithm*}
+% % --- Algorithm Block End ---
+
+
+
+% --- Algorithm Block (Spanning Two Columns) ---
+\begin{algorithm}[tbh]
+\small
+\caption{Step-wise Collaborative Inference via \approach}
+\label{alg:ite_router}
+\begin{algorithmic}[1]
+\State \textbf{Inputs:} question $q$, large model $M_L$, small model $M_S$, entropy threshold $\tau$
+\State \textbf{Output:} a composite reasoning chain $\hat{\mathcal{T}}$
+
+\State $\hat{\mathcal{T}} \leftarrow \emptyset$ // Initialize the reasoning chain 
+\State $k \leftarrow 1$
+
+\While{not finished}
+    \State  $\mathbf{c}_k$=\textsc{ConCat}($q$, $\hat{\mathcal{T}}$) // Construct the current context by concatenating question and historical steps 
+    \State $P_{\text{init}}$ = $M_S(\mathbf{c}_k)$ // Compute the first-token distribution using the small model 
+    \State Calculate the initial token entropy $\mathbf{H}_\text{init}(s_k)$ 
+    %\State \textbf{Dynamic Routing and Generation:}
+    \If{$\mathbf{H}_\text{init}(s_k) > \tau$}
+        \State $\hat{s}_k \leftarrow M_L(\mathbf{c}_k)$ // Generate $\hat{s}_k$ using the large model
+    \Else
+        \State $\hat{s}_k \leftarrow M_S(\mathbf{c}_k)$ // Generate $\hat{s}_k$ using the small model
+    \EndIf
+    
+    \State $\hat{\mathcal{T}}$ = \textsc{ConCat}($\hat{\mathcal{T}}, \hat{s}_k$) // Append the generated step to the reasoning chain
+    \State $k \leftarrow k + 1$
+\EndWhile
+
+\State \Return $\hat{\mathcal{T}}$
+\end{algorithmic}
+\end{algorithm}
+% --- Algorithm Block End ---

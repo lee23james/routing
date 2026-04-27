@@ -1,0 +1,271 @@
+{
+  "paper_id": "rub_002_rlcer",
+  "title": "RLCER: Reinforcement Learning with CoT Supervision via Self-Evolving Rubrics",
+  "authors": [
+    "Liangyou Li",
+    "Shengjie Chen",
+    "Yunming Zhang",
+    "Lihua Qian",
+    "Yue Lin",
+    "Fei Huang",
+    "Yongbin Li"
+  ],
+  "affiliation": "Tongyi Lab, Alibaba Group",
+  "year": 2026,
+  "venue": "arXiv preprint",
+  "venue_type": "preprint",
+  "arxiv_id": "2602.10885",
+  "tier": "preprint",
+  "must_cite": true,
+  "status": "parsed",
+  "task": [
+    "reasoning_training",
+    "process_supervision",
+    "rubric_guided_rl"
+  ],
+  "subtopic": [
+    "self_evolving_rubrics",
+    "cot_supervision",
+    "rubric_as_reward",
+    "rubric_as_hint"
+  ],
+  "background": {
+    "problem_context": "Reinforcement Learning with Verifiable Rewards (RLVR) trains reasoning LLMs using binary outcome rewards (correct/incorrect final answer). While effective, outcome-only rewards provide sparse signals that cannot distinguish good reasoning processes from lucky guesses, leading to reward hacking (correct answers via flawed reasoning) and overthinking (verbose, redundant CoT).",
+    "prior_limitations": [
+      "Outcome-centric RLVR (e.g., GRPO with binary reward) provides only sparse signal at the end of the trajectory — no feedback on intermediate reasoning quality",
+      "Process Reward Models (PRMs) require expensive human annotation of step-level correctness labels",
+      "External PRMs suffer from distribution shift relative to the policy model being trained",
+      "No existing method automatically generates process-level supervision signals that co-evolve with the policy"
+    ],
+    "key_observation": "The policy model itself can serve as a rubric generator ('rubricator'). By prompting the policy to generate evaluation criteria for its own reasoning problems, we obtain rubrics that are inherently aligned with the model's capability level. As the model improves through RL training, its rubric generation capability co-evolves, creating a positive feedback loop — 'self-evolving rubrics'."
+  },
+  "motivation": "Outcome-only RLVR rewards (binary correct/incorrect) provide sparse signals that cannot differentiate good reasoning from lucky guesses, leading to reward hacking and overthinking. Process Reward Models address this but require expensive human annotation. RLCER proposes that the policy model itself can generate and evolve evaluation rubrics for its own CoT reasoning. These self-evolving rubrics provide dense, automatic process-level supervision without external annotation, with the crucial property that rubric quality co-evolves with policy quality.",
+  "novelty_claims": [
+    "Self-evolving rubrics: the policy model simultaneously serves as reasoner and rubricator, generating evaluation criteria that evolve as the model improves through RL training",
+    "Rubric validation via correctness correlation: a rubric is valid if its satisfaction correlates with final-answer correctness, providing a self-supervised quality signal without human annotation",
+    "Dual-use rubrics: training-time reward signal AND inference-time guidance hint",
+    "RLCER outperforms both vanilla RLVR and external PRM-based approaches on math reasoning benchmarks"
+  ],
+  "problem_statement": "Given a policy model being trained with RL on reasoning tasks with verifiable answers, automatically generate and validate process-level evaluation criteria (rubrics) that provide dense reward signals for CoT quality, without requiring human annotation or external models.",
+  "core_idea": "The same policy model generates task-specific rubrics (structured criteria with importance weights) via few-shot prompting. Each rubric criterion evaluates a specific aspect of reasoning quality (e.g., 'correctly identifies the geometric relationship'). During RL training, the combined reward R = R_outcome + λ·R_rubric provides both outcome signal and process signal. R_rubric is computed as the weighted satisfaction score across all rubric criteria. Rubric validity is ensured by checking: (1) correctness correlation — rubric scores are higher for correct-answer trajectories; (2) discriminative power — rubric scores vary meaningfully across trajectories. As the model improves through RL, its rubric generation improves too (co-evolution).",
+  "extended_summary": "RLCER addresses the fundamental limitation of outcome-centric RLVR: sparse rewards that cannot supervise reasoning process quality. The key innovation is self-evolving rubrics — the policy model acts as both reasoner and rubricator. For each training problem, the model generates a JSON array of rubric criteria, each with a natural language description and importance score (1-5). Example: [{\"criterion\": \"Correctly applies the Pythagorean theorem\", \"importance\": 4}, {\"criterion\": \"Shows intermediate calculation steps\", \"importance\": 2}]. During RL rollouts, each generated CoT is evaluated against the rubric: for each criterion, a binary satisfaction score (0/1) is computed, weighted by importance, and aggregated into R_rubric = Σ(importance_i × satisfaction_i) / Σ(importance_i). The combined reward R = R_outcome + λ·R_rubric (λ=0.5 optimal) provides dense, multi-dimensional process feedback. Rubric validation uses two self-supervised checks: (1) correctness correlation — compute the ratio of average rubric score for correct answers vs incorrect answers; higher ratio = better rubric; (2) discriminative power — standard deviation of rubric scores across trajectories must exceed a threshold. Invalid rubrics are discarded. The 'self-evolving' property means that as the policy improves through RL training, its rubric generation also improves, creating a positive feedback loop. Additionally, validated rubrics can serve as inference-time hints: prepending rubric criteria to the prompt at test time further improves accuracy by 1-5%. Experimentally, RLCER outperforms vanilla GRPO by +13.4% on AIME24 (7B) and +20.0% (14B), and outperforms GRPO with external PRM.",
+  "method_pipeline": [
+    {
+      "step": 1,
+      "name": "Self-rubric generation",
+      "description": "Policy model generates task-specific rubric as JSON array of {criterion, importance} pairs via few-shot prompting. The same model that does reasoning also generates evaluation criteria"
+    },
+    {
+      "step": 2,
+      "name": "Rubric validation",
+      "description": "Check two conditions: (1) Correctness correlation: average rubric score for correct answers > average for incorrect answers; (2) Discriminative power: std(rubric_scores) > threshold. Invalid rubrics are discarded"
+    },
+    {
+      "step": 3,
+      "name": "RL rollout with rubric evaluation",
+      "description": "During GRPO rollouts, each generated CoT is evaluated against the rubric. Per-criterion satisfaction (0/1) is computed, weighted by importance, and aggregated"
+    },
+    {
+      "step": 4,
+      "name": "Combined reward computation",
+      "description": "R = R_outcome + λ·R_rubric. λ=0.5 is empirically optimal. R_outcome = 1[correct] (binary). R_rubric = weighted satisfaction score"
+    },
+    {
+      "step": 5,
+      "name": "Policy update via GRPO",
+      "description": "Group Relative Policy Optimization with the combined reward signal. As policy improves, regenerate rubrics periodically (self-evolution)"
+    },
+    {
+      "step": 6,
+      "name": "Optional: inference-time rubric-as-hint",
+      "description": "At test time, prepend validated rubric criteria to the problem prompt as reasoning guidance. Provides 1-5% additional accuracy"
+    }
+  ],
+  "representation": {
+    "input": ["math_problem_with_verifiable_answer"],
+    "internal": ["rubric_criteria_json", "per_criterion_satisfaction_scores", "combined_reward"],
+    "output": ["improved_policy_model", "validated_rubric_set"]
+  },
+  "architecture": {
+    "policy_model_and_rubricator": "Qwen2.5-3B/7B/14B-Instruct (same model for both roles)",
+    "rl_algorithm": "GRPO (Group Relative Policy Optimization)",
+    "rubric_format": "JSON array: [{criterion: string, importance: 1-5}, ...]",
+    "key_modules": [
+      "Rubric generator (policy model with few-shot prompting)",
+      "Rubric validator (correctness correlation + discriminative power)",
+      "Per-criterion evaluator (binary satisfaction scoring)",
+      "Weighted aggregator (importance-weighted sum)"
+    ]
+  },
+  "design_choices": [
+    {
+      "choice": "Self-rubric (policy model generates its own rubrics) rather than external rubricator",
+      "rationale": "Avoids distribution shift: the rubricator is inherently aligned with the policy's capability level. External rubricators may evaluate criteria the policy cannot achieve, providing misleading signals"
+    },
+    {
+      "choice": "Correctness correlation as validation criterion",
+      "rationale": "Self-supervised: requires no human annotation. A valid process rubric should, by definition, be satisfied more often when the final answer is correct. This elegantly connects process evaluation to outcome evaluation"
+    },
+    {
+      "choice": "λ=0.5 for rubric reward weight",
+      "rationale": "Empirically optimal. λ too large → model over-focuses on process at expense of outcome. λ too small → rubric signal drowned out by outcome signal"
+    },
+    {
+      "choice": "Binary criterion satisfaction (0/1) rather than continuous scoring",
+      "rationale": "Simpler, more robust evaluation. Avoids the need for calibrated continuous scoring which would add noise"
+    }
+  ],
+  "learning": {
+    "supervision": "reinforcement_learning with self-supervised rubric reward",
+    "loss_functions": ["GRPO objective with combined outcome + rubric reward"],
+    "training_strategy": "Online RL with periodic rubric regeneration",
+    "optimizer": "AdamW",
+    "key_hyperparameters": [
+      "λ = 0.5 (rubric reward weight)",
+      "Correctness correlation threshold",
+      "Discriminative power threshold",
+      "Rubric regeneration frequency"
+    ]
+  },
+  "datasets": [
+    "MATH-500",
+    "AIME 2024",
+    "AIME 2025",
+    "AMC",
+    "GSM8K",
+    "Minerva Math",
+    "GaoKao 2023 En",
+    "OlympiadBench"
+  ],
+  "evaluation": {
+    "metrics": [
+      "Accuracy (pass@1)",
+      "Improvement over vanilla GRPO",
+      "Rubric validity rate",
+      "Rubric-as-hint accuracy boost"
+    ]
+  },
+  "quantitative_results": [
+    {
+      "dataset": "AIME 2024",
+      "metric": "Accuracy",
+      "value": 46.7,
+      "unit": "%",
+      "config": "Qwen2.5-7B-Instruct + RLCER",
+      "baseline_value": 33.3,
+      "baseline_name": "GRPO (vanilla RLVR)",
+      "notes": "+13.4% points improvement"
+    },
+    {
+      "dataset": "AIME 2024",
+      "metric": "Accuracy",
+      "value": 60.0,
+      "unit": "%",
+      "config": "Qwen2.5-14B-Instruct + RLCER",
+      "baseline_value": 40.0,
+      "baseline_name": "GRPO (vanilla RLVR)",
+      "notes": "+20.0% points improvement"
+    },
+    {
+      "dataset": "MATH-500",
+      "metric": "Accuracy",
+      "value": 89.0,
+      "unit": "%",
+      "config": "Qwen2.5-3B-Instruct + RLCER",
+      "baseline_value": 84.6,
+      "baseline_name": "GRPO",
+      "notes": "+4.4% points"
+    },
+    {
+      "dataset": "Multiple",
+      "metric": "Rubric-as-hint accuracy boost",
+      "value": "1-5",
+      "unit": "% points",
+      "notes": "Additional accuracy from prepending rubric criteria at inference time"
+    },
+    {
+      "dataset": "Multiple",
+      "metric": "RLCER vs GRPO + External PRM",
+      "value": "RLCER superior",
+      "notes": "Self-rubrics outperform external PRM (Qwen2.5-Math-PRM-7B) for process supervision"
+    }
+  ],
+  "baselines_compared": [
+    {
+      "method": "GRPO (vanilla outcome-only RLVR)",
+      "delta": "+13.4% on AIME24 (7B), +20.0% on AIME24 (14B)",
+      "metric": "Accuracy"
+    },
+    {
+      "method": "GRPO + External PRM (Qwen2.5-Math-PRM-7B)",
+      "delta": "RLCER outperforms external PRM-based process supervision",
+      "metric": "Accuracy"
+    },
+    {
+      "method": "Base model (no RL)",
+      "delta": "Significant improvement across all benchmarks",
+      "metric": "Accuracy"
+    }
+  ],
+  "ablation_findings": [
+    {
+      "ablation": "Outcome-only vs Rubric-only vs Combined reward",
+      "effect": "Combined (λ=0.5) > Outcome-only > Rubric-only. Both signals are needed",
+      "key_insight": "Rubric reward complements but cannot replace outcome reward. The two signals are synergistic"
+    },
+    {
+      "ablation": "λ values: {0.1, 0.3, 0.5, 0.7, 1.0}",
+      "effect": "λ=0.5 is optimal. Too high → process over-optimization. Too low → rubric signal ignored",
+      "key_insight": "There's a sweet spot where process and outcome signals are balanced"
+    },
+    {
+      "ablation": "Self-rubric vs external rubricator",
+      "effect": "Self-rubric outperforms because it avoids distribution shift",
+      "key_insight": "The rubricator must be aligned with the policy's capability level"
+    },
+    {
+      "ablation": "With vs without rubric validation",
+      "effect": "Validation significantly improves performance by filtering noisy rubrics",
+      "key_insight": "Without validation, noisy rubrics introduce reward hacking"
+    },
+    {
+      "ablation": "Rubric-as-hint at inference",
+      "effect": "+1-5% accuracy from prepending rubric criteria to test prompts",
+      "key_insight": "Rubrics contain meta-knowledge about problem-solving that can guide inference"
+    }
+  ],
+  "main_findings": [
+    "Self-evolving rubrics provide effective process supervision without human annotation or external models",
+    "The co-evolution of policy and rubricator creates a positive feedback loop that accelerates RL training",
+    "Correctness correlation is an effective self-supervised rubric validation criterion",
+    "Combined outcome + rubric reward significantly outperforms either alone",
+    "Rubrics have dual use: training-time reward signal AND inference-time guidance hint",
+    "Self-rubrics outperform external PRMs for process supervision (no distribution shift)"
+  ],
+  "limitations": [
+    "Self-rubrics are bounded by the policy model's own capability — a weak model may generate poor rubrics",
+    "Rubric evaluation requires LLM inference (per-criterion satisfaction check), adding training overhead",
+    "Binary satisfaction scoring may be too coarse for nuanced reasoning steps",
+    "Rubric regeneration frequency is a critical but under-explored hyperparameter"
+  ],
+  "relevance_to_our_work": {
+    "relation": "direct_methodological_inspiration",
+    "key_connections": [
+      "RLCER's rubric validation (correctness correlation + discriminative power) directly inspires our rubric filtering mechanism",
+      "We adapt the 'rubric as process reward' concept from evaluating CoT quality to evaluating routing decision quality",
+      "RLCER's self-evolution concept inspires our derived rubrics automatically mined from episode statistics",
+      "Our rule-based rubrics eliminate the LLM inference cost that RLCER requires for rubric evaluation",
+      "We adapt the combined reward formula: R = R_outcome + λ_p·R_rubric - λ_c·C(τ)"
+    ],
+    "key_difference": "RLCER rubrics evaluate reasoning CONTENT quality; our rubrics evaluate routing DECISION quality. RLCER requires LLM inference for rubric evaluation; our rubrics are deterministic trajectory-feature functions with zero inference cost"
+  },
+  "keywords": [
+    "self_evolving_rubrics",
+    "process_supervision",
+    "reinforcement_learning",
+    "cot_quality",
+    "rubric_as_reward",
+    "rubric_as_hint",
+    "grpo"
+  ]
+}

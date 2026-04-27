@@ -1,0 +1,115 @@
+\documentclass{article}
+
+
+
+
+\usepackage[preprint]{neurips_2025}
+
+
+\usepackage[utf8]{inputenc} %
+\usepackage[T1]{fontenc}    %
+\usepackage{hyperref}       %
+\usepackage{url}            %
+\usepackage{booktabs}       %
+\usepackage{amsfonts}       %
+\usepackage{nicefrac}       %
+\usepackage{microtype}      %
+\usepackage{xcolor}         %
+
+\usepackage{graphicx}  %
+\usepackage{subcaption} %
+\usepackage{lipsum}     %
+\usepackage{xspace}
+
+\newcommand{\name}{SpecReason\xspace}
+\newcommand{\squishlist}{
+   \begin{list}{$\bullet$}
+    { \setlength{\itemsep}{0pt}      \setlength{\parsep}{3pt}
+      \setlength{\topsep}{3pt}       \setlength{\partopsep}{0pt}
+      \setlength{\leftmargin}{1.0em} \setlength{\labelwidth}{1em}
+      \setlength{\labelsep}{0.5em} } }
+\newcommand{\squishend}{
+    \end{list}  }
+
+\newcommand{\neuripsnewtext}[1]{{\textcolor{blue}{#1}}}
+\newcommand{\ruipan}[1]{{\textcolor{orange}{RP: #1}}}
+\newcommand{\rn}[1]{{\textcolor{blue}{RN: #1}}}
+\newcommand{\zj}[1]{{\textcolor{blue}{ZJ: #1}}}
+\newcommand{\yinwei}[1]{{\textcolor{purple}{YD: #1}}}
+\newcommand{\zz}[1]{{\textcolor{green}{ZZ: #1}}}
+\newcommand{\go}[1]{{\textcolor{green}{GO: #1}}}
+
+\title{SpecReason: Fast and Accurate Inference-Time Compute via Speculative Reasoning}
+
+
+
+
+\author{
+  \textbf{Rui Pan}$^{\mathsection}$
+  \quad
+  \textbf{Yinwei Dai}$^{\mathsection}$
+  \quad
+  \textbf{Zhihao Zhang}$^{\dag}$
+  \quad
+  \textbf{Gabriele Oliaro}$^{\dag}$
+  \\
+  \textbf{Zhihao Jia}$^{\dag}$
+  \quad
+  \textbf{Ravi Netravali}$^{\mathsection}$
+  \\
+  ${}^\mathsection$Princeton University \quad 
+  ${}^\dag$Carnegie Mellon University\\
+    \texttt{\{ruipan,yinweid\}@princeton.edu}, \texttt{\{zhihaoz3,goliaro\}@cs.cmu.edu},\\
+    \texttt{zhihao@cmu.edu}, \texttt{rnetravali@cs.princeton.edu}
+}
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+
+\input{intro}
+\input{background}
+\input{motivation}
+\input{method}
+\input{evaluation}
+\input{conclusion}
+
+
+
+
+\begin{ack}
+We thank Princeton's Systems for Artificial Intelligence Lab (SAIL) and Princeton Language and Intelligence (PLI) for providing the hardware resources for running experiments. This work was supported by NSF CNS grants 2147909, 2151630,
+2140552, 2153449, and 2152313.
+\end{ack}
+
+
+
+
+
+
+{
+\small
+\bibliography{references}
+\bibliographystyle{plainnat}
+}
+
+
+
+\appendix
+
+\input{appendix}
+
+
+
+
+
+
+\end{document}

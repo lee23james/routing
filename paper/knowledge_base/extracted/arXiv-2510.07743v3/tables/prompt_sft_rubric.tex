@@ -1,0 +1,50 @@
+\UseRawInputEncoding
+
+\lstdefinestyle{promptstyle}{
+  basicstyle=\ttfamily\scriptsize,
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  tabsize=2
+}
+
+\begin{table*}
+\begin{tcblisting}{
+  listing only,
+  breakable,
+  enhanced,
+  colback=lightblue!5,
+  colframe=lightblue!50,
+  rounded corners,
+  top=6pt,bottom=6pt,left=8pt,right=8pt,boxsep=4pt,
+  title=Prompt for Rubric Generation ({\name}),
+  listing options={style=promptstyle}
+}
+Your task is to extract a set of rubric-style instructions from a user's request.
+These rubrics will be used as evaluation criteria to check if a response fully meets the request.
+Every rubric item must be a universal principle. If any rubric still contains topic-specific references (e.g., names, places, myths, numbers, historical facts), it is automatically invalid.
+
+- **Two Distinct Categories:**
+  - [Hard Rule]: Derived strictly from explicit requirements stated in the <request> (format, length, structure, forbidden/required elements, etc.).
+  - [Principle]: Derived by abstracting any concrete cues into domain-agnostic quality criteria (e.g., clarity, correctness, sound reasoning, pedagogy).
+
+- **Comprehensiveness:**
+  The rubric must cover all critical aspects implied by the request and examples, including explicit requirements and implicit quality standards.
+
+- **Conciseness & Uniqueness:**
+  Each rubric must capture a distinct evaluation criterion. Overlapping or redundant criteria must be merged into a single rubric. Wording must be precise and free of repetition.
+
+- **Format Requirements:**
+  - Use a numbered list.
+  - Each item starts with "The response" phrased in third person.
+  - Append [Hard Rule] or [Principle] at the end of each item.
+  - Do not include reasoning, explanations, or examples in the final output—only the rubrics.
+
+Here is the request:
+{prompt}
+
+Please generate the rubrics for the above request.
+\end{tcblisting}
+\end{table*}

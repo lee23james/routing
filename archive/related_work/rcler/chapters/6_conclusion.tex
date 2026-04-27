@@ -1,0 +1,11 @@
+\section{Limitations}
+There are still several limitations in this paper.
+On the one hand, the introduction of the rubricator role increases the rollout burden and thereby requires more training time.
+On the other hand, our method is still quite limited to the RLVR domain, leaving the effectiveness of rewarding with self-proposed rubrics on non-verifiable domains unknown.
+
+\section{Conclusion}
+Outcome-centric RLVR improves final-answer accuracy but largely ignores direct supervision for CoTs, risking suboptimal reasoning strategies. 
+However, directly rewarding CoT is challenging since reward models are costly to train and brittle under distribution shift and reward hacking. 
+To address these issues, we proposed RLCER, which rewards CoTs with self-proposed, self-evolving rubrics without human annotation. 
+Experiments showed that RLCER consistently outperforms outcome-only RLVR across datasets and LLM backbones, highlighting that such self-proposed and self-evolving rubrics can provide meaningful CoT supervision signals pushing the upper bound of LLM reasoning. 
+Our future work will include exploring the generalization of RLCER to non-verifiable domains. 

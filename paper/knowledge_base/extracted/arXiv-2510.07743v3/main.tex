@@ -1,0 +1,181 @@
+\RequirePackage[svgnames]{xcolor}
+
+\documentclass[11pt,letterpaper]{mystyle}
+
+\usepackage[all]{hypcap}
+\usepackage[svgnames]{xcolor}
+\usepackage[comma,authoryear,compress]{natbib}
+\bibliographystyle{plainnat}
+
+\usepackage{hyperref}[citecolor=lightblue]
+
+\hypersetup{
+    colorlinks = true,
+    citecolor = {teal},
+}
+
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{microtype}
+\usepackage{graphicx}
+\expandafter\def\csname ver@subfig.sty\endcsname{}
+\usepackage{booktabs} %
+\usepackage{float}
+\usepackage{bigstrut}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage{nicefrac}
+\usepackage{dsfont}
+\usepackage{enumitem}
+\usepackage{subcaption}
+\usepackage{graphicx,subfig}
+\usepackage{cleveref}
+\usepackage{bxcoloremoji}
+\usepackage{datetime2}
+\usepackage{float}
+
+\setlength\parindent{0pt}
+
+\usepackage[utf8]{inputenc} %
+\usepackage[T1]{fontenc}    %
+\usepackage{hyperref}       %
+\usepackage{url}            %
+\usepackage{booktabs}       %
+\usepackage{amsfonts}       %
+\usepackage{nicefrac}       %
+\usepackage{microtype}      %
+\usepackage{graphicx}
+\usepackage{subcaption} % Ensure subfigure or subtable environments are used if this package is included.
+\usepackage{fdsymbol}
+\usepackage{wrapfig}
+\usepackage{lipsum}
+\usepackage{enumitem}
+\usepackage{stackengine}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{color}
+\usepackage{adjustbox}
+\usepackage{multirow, multicol}
+
+\usepackage{rotating}
+\usepackage{makecell}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{listings,skins,breakable}
+\usepackage{listings}
+\usepackage{subcaption}
+
+% \usepackage{lmodern}
+
+
+
+\input{macro}
+
+\newtcolorbox{AIbox}[2][]{aibox,title=#2,#1}
+\definecolor{lightgreen}{rgb}{0.22,0.70,0.30}%
+\definecolor{Gray}{gray}{0.95}
+\definecolor{Cornsilk}{rgb}{1.0, 0.97, 0.86}
+
+\definecolor{lightblue}{HTML}{0064E0}
+\definecolor{fg}{HTML}{1C2B33}
+\definecolor{bg}{HTML}{F1F4F7}
+
+\newcommand{\williex}[1]{{\color{magenta}WN: #1}}
+\newcommand{\olcomment}[1]{{\color{olive}[OL: #1]}}
+\newcommand{\wss}[1]{{\color{blue}WSS: #1}}
+\newcommand{\jcomment}[1]{{\color{purple}Julian: #1}}
+\newcommand{\omer}[1]{{\color{green}ömer: #1}}
+\newcommand{\enes}[1]{{\color{orange}enes: #1}}
+\newcommand{\todo}[1]{{\color{red}TODO: #1}}
+
+\newcommand{\name}{\textsc{Rubric-RM}}
+\newcommand{\modelname}{\textsc{Rubric-RM}}
+
+\newcommand{\dataset}{{OpenRubrics}}
+\newcommand{\ran}[1]{\textcolor{purple}{[Ran: #1]}}
+\newcommand{\tci}[1]{\textcolor{red}{[TC: #1]}}
+
+
+\usepackage{amsmath}
+
+\usepackage[all]{hypcap}
+% \usepackage[justification=centering]{caption}
+% Title
+\title{\LARGE OpenRubrics: Towards Scalable Synthetic Rubric Generation for Reward Modeling and LLM Alignment}
+
+% Running title
+\runningtitle{Towards Scalable Synthetic Rubric Generation for Reward Modeling and LLM Alignment}
+
+% \author[1]{Tianci Liu\textsuperscript{*}}
+% \author[2]{Ran Xu\textsuperscript{*}}
+% \author[3]{Tony Yu}
+% \author[3]{Ilgee Hong}
+% \author[4]{Isabella Wang}
+% \author[2]{Carl Yang}
+% \author[3]{Tuo Zhao}
+% \author[5]{Haoyu Wang}
+
+% \affil[1]{Purdue University}
+% \affil[2]{Emory University}
+% \affil[3]{Georgia Institute of Technology}
+% \affil[4]{Independent Researcher}
+% \affil[5]{University at Albany}
+\author{
+Tianci Liu\textsuperscript{1,*} \quad
+Ran Xu\textsuperscript{2,*} \quad
+Tony Yu\textsuperscript{3} \quad
+Ilgee Hong\textsuperscript{3} \\
+% Isabella Wang\textsuperscript{4} \\
+\bf Carl Yang\textsuperscript{2} \quad
+Tuo Zhao\textsuperscript{3} \quad
+Haoyu Wang\textsuperscript{4} \\
+\textsuperscript{1}Purdue University \quad
+\textsuperscript{2}Emory University \quad
+\textsuperscript{3}Georgia Institute of Technology \quad
+% \textsuperscript{4}Independent Researcher \quad
+\textsuperscript{4}University at Albany
+}
+% \affil[*]{Equal contribution}
+% \author{
+%   Tianci Liu$^{1*}$,
+%   Ran Xu$^{2*}$,
+%   Tony Yu$^{3}$,
+%   Carl Yang$^{2}$,
+%   Tuo Zhao$^{3}$,
+%   Haoyu Wang$^{4}$ \\
+%   \\
+%   $^{1}$Purdue University \quad
+%   $^{2}$Emory University \quad
+%   $^{3}$Georgia Institute of Technology \quad
+%   $^{4}$SUNY Albany \\
+%   \\
+%   $^{*}$Equal Contribution
+% }
+
+% \correspondingauthor{Rongsheng Wang \href{https://wangrongsheng.github.io}{https://wangrongsheng.github.io}; Email \href{mailto:wang.rongsheng@outlook.com}{wang.rongsheng@outlook.com}}
+
+\begin{document}
+
+\input{sections/abstract}
+\maketitle
+\def\thefootnote{$^{*}$}\footnotetext{These authors contributed equally to this work, order was determined randomly (by rolling a die).}\def\thefootnote{\arabic{footnote}}
+\vspace{3mm}
+\input{sections/introduction}
+\input{sections/relatedwork}
+\input{sections/method}
+\input{sections/experiments}
+% \input{sections/discussions}
+% \clearpage
+\input{sections/conclusion}
+% \input{sections/acknowledge}
+\clearpage
+\bibliography{main}
+
+\appendix
+\input{sections/appendix}
+\appendix
+\end{document}

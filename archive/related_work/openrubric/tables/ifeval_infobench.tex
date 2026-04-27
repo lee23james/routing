@@ -1,0 +1,41 @@
+\begin{table}[t!]
+\centering
+\renewcommand\arraystretch{0.95}
+\resizebox{0.7\linewidth}{!}{%
+\arrayrulecolor{black!50}
+\begin{tabular}{l|cc|cc|c|c}
+\toprule
+\multirow{2}{*}{\textbf{Model}} 
+& \multicolumn{2}{c|}{\textbf{IFEval (Prompt)}} 
+& \multicolumn{2}{c|}{\textbf{IFEval (Inst.)}} 
+& {\textbf{IFEval}} 
+& {\textbf{InfoBench}} \\ 
+\cmidrule(lr){2-3}  \cmidrule(lr){4-5} \cmidrule(lr){6-6} \cmidrule(lr){7-7}
+& \textbf{Loose} & \textbf{Strict} & \textbf{Loose} & \textbf{Strict} & \textbf{AVG} &  \textbf{AVG} \\ 
+\midrule
+% \rowcolor{lightblue!5}
+GPT-4 (0314)                              & 79.3 & 76.9 & 85.4 & 83.6 & 81.3 & 87.3 \\ 
+AutoIF~\citep{dong2024self}               & 56.9 & 47.1 & 67.0 & 57.6 & 57.2 & 80.6 \\
+UltraIF~\citep{an2025ultraif}             & 75.4 & 71.3 & 83.0 & 79.4 & 77.3 & 80.7 \\
+\midrule
+Qwen2.5-7B-Instruct          & 75.0 & 72.5 & 81.8 & 79.9 & 77.3 & 78.1 (\underline{76.0}) \\
++ SFT (Distilled)            & 66.8 & 64.1 & 75.3 & 72.8 & 69.8 & 72.5 \\
++ DPO (via Skywork)          & 75.7 & 68.0 & 83.2 & 78.5 & 76.0 & 82.0 \\
++ DPO (via ArmoRM)           & 73.8 & 70.2 & 81.7 & 78.3 & 76.0 & 83.5 \\
++ DPO (via Ultrafbk.)        & 71.5 & 69.1 & 79.9 & 77.7 & 74.6 & 80.0 \\
++ DPO (via AI Judge)         & 73.0 & 68.9 & 80.9 & 77.8 & 75.2 & 76.1 \\
++ DPO (via RLCF)             & 77.3 & 72.6 & 84.1 & 80.3 & 78.6 & \textbf{84.1} (\underline{81.5}) \\
+\midrule
+\rowcolor{lightblue!10}
++ DPO (via \name)            & \textbf{78.2} & \textbf{73.9} & \textbf{84.5} & \textbf{81.2} & \textbf{79.5} & 83.0 \\ 
+\bottomrule
+\end{tabular}%
+}
+\caption{
+Comparison of trained policy models with different reward models on a format-based instruction-following benchmark (IFEval) and an open-ended benchmark (InfoBench). 
+Baseline results are from \citet{viswanathan2025checklists}. 
+Results with \underline{underlines} are reproduced by us using official checkpoints and evaluation scripts. 
+Best scores are in \textbf{bold}.
+}
+\label{tab:ifeval}
+\end{table}

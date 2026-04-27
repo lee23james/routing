@@ -1,0 +1,13 @@
+\section{Background}
+
+\textbf{Inference-time scaling.} LRMs introduce a structured problem-solving approach that breaks down complex problems into multiple simpler reasoning steps, commonly referred to as a long chain of thought (CoT)~\citep{cot}. This enables the model to generate intermediate reasoning steps before progressing further, reflect, and backtrack to correct errors if needed. LRMs that output long CoTs have been a popular approach to scale inference-time compute~\citep{deepseek_r1,openai_o1,openai_o3}, and there also exist other schemes like Tree of Thoughts~\citep{tot}, process-reward-model-guided tree search~\citep{prm,rstar,rstar_math}, and repeated sampling for scaling inference-time compute~\citep{large_language_monkeys}.
+
+
+
+\textbf{Speculative decoding.} Speculation has long been a classic concept in the literature of computer architecture~\citep{burton1985speculative}. Due to the memory-bound nature of LLM decoding, recent work has also leveraged the technique of speculation to accelerate the decoding phase~\citep{stern2018blockwise, spec_decoding, decoding_specdecoding} of LLM inference. The speculative decoding process alternates between speculation and verification steps to ensure correctness while achieving speed-ups. The speculation phase usually consists of either a standalone draft model~\citep{spec_decoding, specinfer}, a trainable module on top of the base model~\citep{medusa, eagle}, a tree-based token cache~\citep{suffix_decoding, token_recycling, lookahead_alipay}, an n-gram lookup table~\citep{lookahead}, or a retrieval-based data store~\citep{rest} to make efficient but less accurate speculations. The verification process, on the other hand, is a base model chunked-prefill over the speculation results, which usually consists of either a single sequence of tokens as in~\citet{spec_decoding} or tree-like structures to further boost the accuracy of speculation~\citep{specinfer, medusa, eagle, sequoia}. The verification process then accepts the longest matched sequences on the token level from the speculation results and repeats the process. As a result, the speculation length is usually conservative to maintain an optimal trade-off between the speculation overhead and accuracy. 
+
+\textbf{Existing approaches for reducing latency.} Sky-T1-Flash~\cite{sky_t1_flash} reduces unnecessary thinking tokens by fine-tuning models to curb overthinking, thereby reducing the length of reasoning chains and, consequently, latency. Dynasor-CoT~\cite{certaindex,dynasor_cot} takes a different approach by probing intermediate model confidence and terminating the reasoning process early when the model exhibits sufficient confidence in its current output.
+
+
+
+

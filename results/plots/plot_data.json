@@ -1,0 +1,2346 @@
+{
+  "baselines": {
+    "math500": {
+      "srm_acc": 68.63905325443787,
+      "lrm_acc": 85.79881656804734,
+      "srm_flops": 2.456771597633136,
+      "lrm_flops": 20.408852071005917,
+      "n": 169
+    },
+    "aime2025": {
+      "srm_acc": 33.33333333333333,
+      "lrm_acc": 63.33333333333333,
+      "srm_flops": 46.89234666666666,
+      "lrm_flops": 360.0156,
+      "n": 30
+    },
+    "all": {
+      "srm_acc": 63.31658291457286,
+      "lrm_acc": 82.41206030150754,
+      "srm_flops": 9.155602010050252,
+      "lrm_flops": 71.60584924623116,
+      "n": 199
+    }
+  },
+  "metrics": {
+    "math500": {
+      "TRIM-Threshold": {
+        "acc_at_60": 84.61538461538461,
+        "flops_at_98": 6.893807100591716,
+        "af": 0.0069100231867519285
+      },
+      "TRIM-Rubric": {
+        "acc_at_60": 84.61538461538461,
+        "flops_at_98": 7.969404733727811,
+        "af": 0.0069100231867519285
+      },
+      "PPO-Agg": {
+        "acc_at_60": 84.44505307313813,
+        "flops_at_98": 13.71470650887574,
+        "af": 0.006896113246949511
+      },
+      "PPO-Rubric": {
+        "acc_at_60": 85.13337028040374,
+        "flops_at_98": 7.976031952662722,
+        "af": 0.0069523239216827785
+      }
+    },
+    "aime2025": {
+      "TRIM-Threshold": {
+        "acc_at_60": 47.10734180685205,
+        "flops_at_98": 384.0667066666667,
+        "af": 0.00021808009526463136
+      },
+      "TRIM-Rubric": {
+        "acc_at_60": 46.666666666666664,
+        "flops_at_98": 250.52070666666665,
+        "af": 0.00021604002098180684
+      },
+      "PPO-Agg": {
+        "acc_at_60": 53.52016713832754,
+        "flops_at_98": 406.9165733333333,
+        "af": 0.00024776781496101623
+      },
+      "PPO-Rubric": {
+        "acc_at_60": 52.93286738985815,
+        "flops_at_98": 297.8201733333333,
+        "af": 0.0002450489524614033
+      }
+    },
+    "all": {
+      "TRIM-Threshold": {
+        "acc_at_60": 79.21182458300045,
+        "flops_at_98": 71.82324924623116,
+        "af": 0.0018437000472455497
+      },
+      "TRIM-Rubric": {
+        "acc_at_60": 78.76297426049689,
+        "flops_at_98": 44.53492763819095,
+        "af": 0.0018332528019616228
+      },
+      "PPO-Agg": {
+        "acc_at_60": 79.49959323658236,
+        "flops_at_98": 51.42968140703518,
+        "af": 0.0018503980255208615
+      },
+      "PPO-Rubric": {
+        "acc_at_60": 79.98656745183631,
+        "flops_at_98": 53.89424422110553,
+        "af": 0.0018617326259848402
+      }
+    }
+  },
+  "threshold_curves": {
+    "math500": {
+      "prm": [
+        {
+          "threshold": 0.0,
+          "accuracy": 68.63905325443787,
+          "avg_flops_tflops": 2.4550615384615386,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.02,
+          "accuracy": 69.8224852071006,
+          "avg_flops_tflops": 2.486375147928994,
+          "regen_pct": 0.07804370447450572
+        },
+        {
+          "threshold": 0.04,
+          "accuracy": 71.00591715976331,
+          "avg_flops_tflops": 2.529949112426036,
+          "regen_pct": 0.18210197710718
+        },
+        {
+          "threshold": 0.06,
+          "accuracy": 71.59763313609467,
+          "avg_flops_tflops": 2.5808130177514794,
+          "regen_pct": 0.2861602497398543
+        },
+        {
+          "threshold": 0.08,
+          "accuracy": 72.7810650887574,
+          "avg_flops_tflops": 2.5995349112426034,
+          "regen_pct": 0.3902185223725286
+        },
+        {
+          "threshold": 0.1,
+          "accuracy": 72.7810650887574,
+          "avg_flops_tflops": 2.5995349112426034,
+          "regen_pct": 0.3902185223725286
+        },
+        {
+          "threshold": 0.12,
+          "accuracy": 72.7810650887574,
+          "avg_flops_tflops": 2.6013573964497043,
+          "regen_pct": 0.44224765868886573
+        },
+        {
+          "threshold": 0.14,
+          "accuracy": 73.96449704142012,
+          "avg_flops_tflops": 2.6164343195266273,
+          "regen_pct": 0.5202913631633715
+        },
+        {
+          "threshold": 0.16,
+          "accuracy": 75.14792899408283,
+          "avg_flops_tflops": 2.695298224852071,
+          "regen_pct": 0.6243496357960457
+        },
+        {
+          "threshold": 0.18,
+          "accuracy": 76.33136094674556,
+          "avg_flops_tflops": 2.717333727810651,
+          "regen_pct": 0.7544224765868887
+        },
+        {
+          "threshold": 0.2,
+          "accuracy": 76.33136094674556,
+          "avg_flops_tflops": 2.728102958579882,
+          "regen_pct": 0.8064516129032258
+        },
+        {
+          "threshold": 0.22,
+          "accuracy": 75.7396449704142,
+          "avg_flops_tflops": 2.7297597633136093,
+          "regen_pct": 0.8324661810613945
+        },
+        {
+          "threshold": 0.24,
+          "accuracy": 75.7396449704142,
+          "avg_flops_tflops": 2.7461621301775145,
+          "regen_pct": 0.8844953173777315
+        },
+        {
+          "threshold": 0.26,
+          "accuracy": 75.7396449704142,
+          "avg_flops_tflops": 2.760410650887574,
+          "regen_pct": 0.9885535900104058
+        },
+        {
+          "threshold": 0.28,
+          "accuracy": 75.7396449704142,
+          "avg_flops_tflops": 2.761736094674556,
+          "regen_pct": 1.0145681581685744
+        },
+        {
+          "threshold": 0.3,
+          "accuracy": 76.33136094674556,
+          "avg_flops_tflops": 2.7633928994082844,
+          "regen_pct": 1.040582726326743
+        },
+        {
+          "threshold": 0.32,
+          "accuracy": 76.33136094674556,
+          "avg_flops_tflops": 2.770848520710059,
+          "regen_pct": 1.0665972944849116
+        },
+        {
+          "threshold": 0.34,
+          "accuracy": 76.33136094674556,
+          "avg_flops_tflops": 2.7887420118343194,
+          "regen_pct": 1.1446409989594173
+        },
+        {
+          "threshold": 0.36,
+          "accuracy": 76.33136094674556,
+          "avg_flops_tflops": 2.7915585798816567,
+          "regen_pct": 1.1706555671175858
+        },
+        {
+          "threshold": 0.38,
+          "accuracy": 76.33136094674556,
+          "avg_flops_tflops": 2.799842603550296,
+          "regen_pct": 1.2486992715920915
+        },
+        {
+          "threshold": 0.4,
+          "accuracy": 77.51479289940828,
+          "avg_flops_tflops": 2.83347573964497,
+          "regen_pct": 1.3787721123829344
+        },
+        {
+          "threshold": 0.42,
+          "accuracy": 77.51479289940828,
+          "avg_flops_tflops": 2.8341384615384615,
+          "regen_pct": 1.4047866805411031
+        },
+        {
+          "threshold": 0.44,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.8490497041420118,
+          "regen_pct": 1.5088449531737773
+        },
+        {
+          "threshold": 0.46,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.854351479289941,
+          "regen_pct": 1.5348595213319458
+        },
+        {
+          "threshold": 0.48,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.8566710059171596,
+          "regen_pct": 1.5608740894901143
+        },
+        {
+          "threshold": 0.5,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.8576650887573964,
+          "regen_pct": 1.5868886576482828
+        },
+        {
+          "threshold": 0.52,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.8637952662721893,
+          "regen_pct": 1.6909469302809572
+        },
+        {
+          "threshold": 0.54,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.8720792899408285,
+          "regen_pct": 1.7429760665972946
+        },
+        {
+          "threshold": 0.56,
+          "accuracy": 79.28994082840237,
+          "avg_flops_tflops": 2.9335467455621305,
+          "regen_pct": 1.8210197710718004
+        },
+        {
+          "threshold": 0.58,
+          "accuracy": 79.28994082840237,
+          "avg_flops_tflops": 2.9650260355029583,
+          "regen_pct": 1.9771071800208115
+        },
+        {
+          "threshold": 0.6,
+          "accuracy": 79.28994082840237,
+          "avg_flops_tflops": 2.9726473372781066,
+          "regen_pct": 2.0291363163371487
+        },
+        {
+          "threshold": 0.62,
+          "accuracy": 79.28994082840237,
+          "avg_flops_tflops": 3.0112508875739645,
+          "regen_pct": 2.133194588969823
+        },
+        {
+          "threshold": 0.64,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.0481976331360947,
+          "regen_pct": 2.3933402705515086
+        },
+        {
+          "threshold": 0.66,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.112150295857988,
+          "regen_pct": 2.523413111342352
+        },
+        {
+          "threshold": 0.68,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.138659171597633,
+          "regen_pct": 2.7315296566077003
+        },
+        {
+          "threshold": 0.7000000000000001,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.1807420118343193,
+          "regen_pct": 2.9656607700312176
+        },
+        {
+          "threshold": 0.72,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.2450260355029585,
+          "regen_pct": 3.199791883454735
+        },
+        {
+          "threshold": 0.74,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.2740201183431954,
+          "regen_pct": 3.3558792924037464
+        },
+        {
+          "threshold": 0.76,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.307487573964497,
+          "regen_pct": 3.537981269510926
+        },
+        {
+          "threshold": 0.78,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.3530497041420118,
+          "regen_pct": 3.5900104058272633
+        },
+        {
+          "threshold": 0.8,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.472505325443787,
+          "regen_pct": 3.8761706555671176
+        },
+        {
+          "threshold": 0.8200000000000001,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.5775467455621306,
+          "regen_pct": 4.18834547346514
+        },
+        {
+          "threshold": 0.84,
+          "accuracy": 81.65680473372781,
+          "avg_flops_tflops": 3.6588958579881656,
+          "regen_pct": 4.578563995837669
+        },
+        {
+          "threshold": 0.86,
+          "accuracy": 81.65680473372781,
+          "avg_flops_tflops": 3.737428402366864,
+          "regen_pct": 4.890738813735692
+        },
+        {
+          "threshold": 0.88,
+          "accuracy": 81.65680473372781,
+          "avg_flops_tflops": 3.9125526627218936,
+          "regen_pct": 5.254942767950052
+        },
+        {
+          "threshold": 0.9,
+          "accuracy": 82.84023668639054,
+          "avg_flops_tflops": 4.089002366863905,
+          "regen_pct": 5.801248699271592
+        },
+        {
+          "threshold": 0.92,
+          "accuracy": 82.84023668639054,
+          "avg_flops_tflops": 4.469901775147929,
+          "regen_pct": 6.815816857440167
+        },
+        {
+          "threshold": 0.9400000000000001,
+          "accuracy": 82.84023668639054,
+          "avg_flops_tflops": 4.761168047337279,
+          "regen_pct": 8.220603537981269
+        },
+        {
+          "threshold": 0.96,
+          "accuracy": 82.84023668639054,
+          "avg_flops_tflops": 5.310398816568047,
+          "regen_pct": 10.77003121748179
+        },
+        {
+          "threshold": 0.98,
+          "accuracy": 84.61538461538461,
+          "avg_flops_tflops": 6.893807100591716,
+          "regen_pct": 16.701352757544225
+        },
+        {
+          "threshold": 1.0,
+          "accuracy": 84.61538461538461,
+          "avg_flops_tflops": 16.395416568047338,
+          "regen_pct": 58.58480749219564
+        }
+      ],
+      "rubric": [
+        {
+          "threshold": 0.0,
+          "accuracy": 71.59763313609467,
+          "avg_flops_tflops": 2.5965526627218933
+        },
+        {
+          "threshold": 0.02,
+          "accuracy": 72.7810650887574,
+          "avg_flops_tflops": 2.6056650887573967
+        },
+        {
+          "threshold": 0.04,
+          "accuracy": 73.96449704142012,
+          "avg_flops_tflops": 2.6174284023668637
+        },
+        {
+          "threshold": 0.06,
+          "accuracy": 75.14792899408283,
+          "avg_flops_tflops": 2.662824852071006
+        },
+        {
+          "threshold": 0.08,
+          "accuracy": 75.7396449704142,
+          "avg_flops_tflops": 2.6810497041420116
+        },
+        {
+          "threshold": 0.1,
+          "accuracy": 75.7396449704142,
+          "avg_flops_tflops": 2.7047420118343193
+        },
+        {
+          "threshold": 0.12,
+          "accuracy": 75.7396449704142,
+          "avg_flops_tflops": 2.716339644970414
+        },
+        {
+          "threshold": 0.14,
+          "accuracy": 75.7396449704142,
+          "avg_flops_tflops": 2.716339644970414
+        },
+        {
+          "threshold": 0.16,
+          "accuracy": 75.7396449704142,
+          "avg_flops_tflops": 2.747984615384615
+        },
+        {
+          "threshold": 0.18,
+          "accuracy": 75.7396449704142,
+          "avg_flops_tflops": 2.759085207100592
+        },
+        {
+          "threshold": 0.2,
+          "accuracy": 76.33136094674556,
+          "avg_flops_tflops": 2.7736650887573964
+        },
+        {
+          "threshold": 0.22,
+          "accuracy": 76.33136094674556,
+          "avg_flops_tflops": 2.7736650887573964
+        },
+        {
+          "threshold": 0.24,
+          "accuracy": 76.33136094674556,
+          "avg_flops_tflops": 2.7809550295857988
+        },
+        {
+          "threshold": 0.26,
+          "accuracy": 76.92307692307693,
+          "avg_flops_tflops": 2.7899017751479294
+        },
+        {
+          "threshold": 0.28,
+          "accuracy": 77.51479289940828,
+          "avg_flops_tflops": 2.792884023668639
+        },
+        {
+          "threshold": 0.3,
+          "accuracy": 77.51479289940828,
+          "avg_flops_tflops": 2.7970260355029586
+        },
+        {
+          "threshold": 0.32,
+          "accuracy": 78.10650887573965,
+          "avg_flops_tflops": 2.826351479289941
+        },
+        {
+          "threshold": 0.34,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.840102958579882
+        },
+        {
+          "threshold": 0.36,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.840102958579882
+        },
+        {
+          "threshold": 0.38,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.8480556213017754
+        },
+        {
+          "threshold": 0.4,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.8490497041420118
+        },
+        {
+          "threshold": 0.42,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.849712426035503
+        },
+        {
+          "threshold": 0.44,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.849712426035503
+        },
+        {
+          "threshold": 0.46,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.885996449704142
+        },
+        {
+          "threshold": 0.48,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.8898071005917156
+        },
+        {
+          "threshold": 0.5,
+          "accuracy": 79.28994082840237,
+          "avg_flops_tflops": 2.911345562130178
+        },
+        {
+          "threshold": 0.52,
+          "accuracy": 79.88165680473372,
+          "avg_flops_tflops": 2.9923633136094674
+        },
+        {
+          "threshold": 0.54,
+          "accuracy": 79.88165680473372,
+          "avg_flops_tflops": 3.050351479289941
+        },
+        {
+          "threshold": 0.56,
+          "accuracy": 79.88165680473372,
+          "avg_flops_tflops": 3.057807100591716
+        },
+        {
+          "threshold": 0.58,
+          "accuracy": 80.4733727810651,
+          "avg_flops_tflops": 3.092102958579882
+        },
+        {
+          "threshold": 0.6,
+          "accuracy": 80.4733727810651,
+          "avg_flops_tflops": 3.099558579881657
+        },
+        {
+          "threshold": 0.62,
+          "accuracy": 80.4733727810651,
+          "avg_flops_tflops": 3.134848520710059
+        },
+        {
+          "threshold": 0.64,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.1741147928994082
+        },
+        {
+          "threshold": 0.66,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.2219964497041422
+        },
+        {
+          "threshold": 0.68,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.321073372781065
+        },
+        {
+          "threshold": 0.7000000000000001,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.371771597633136
+        },
+        {
+          "threshold": 0.72,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.4266118343195267
+        },
+        {
+          "threshold": 0.74,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.467369230769231
+        },
+        {
+          "threshold": 0.76,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.5076295857988162
+        },
+        {
+          "threshold": 0.78,
+          "accuracy": 81.65680473372781,
+          "avg_flops_tflops": 3.516742011834319
+        },
+        {
+          "threshold": 0.8,
+          "accuracy": 81.65680473372781,
+          "avg_flops_tflops": 3.5780437869822483
+        },
+        {
+          "threshold": 0.8200000000000001,
+          "accuracy": 81.65680473372781,
+          "avg_flops_tflops": 3.6756295857988164
+        },
+        {
+          "threshold": 0.84,
+          "accuracy": 81.65680473372781,
+          "avg_flops_tflops": 3.7591325443786983
+        },
+        {
+          "threshold": 0.86,
+          "accuracy": 81.65680473372781,
+          "avg_flops_tflops": 3.8270615384615385
+        },
+        {
+          "threshold": 0.88,
+          "accuracy": 81.65680473372781,
+          "avg_flops_tflops": 3.9707065088757396
+        },
+        {
+          "threshold": 0.9,
+          "accuracy": 82.84023668639054,
+          "avg_flops_tflops": 4.194375147928994
+        },
+        {
+          "threshold": 0.92,
+          "accuracy": 82.84023668639054,
+          "avg_flops_tflops": 4.721404733727811
+        },
+        {
+          "threshold": 0.9400000000000001,
+          "accuracy": 83.4319526627219,
+          "avg_flops_tflops": 5.2481029585798815
+        },
+        {
+          "threshold": 0.96,
+          "accuracy": 83.4319526627219,
+          "avg_flops_tflops": 5.774469822485207
+        },
+        {
+          "threshold": 0.98,
+          "accuracy": 83.4319526627219,
+          "avg_flops_tflops": 6.374730177514793
+        },
+        {
+          "threshold": 1.0,
+          "accuracy": 84.61538461538461,
+          "avg_flops_tflops": 7.969404733727811
+        }
+      ]
+    },
+    "aime2025": {
+      "prm": [
+        {
+          "threshold": 0.0,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.02,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.04,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.06,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.08,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.1,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.12,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.14,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.16,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.18,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.2,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.22,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.24,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.26,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.28,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 47.35364,
+          "regen_pct": 0.1111111111111111
+        },
+        {
+          "threshold": 0.3,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 48.41670666666666,
+          "regen_pct": 0.4444444444444444
+        },
+        {
+          "threshold": 0.32,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 48.64070666666667,
+          "regen_pct": 0.5555555555555556
+        },
+        {
+          "threshold": 0.34,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 49.077506666666665,
+          "regen_pct": 0.6666666666666667
+        },
+        {
+          "threshold": 0.36,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 49.077506666666665,
+          "regen_pct": 0.6666666666666667
+        },
+        {
+          "threshold": 0.38,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 49.60950666666666,
+          "regen_pct": 0.7777777777777778
+        },
+        {
+          "threshold": 0.4,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 49.60950666666666,
+          "regen_pct": 0.7777777777777778
+        },
+        {
+          "threshold": 0.42,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 49.60950666666666,
+          "regen_pct": 0.7777777777777778
+        },
+        {
+          "threshold": 0.44,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 49.60950666666666,
+          "regen_pct": 0.7777777777777778
+        },
+        {
+          "threshold": 0.46,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 49.68137333333333,
+          "regen_pct": 0.8888888888888888
+        },
+        {
+          "threshold": 0.48,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 51.14764,
+          "regen_pct": 1.1111111111111112
+        },
+        {
+          "threshold": 0.5,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 51.18497333333334,
+          "regen_pct": 1.2222222222222223
+        },
+        {
+          "threshold": 0.52,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 52.538306666666664,
+          "regen_pct": 1.4444444444444444
+        },
+        {
+          "threshold": 0.54,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 53.63404,
+          "regen_pct": 1.7777777777777777
+        },
+        {
+          "threshold": 0.56,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 53.63404,
+          "regen_pct": 1.7777777777777777
+        },
+        {
+          "threshold": 0.58,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 53.68724,
+          "regen_pct": 1.8888888888888888
+        },
+        {
+          "threshold": 0.6,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 53.83564,
+          "regen_pct": 2.0
+        },
+        {
+          "threshold": 0.62,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 53.90097333333333,
+          "regen_pct": 2.111111111111111
+        },
+        {
+          "threshold": 0.64,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 55.50817333333334,
+          "regen_pct": 2.3333333333333335
+        },
+        {
+          "threshold": 0.66,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 55.50817333333334,
+          "regen_pct": 2.3333333333333335
+        },
+        {
+          "threshold": 0.68,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 59.27044,
+          "regen_pct": 2.888888888888889
+        },
+        {
+          "threshold": 0.7000000000000001,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 61.10350666666666,
+          "regen_pct": 3.3333333333333335
+        },
+        {
+          "threshold": 0.72,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 61.22484,
+          "regen_pct": 3.4444444444444446
+        },
+        {
+          "threshold": 0.74,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 61.604706666666665,
+          "regen_pct": 3.6666666666666665
+        },
+        {
+          "threshold": 0.76,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 63.013106666666665,
+          "regen_pct": 4.0
+        },
+        {
+          "threshold": 0.78,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 64.64550666666666,
+          "regen_pct": 4.666666666666667
+        },
+        {
+          "threshold": 0.8,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 69.90670666666666,
+          "regen_pct": 5.555555555555555
+        },
+        {
+          "threshold": 0.8200000000000001,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 70.68790666666668,
+          "regen_pct": 5.888888888888888
+        },
+        {
+          "threshold": 0.84,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 79.49484,
+          "regen_pct": 7.444444444444444
+        },
+        {
+          "threshold": 0.86,
+          "accuracy": 40.0,
+          "avg_flops_tflops": 86.27364,
+          "regen_pct": 8.88888888888889
+        },
+        {
+          "threshold": 0.88,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 93.99510666666667,
+          "regen_pct": 11.444444444444445
+        },
+        {
+          "threshold": 0.9,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 100.37164,
+          "regen_pct": 13.222222222222221
+        },
+        {
+          "threshold": 0.92,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 111.45124,
+          "regen_pct": 16.22222222222222
+        },
+        {
+          "threshold": 0.9400000000000001,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 131.71297333333334,
+          "regen_pct": 21.333333333333336
+        },
+        {
+          "threshold": 0.96,
+          "accuracy": 46.666666666666664,
+          "avg_flops_tflops": 163.80844,
+          "regen_pct": 30.11111111111111
+        },
+        {
+          "threshold": 0.98,
+          "accuracy": 46.666666666666664,
+          "avg_flops_tflops": 210.26510666666667,
+          "regen_pct": 42.888888888888886
+        },
+        {
+          "threshold": 1.0,
+          "accuracy": 60.0,
+          "avg_flops_tflops": 384.0667066666667,
+          "regen_pct": 93.0
+        }
+      ],
+      "rubric": [
+        {
+          "threshold": 0.0,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334
+        },
+        {
+          "threshold": 0.02,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334
+        },
+        {
+          "threshold": 0.04,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334
+        },
+        {
+          "threshold": 0.06,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334
+        },
+        {
+          "threshold": 0.08,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334
+        },
+        {
+          "threshold": 0.1,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334
+        },
+        {
+          "threshold": 0.12,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334
+        },
+        {
+          "threshold": 0.14,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334
+        },
+        {
+          "threshold": 0.16,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334
+        },
+        {
+          "threshold": 0.18,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 47.35364
+        },
+        {
+          "threshold": 0.2,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 47.35364
+        },
+        {
+          "threshold": 0.22,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 47.57764
+        },
+        {
+          "threshold": 0.24,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 47.57764
+        },
+        {
+          "threshold": 0.26,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 47.57764
+        },
+        {
+          "threshold": 0.28,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 48.10964
+        },
+        {
+          "threshold": 0.3,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 49.244573333333335
+        },
+        {
+          "threshold": 0.32,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 50.51484
+        },
+        {
+          "threshold": 0.34,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 50.95164
+        },
+        {
+          "threshold": 0.36,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 50.95164
+        },
+        {
+          "threshold": 0.38,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 50.988973333333334
+        },
+        {
+          "threshold": 0.4,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 51.18497333333334
+        },
+        {
+          "threshold": 0.42,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 51.94750666666666
+        },
+        {
+          "threshold": 0.44,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 51.94750666666666
+        },
+        {
+          "threshold": 0.46,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 51.94750666666666
+        },
+        {
+          "threshold": 0.48,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 52.234973333333336
+        },
+        {
+          "threshold": 0.5,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 52.234973333333336
+        },
+        {
+          "threshold": 0.52,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 53.30084
+        },
+        {
+          "threshold": 0.54,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 53.63404
+        },
+        {
+          "threshold": 0.56,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 54.51790666666666
+        },
+        {
+          "threshold": 0.58,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 55.87404
+        },
+        {
+          "threshold": 0.6,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 56.178306666666664
+        },
+        {
+          "threshold": 0.62,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 58.61150666666666
+        },
+        {
+          "threshold": 0.64,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 61.458173333333335
+        },
+        {
+          "threshold": 0.66,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 63.522706666666664
+        },
+        {
+          "threshold": 0.68,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 64.30017333333333
+        },
+        {
+          "threshold": 0.7000000000000001,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 64.37204
+        },
+        {
+          "threshold": 0.72,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 65.60684
+        },
+        {
+          "threshold": 0.74,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 67.95697333333334
+        },
+        {
+          "threshold": 0.76,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 73.72404
+        },
+        {
+          "threshold": 0.78,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 77.89977333333333
+        },
+        {
+          "threshold": 0.8,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 79.50790666666667
+        },
+        {
+          "threshold": 0.8200000000000001,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 81.94950666666668
+        },
+        {
+          "threshold": 0.84,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 88.65644
+        },
+        {
+          "threshold": 0.86,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 91.30057333333333
+        },
+        {
+          "threshold": 0.88,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 100.11404
+        },
+        {
+          "threshold": 0.9,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 109.25977333333333
+        },
+        {
+          "threshold": 0.92,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 120.80230666666667
+        },
+        {
+          "threshold": 0.9400000000000001,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 131.65324
+        },
+        {
+          "threshold": 0.96,
+          "accuracy": 46.666666666666664,
+          "avg_flops_tflops": 150.71470666666664
+        },
+        {
+          "threshold": 0.98,
+          "accuracy": 46.666666666666664,
+          "avg_flops_tflops": 179.83657333333335
+        },
+        {
+          "threshold": 1.0,
+          "accuracy": 46.666666666666664,
+          "avg_flops_tflops": 250.52070666666665
+        }
+      ]
+    },
+    "all": {
+      "prm": [
+        {
+          "threshold": 0.0,
+          "accuracy": 63.31658291457286,
+          "avg_flops_tflops": 9.15418391959799,
+          "regen_pct": 0.0
+        },
+        {
+          "threshold": 0.02,
+          "accuracy": 64.321608040201,
+          "avg_flops_tflops": 9.18077688442211,
+          "regen_pct": 0.06323777403035413
+        },
+        {
+          "threshold": 0.04,
+          "accuracy": 65.32663316582915,
+          "avg_flops_tflops": 9.217781909547739,
+          "regen_pct": 0.1475548060708263
+        },
+        {
+          "threshold": 0.06,
+          "accuracy": 65.82914572864321,
+          "avg_flops_tflops": 9.260977889447236,
+          "regen_pct": 0.2318718381112985
+        },
+        {
+          "threshold": 0.08,
+          "accuracy": 66.83417085427136,
+          "avg_flops_tflops": 9.276877386934673,
+          "regen_pct": 0.31618887015177066
+        },
+        {
+          "threshold": 0.1,
+          "accuracy": 66.83417085427136,
+          "avg_flops_tflops": 9.276877386934673,
+          "regen_pct": 0.31618887015177066
+        },
+        {
+          "threshold": 0.12,
+          "accuracy": 66.83417085427136,
+          "avg_flops_tflops": 9.278425125628141,
+          "regen_pct": 0.35834738617200673
+        },
+        {
+          "threshold": 0.14,
+          "accuracy": 67.8391959798995,
+          "avg_flops_tflops": 9.291229145728643,
+          "regen_pct": 0.42158516020236086
+        },
+        {
+          "threshold": 0.16,
+          "accuracy": 68.84422110552764,
+          "avg_flops_tflops": 9.358204020100501,
+          "regen_pct": 0.5059021922428331
+        },
+        {
+          "threshold": 0.18,
+          "accuracy": 69.84924623115577,
+          "avg_flops_tflops": 9.3769175879397,
+          "regen_pct": 0.6112984822934233
+        },
+        {
+          "threshold": 0.2,
+          "accuracy": 69.84924623115577,
+          "avg_flops_tflops": 9.386063316582915,
+          "regen_pct": 0.6534569983136593
+        },
+        {
+          "threshold": 0.22,
+          "accuracy": 69.34673366834171,
+          "avg_flops_tflops": 9.387470351758795,
+          "regen_pct": 0.6745362563237773
+        },
+        {
+          "threshold": 0.24,
+          "accuracy": 69.34673366834171,
+          "avg_flops_tflops": 9.4014,
+          "regen_pct": 0.7166947723440135
+        },
+        {
+          "threshold": 0.26,
+          "accuracy": 69.34673366834171,
+          "avg_flops_tflops": 9.413500502512562,
+          "regen_pct": 0.8010118043844857
+        },
+        {
+          "threshold": 0.28,
+          "accuracy": 69.34673366834171,
+          "avg_flops_tflops": 9.484133668341709,
+          "regen_pct": 0.8431703204047217
+        },
+        {
+          "threshold": 0.3,
+          "accuracy": 69.84924623115577,
+          "avg_flops_tflops": 9.645802010050252,
+          "regen_pct": 0.927487352445194
+        },
+        {
+          "threshold": 0.32,
+          "accuracy": 70.35175879396985,
+          "avg_flops_tflops": 9.685902512562814,
+          "regen_pct": 0.96964586846543
+        },
+        {
+          "threshold": 0.34,
+          "accuracy": 70.35175879396985,
+          "avg_flops_tflops": 9.766947738693467,
+          "regen_pct": 1.0539629005059024
+        },
+        {
+          "threshold": 0.36,
+          "accuracy": 70.35175879396985,
+          "avg_flops_tflops": 9.769339698492463,
+          "regen_pct": 1.0750421585160204
+        },
+        {
+          "threshold": 0.38,
+          "accuracy": 70.35175879396985,
+          "avg_flops_tflops": 9.856575879396985,
+          "regen_pct": 1.1593591905564924
+        },
+        {
+          "threshold": 0.4,
+          "accuracy": 71.35678391959799,
+          "avg_flops_tflops": 9.885138693467336,
+          "regen_pct": 1.2647554806070826
+        },
+        {
+          "threshold": 0.42,
+          "accuracy": 71.35678391959799,
+          "avg_flops_tflops": 9.885701507537688,
+          "regen_pct": 1.2858347386172007
+        },
+        {
+          "threshold": 0.44,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 9.898364824120604,
+          "regen_pct": 1.370151770657673
+        },
+        {
+          "threshold": 0.46,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 9.913701507537688,
+          "regen_pct": 1.412310286677909
+        },
+        {
+          "threshold": 0.48,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 10.136716582914572,
+          "regen_pct": 1.475548060708263
+        },
+        {
+          "threshold": 0.5,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 10.143188944723617,
+          "regen_pct": 1.5177065767284992
+        },
+        {
+          "threshold": 0.52,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 10.352415075376884,
+          "regen_pct": 1.6441821247892074
+        },
+        {
+          "threshold": 0.54,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 10.524636180904523,
+          "regen_pct": 1.7495784148397975
+        },
+        {
+          "threshold": 0.56,
+          "accuracy": 72.8643216080402,
+          "avg_flops_tflops": 10.576837185929648,
+          "regen_pct": 1.812816188870152
+        },
+        {
+          "threshold": 0.58,
+          "accuracy": 72.8643216080402,
+          "avg_flops_tflops": 10.611590954773868,
+          "regen_pct": 1.960370994940978
+        },
+        {
+          "threshold": 0.6,
+          "accuracy": 72.8643216080402,
+          "avg_flops_tflops": 10.640435175879396,
+          "regen_pct": 2.0236087689713322
+        },
+        {
+          "threshold": 0.62,
+          "accuracy": 72.8643216080402,
+          "avg_flops_tflops": 10.683068341708543,
+          "regen_pct": 2.1290050590219227
+        },
+        {
+          "threshold": 0.64,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 10.956736683417086,
+          "regen_pct": 2.381956155143339
+        },
+        {
+          "threshold": 0.66,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 11.01104824120603,
+          "regen_pct": 2.4873524451939293
+        },
+        {
+          "threshold": 0.68,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 11.600736683417086,
+          "regen_pct": 2.761382799325464
+        },
+        {
+          "threshold": 0.7000000000000001,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 11.912817085427134,
+          "regen_pct": 3.0354131534569984
+        },
+        {
+          "threshold": 0.72,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 11.985701507537687,
+          "regen_pct": 3.246205733558179
+        },
+        {
+          "threshold": 0.74,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 12.06759095477387,
+          "regen_pct": 3.414839797639123
+        },
+        {
+          "threshold": 0.76,
+          "accuracy": 74.37185929648241,
+          "avg_flops_tflops": 12.308334673366835,
+          "regen_pct": 3.625632377740304
+        },
+        {
+          "threshold": 0.78,
+          "accuracy": 74.37185929648241,
+          "avg_flops_tflops": 12.593118592964824,
+          "regen_pct": 3.794266441821248
+        },
+        {
+          "threshold": 0.8,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 13.487711557788945,
+          "regen_pct": 4.194772344013491
+        },
+        {
+          "threshold": 0.8200000000000001,
+          "accuracy": 74.37185929648241,
+          "avg_flops_tflops": 13.694686432160804,
+          "regen_pct": 4.5109612141652615
+        },
+        {
+          "threshold": 0.84,
+          "accuracy": 74.87437185929649,
+          "avg_flops_tflops": 15.091450251256282,
+          "regen_pct": 5.122259696458684
+        },
+        {
+          "threshold": 0.86,
+          "accuracy": 75.37688442211056,
+          "avg_flops_tflops": 16.18007336683417,
+          "regen_pct": 5.649241146711636
+        },
+        {
+          "threshold": 0.88,
+          "accuracy": 75.87939698492463,
+          "avg_flops_tflops": 17.49283718592965,
+          "regen_pct": 6.429173693086003
+        },
+        {
+          "threshold": 0.9,
+          "accuracy": 76.88442211055276,
+          "avg_flops_tflops": 18.60397286432161,
+          "regen_pct": 7.209106239460371
+        },
+        {
+          "threshold": 0.92,
+          "accuracy": 76.88442211055276,
+          "avg_flops_tflops": 20.597741708542713,
+          "regen_pct": 8.600337268128163
+        },
+        {
+          "threshold": 0.9400000000000001,
+          "accuracy": 76.88442211055276,
+          "avg_flops_tflops": 23.899631155778895,
+          "regen_pct": 10.708263069139965
+        },
+        {
+          "threshold": 0.96,
+          "accuracy": 77.38693467336684,
+          "avg_flops_tflops": 29.204575879396984,
+          "regen_pct": 14.439291736930858
+        },
+        {
+          "threshold": 0.98,
+          "accuracy": 78.89447236180904,
+          "avg_flops_tflops": 37.552796984924626,
+          "regen_pct": 21.66947723440135
+        },
+        {
+          "threshold": 1.0,
+          "accuracy": 80.90452261306532,
+          "avg_flops_tflops": 71.82324924623116,
+          "regen_pct": 65.11382799325463
+        }
+      ],
+      "rubric": [
+        {
+          "threshold": 0.0,
+          "accuracy": 65.82914572864321,
+          "avg_flops_tflops": 9.27434472361809
+        },
+        {
+          "threshold": 0.02,
+          "accuracy": 66.83417085427136,
+          "avg_flops_tflops": 9.282083417085428
+        },
+        {
+          "threshold": 0.04,
+          "accuracy": 67.8391959798995,
+          "avg_flops_tflops": 9.29207336683417
+        },
+        {
+          "threshold": 0.06,
+          "accuracy": 68.84422110552764,
+          "avg_flops_tflops": 9.330626130653265
+        },
+        {
+          "threshold": 0.08,
+          "accuracy": 69.34673366834171,
+          "avg_flops_tflops": 9.34610351758794
+        },
+        {
+          "threshold": 0.1,
+          "accuracy": 69.34673366834171,
+          "avg_flops_tflops": 9.366224120603016
+        },
+        {
+          "threshold": 0.12,
+          "accuracy": 69.34673366834171,
+          "avg_flops_tflops": 9.37607336683417
+        },
+        {
+          "threshold": 0.14,
+          "accuracy": 69.34673366834171,
+          "avg_flops_tflops": 9.37607336683417
+        },
+        {
+          "threshold": 0.16,
+          "accuracy": 69.34673366834171,
+          "avg_flops_tflops": 9.402947738693467
+        },
+        {
+          "threshold": 0.18,
+          "accuracy": 69.34673366834171,
+          "avg_flops_tflops": 9.481882412060301
+        },
+        {
+          "threshold": 0.2,
+          "accuracy": 69.84924623115577,
+          "avg_flops_tflops": 9.494264321608041
+        },
+        {
+          "threshold": 0.22,
+          "accuracy": 69.84924623115577,
+          "avg_flops_tflops": 9.528033165829147
+        },
+        {
+          "threshold": 0.24,
+          "accuracy": 69.84924623115577,
+          "avg_flops_tflops": 9.534224120603016
+        },
+        {
+          "threshold": 0.26,
+          "accuracy": 70.35175879396985,
+          "avg_flops_tflops": 9.541822110552763
+        },
+        {
+          "threshold": 0.28,
+          "accuracy": 70.85427135678391,
+          "avg_flops_tflops": 9.624555778894473
+        },
+        {
+          "threshold": 0.3,
+          "accuracy": 71.35678391959799,
+          "avg_flops_tflops": 9.799168844221105
+        },
+        {
+          "threshold": 0.32,
+          "accuracy": 71.85929648241206,
+          "avg_flops_tflops": 10.015570854271358
+        },
+        {
+          "threshold": 0.34,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 10.093098492462312
+        },
+        {
+          "threshold": 0.36,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 10.093098492462312
+        },
+        {
+          "threshold": 0.38,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 10.10548040201005
+        },
+        {
+          "threshold": 0.4,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 10.135872361809044
+        },
+        {
+          "threshold": 0.42,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 10.251389949748743
+        },
+        {
+          "threshold": 0.44,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 10.251389949748743
+        },
+        {
+          "threshold": 0.46,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 10.282204020100503
+        },
+        {
+          "threshold": 0.48,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 10.328776884422112
+        },
+        {
+          "threshold": 0.5,
+          "accuracy": 72.8643216080402,
+          "avg_flops_tflops": 10.347068341708543
+        },
+        {
+          "threshold": 0.52,
+          "accuracy": 73.36683417085426,
+          "avg_flops_tflops": 10.576555778894473
+        },
+        {
+          "threshold": 0.54,
+          "accuracy": 73.36683417085426,
+          "avg_flops_tflops": 10.676033165829146
+        },
+        {
+          "threshold": 0.56,
+          "accuracy": 73.36683417085426,
+          "avg_flops_tflops": 10.815611055276383
+        },
+        {
+          "threshold": 0.58,
+          "accuracy": 73.36683417085426,
+          "avg_flops_tflops": 11.04917889447236
+        },
+        {
+          "threshold": 0.6,
+          "accuracy": 73.36683417085426,
+          "avg_flops_tflops": 11.101379899497488
+        },
+        {
+          "threshold": 0.62,
+          "accuracy": 73.36683417085426,
+          "avg_flops_tflops": 11.498163819095476
+        },
+        {
+          "threshold": 0.64,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 11.960656281407035
+        },
+        {
+          "threshold": 0.66,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 12.312555778894472
+        },
+        {
+          "threshold": 0.68,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 12.513902512562815
+        },
+        {
+          "threshold": 0.7000000000000001,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 12.567791959798994
+        },
+        {
+          "threshold": 0.72,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 12.800515577889447
+        },
+        {
+          "threshold": 0.74,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 13.189420100502511
+        },
+        {
+          "threshold": 0.76,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 14.093018090452262
+        },
+        {
+          "threshold": 0.78,
+          "accuracy": 74.87437185929649,
+          "avg_flops_tflops": 14.730264321608042
+        },
+        {
+          "threshold": 0.8,
+          "accuracy": 75.87939698492463,
+          "avg_flops_tflops": 15.024756783919598
+        },
+        {
+          "threshold": 0.8200000000000001,
+          "accuracy": 75.87939698492463,
+          "avg_flops_tflops": 15.475711557788946
+        },
+        {
+          "threshold": 0.84,
+          "accuracy": 75.87939698492463,
+          "avg_flops_tflops": 16.5577216080402
+        },
+        {
+          "threshold": 0.86,
+          "accuracy": 75.87939698492463,
+          "avg_flops_tflops": 17.01402311557789
+        },
+        {
+          "threshold": 0.88,
+          "accuracy": 75.87939698492463,
+          "avg_flops_tflops": 18.46467638190955
+        },
+        {
+          "threshold": 0.9,
+          "accuracy": 76.88442211055276,
+          "avg_flops_tflops": 20.03337989949749
+        },
+        {
+          "threshold": 0.92,
+          "accuracy": 76.88442211055276,
+          "avg_flops_tflops": 22.221038190954772
+        },
+        {
+          "threshold": 0.9400000000000001,
+          "accuracy": 77.38693467336684,
+          "avg_flops_tflops": 24.304153768844223
+        },
+        {
+          "threshold": 0.96,
+          "accuracy": 77.88944723618091,
+          "avg_flops_tflops": 27.624756783919597
+        },
+        {
+          "threshold": 0.98,
+          "accuracy": 77.88944723618091,
+          "avg_flops_tflops": 32.5247567839196
+        },
+        {
+          "threshold": 1.0,
+          "accuracy": 78.89447236180904,
+          "avg_flops_tflops": 44.53492763819095
+        }
+      ]
+    }
+  },
+  "ppo_curves": {
+    "math500": {
+      "ppo_agg": [
+        {
+          "threshold": 0.98,
+          "accuracy": 68.63905325443787,
+          "avg_flops_tflops": 2.4550615384615386
+        },
+        {
+          "threshold": 0.96,
+          "accuracy": 69.23076923076923,
+          "avg_flops_tflops": 2.457878106508876
+        },
+        {
+          "threshold": 0.02,
+          "accuracy": 69.8224852071006,
+          "avg_flops_tflops": 2.4842213017751478
+        },
+        {
+          "threshold": 0.1,
+          "accuracy": 70.41420118343196,
+          "avg_flops_tflops": 2.5027775147928994
+        },
+        {
+          "threshold": 0.8200000000000001,
+          "accuracy": 71.00591715976331,
+          "avg_flops_tflops": 2.581807100591716
+        },
+        {
+          "threshold": 0.76,
+          "accuracy": 71.59763313609467,
+          "avg_flops_tflops": 2.599369230769231
+        },
+        {
+          "threshold": 0.54,
+          "accuracy": 73.37278106508876,
+          "avg_flops_tflops": 2.6540437869822484
+        },
+        {
+          "threshold": 0.4,
+          "accuracy": 73.96449704142012,
+          "avg_flops_tflops": 2.786588165680473
+        },
+        {
+          "threshold": 0.34,
+          "accuracy": 74.55621301775149,
+          "avg_flops_tflops": 2.8831798816568046
+        },
+        {
+          "threshold": 0.32,
+          "accuracy": 75.14792899408283,
+          "avg_flops_tflops": 2.8966
+        },
+        {
+          "threshold": 0.3,
+          "accuracy": 75.7396449704142,
+          "avg_flops_tflops": 2.951937278106509
+        },
+        {
+          "threshold": 0.26,
+          "accuracy": 76.33136094674556,
+          "avg_flops_tflops": 3.3088130177514796
+        },
+        {
+          "threshold": 0.24,
+          "accuracy": 76.92307692307693,
+          "avg_flops_tflops": 3.7770260355029586
+        },
+        {
+          "threshold": 0.22,
+          "accuracy": 78.10650887573965,
+          "avg_flops_tflops": 4.32758224852071
+        },
+        {
+          "threshold": 0.2,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 5.232694674556213
+        },
+        {
+          "threshold": 0.18,
+          "accuracy": 80.4733727810651,
+          "avg_flops_tflops": 6.010067455621302
+        },
+        {
+          "threshold": 0.16,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 6.7675585798816575
+        },
+        {
+          "threshold": 0.14,
+          "accuracy": 82.24852071005917,
+          "avg_flops_tflops": 7.860386982248521
+        },
+        {
+          "threshold": 0.12,
+          "accuracy": 82.84023668639054,
+          "avg_flops_tflops": 9.150872189349114
+        },
+        {
+          "threshold": 0.08,
+          "accuracy": 85.20710059171599,
+          "avg_flops_tflops": 13.71470650887574
+        },
+        {
+          "threshold": 0.04,
+          "accuracy": 85.79881656804734,
+          "avg_flops_tflops": 22.427179881656805
+        }
+      ],
+      "ppo_rubric": [
+        {
+          "threshold": 0.74,
+          "accuracy": 68.63905325443787,
+          "avg_flops_tflops": 2.4550615384615386
+        },
+        {
+          "threshold": 0.6,
+          "accuracy": 69.23076923076923,
+          "avg_flops_tflops": 2.464836686390533
+        },
+        {
+          "threshold": 0.5,
+          "accuracy": 69.8224852071006,
+          "avg_flops_tflops": 2.471960946745562
+        },
+        {
+          "threshold": 0.84,
+          "accuracy": 70.41420118343196,
+          "avg_flops_tflops": 2.4989668639053257
+        },
+        {
+          "threshold": 0.48,
+          "accuracy": 71.00591715976331,
+          "avg_flops_tflops": 2.551321893491124
+        },
+        {
+          "threshold": 0.8,
+          "accuracy": 72.18934911242604,
+          "avg_flops_tflops": 2.575676923076923
+        },
+        {
+          "threshold": 0.78,
+          "accuracy": 72.7810650887574,
+          "avg_flops_tflops": 2.5806473372781062
+        },
+        {
+          "threshold": 0.76,
+          "accuracy": 73.37278106508876,
+          "avg_flops_tflops": 2.5943988165680474
+        },
+        {
+          "threshold": 0.68,
+          "accuracy": 74.55621301775149,
+          "avg_flops_tflops": 2.645759763313609
+        },
+        {
+          "threshold": 0.6,
+          "accuracy": 75.14792899408283,
+          "avg_flops_tflops": 2.6886710059171595
+        },
+        {
+          "threshold": 0.36,
+          "accuracy": 75.7396449704142,
+          "avg_flops_tflops": 2.7047420118343193
+        },
+        {
+          "threshold": 0.34,
+          "accuracy": 76.92307692307693,
+          "avg_flops_tflops": 2.77863550295858
+        },
+        {
+          "threshold": 0.3,
+          "accuracy": 77.51479289940828,
+          "avg_flops_tflops": 2.8137597633136093
+        },
+        {
+          "threshold": 0.28,
+          "accuracy": 78.10650887573965,
+          "avg_flops_tflops": 2.855842603550296
+        },
+        {
+          "threshold": 0.26,
+          "accuracy": 78.69822485207101,
+          "avg_flops_tflops": 2.8873218934911242
+        },
+        {
+          "threshold": 0.24,
+          "accuracy": 79.28994082840237,
+          "avg_flops_tflops": 2.931558579881657
+        },
+        {
+          "threshold": 0.2,
+          "accuracy": 81.06508875739645,
+          "avg_flops_tflops": 3.5636295857988163
+        },
+        {
+          "threshold": 0.18,
+          "accuracy": 82.84023668639054,
+          "avg_flops_tflops": 5.232860355029586
+        },
+        {
+          "threshold": 0.16,
+          "accuracy": 84.61538461538461,
+          "avg_flops_tflops": 7.976031952662722
+        },
+        {
+          "threshold": 0.28,
+          "accuracy": 85.79881656804734,
+          "avg_flops_tflops": 17.72997278106509
+        },
+        {
+          "threshold": 0.12,
+          "accuracy": 86.3905325443787,
+          "avg_flops_tflops": 20.5311325443787
+        }
+      ]
+    },
+    "aime2025": {
+      "ppo_agg": [
+        {
+          "threshold": 0.96,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334
+        },
+        {
+          "threshold": 0.9400000000000001,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 49.942706666666666
+        },
+        {
+          "threshold": 0.16,
+          "accuracy": 40.0,
+          "avg_flops_tflops": 73.09590666666668
+        },
+        {
+          "threshold": 0.14,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 88.07124
+        },
+        {
+          "threshold": 0.1,
+          "accuracy": 46.666666666666664,
+          "avg_flops_tflops": 148.67444
+        },
+        {
+          "threshold": 0.04,
+          "accuracy": 53.333333333333336,
+          "avg_flops_tflops": 214.81044
+        },
+        {
+          "threshold": 0.08,
+          "accuracy": 60.0,
+          "avg_flops_tflops": 257.5907066666667
+        },
+        {
+          "threshold": 0.0,
+          "accuracy": 63.33333333333333,
+          "avg_flops_tflops": 406.9165733333333
+        }
+      ],
+      "ppo_rubric": [
+        {
+          "threshold": 0.36,
+          "accuracy": 33.33333333333333,
+          "avg_flops_tflops": 46.89257333333334
+        },
+        {
+          "threshold": 0.62,
+          "accuracy": 36.666666666666664,
+          "avg_flops_tflops": 48.85350666666666
+        },
+        {
+          "threshold": 0.42,
+          "accuracy": 40.0,
+          "avg_flops_tflops": 60.06750666666667
+        },
+        {
+          "threshold": 0.38,
+          "accuracy": 43.333333333333336,
+          "avg_flops_tflops": 67.52110666666667
+        },
+        {
+          "threshold": 0.08,
+          "accuracy": 46.666666666666664,
+          "avg_flops_tflops": 134.34590666666668
+        },
+        {
+          "threshold": 0.1,
+          "accuracy": 50.0,
+          "avg_flops_tflops": 186.85337333333334
+        },
+        {
+          "threshold": 0.04,
+          "accuracy": 53.333333333333336,
+          "avg_flops_tflops": 219.99044
+        },
+        {
+          "threshold": 0.54,
+          "accuracy": 60.0,
+          "avg_flops_tflops": 225.90870666666666
+        },
+        {
+          "threshold": 0.44,
+          "accuracy": 63.33333333333333,
+          "avg_flops_tflops": 297.8201733333333
+        }
+      ]
+    },
+    "all": {
+      "ppo_agg": [
+        {
+          "threshold": 0.98,
+          "accuracy": 63.31658291457286,
+          "avg_flops_tflops": 9.15418391959799
+        },
+        {
+          "threshold": 0.96,
+          "accuracy": 63.81909547738693,
+          "avg_flops_tflops": 9.156575879396984
+        },
+        {
+          "threshold": 0.46,
+          "accuracy": 64.321608040201,
+          "avg_flops_tflops": 9.193299497487438
+        },
+        {
+          "threshold": 0.1,
+          "accuracy": 64.82412060301507,
+          "avg_flops_tflops": 9.194706532663316
+        },
+        {
+          "threshold": 0.9400000000000001,
+          "accuracy": 65.32663316582915,
+          "avg_flops_tflops": 9.677038190954773
+        },
+        {
+          "threshold": 0.8200000000000001,
+          "accuracy": 65.82914572864321,
+          "avg_flops_tflops": 9.900193969849246
+        },
+        {
+          "threshold": 0.76,
+          "accuracy": 66.33165829145729,
+          "avg_flops_tflops": 9.915108542713568
+        },
+        {
+          "threshold": 0.54,
+          "accuracy": 67.8391959798995,
+          "avg_flops_tflops": 9.961540703517588
+        },
+        {
+          "threshold": 0.4,
+          "accuracy": 68.34170854271356,
+          "avg_flops_tflops": 10.14445527638191
+        },
+        {
+          "threshold": 0.34,
+          "accuracy": 68.84422110552764,
+          "avg_flops_tflops": 10.236897487437185
+        },
+        {
+          "threshold": 0.32,
+          "accuracy": 69.34673366834171,
+          "avg_flops_tflops": 10.248294472361808
+        },
+        {
+          "threshold": 0.3,
+          "accuracy": 69.84924623115577,
+          "avg_flops_tflops": 10.295289447236181
+        },
+        {
+          "threshold": 0.26,
+          "accuracy": 70.35175879396985,
+          "avg_flops_tflops": 10.955892462311558
+        },
+        {
+          "threshold": 0.24,
+          "accuracy": 70.85427135678391,
+          "avg_flops_tflops": 11.56288743718593
+        },
+        {
+          "threshold": 0.22,
+          "accuracy": 71.85929648241206,
+          "avg_flops_tflops": 12.189299497487438
+        },
+        {
+          "threshold": 0.2,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 13.851008040201005
+        },
+        {
+          "threshold": 0.18,
+          "accuracy": 73.86934673366834,
+          "avg_flops_tflops": 14.92767135678392
+        },
+        {
+          "threshold": 0.16,
+          "accuracy": 74.37185929648241,
+          "avg_flops_tflops": 16.198224120603015
+        },
+        {
+          "threshold": 0.14,
+          "accuracy": 75.37688442211056,
+          "avg_flops_tflops": 17.686163819095476
+        },
+        {
+          "threshold": 0.12,
+          "accuracy": 75.87939698492463,
+          "avg_flops_tflops": 19.517279396984925
+        },
+        {
+          "threshold": 0.08,
+          "accuracy": 77.88944723618091,
+          "avg_flops_tflops": 27.170284422110555
+        },
+        {
+          "threshold": 0.06,
+          "accuracy": 78.39195979899498,
+          "avg_flops_tflops": 36.28885728643216
+        },
+        {
+          "threshold": 0.04,
+          "accuracy": 80.90452261306532,
+          "avg_flops_tflops": 51.42968140703518
+        },
+        {
+          "threshold": 0.0,
+          "accuracy": 82.41206030150754,
+          "avg_flops_tflops": 80.75623417085427
+        }
+      ],
+      "ppo_rubric": [
+        {
+          "threshold": 0.74,
+          "accuracy": 63.31658291457286,
+          "avg_flops_tflops": 9.15418391959799
+        },
+        {
+          "threshold": 0.54,
+          "accuracy": 63.81909547738693,
+          "avg_flops_tflops": 9.167972864321607
+        },
+        {
+          "threshold": 0.5,
+          "accuracy": 64.321608040201,
+          "avg_flops_tflops": 9.16853567839196
+        },
+        {
+          "threshold": 0.84,
+          "accuracy": 64.82412060301507,
+          "avg_flops_tflops": 9.191470351758795
+        },
+        {
+          "threshold": 0.8,
+          "accuracy": 66.33165829145729,
+          "avg_flops_tflops": 9.448113567839195
+        },
+        {
+          "threshold": 0.78,
+          "accuracy": 66.83417085427136,
+          "avg_flops_tflops": 9.452334673366835
+        },
+        {
+          "threshold": 0.76,
+          "accuracy": 67.33668341708542,
+          "avg_flops_tflops": 10.061158793969849
+        },
+        {
+          "threshold": 0.7000000000000001,
+          "accuracy": 68.34170854271356,
+          "avg_flops_tflops": 10.235209045226132
+        },
+        {
+          "threshold": 0.62,
+          "accuracy": 68.84422110552764,
+          "avg_flops_tflops": 10.770445226130652
+        },
+        {
+          "threshold": 0.6,
+          "accuracy": 69.34673366834171,
+          "avg_flops_tflops": 11.075771859296482
+        },
+        {
+          "threshold": 0.52,
+          "accuracy": 69.84924623115577,
+          "avg_flops_tflops": 11.556977889447236
+        },
+        {
+          "threshold": 0.38,
+          "accuracy": 70.35175879396985,
+          "avg_flops_tflops": 12.474786934673368
+        },
+        {
+          "threshold": 0.36,
+          "accuracy": 70.85427135678391,
+          "avg_flops_tflops": 13.210525628140703
+        },
+        {
+          "threshold": 0.34,
+          "accuracy": 71.85929648241206,
+          "avg_flops_tflops": 13.75842512562814
+        },
+        {
+          "threshold": 0.3,
+          "accuracy": 72.36180904522614,
+          "avg_flops_tflops": 16.584736683417084
+        },
+        {
+          "threshold": 0.28,
+          "accuracy": 72.8643216080402,
+          "avg_flops_tflops": 18.405580904522612
+        },
+        {
+          "threshold": 0.26,
+          "accuracy": 73.36683417085426,
+          "avg_flops_tflops": 20.848475376884423
+        },
+        {
+          "threshold": 0.2,
+          "accuracy": 74.87437185929649,
+          "avg_flops_tflops": 28.07585226130653
+        },
+        {
+          "threshold": 0.18,
+          "accuracy": 76.88442211055276,
+          "avg_flops_tflops": 33.47098793969849
+        },
+        {
+          "threshold": 0.16,
+          "accuracy": 79.89949748743719,
+          "avg_flops_tflops": 41.92670653266332
+        },
+        {
+          "threshold": 0.14,
+          "accuracy": 80.90452261306532,
+          "avg_flops_tflops": 53.89424422110553
+        },
+        {
+          "threshold": 0.12,
+          "accuracy": 82.41206030150754,
+          "avg_flops_tflops": 69.07432462311557
+        },
+        {
+          "threshold": 0.1,
+          "accuracy": 82.91457286432161,
+          "avg_flops_tflops": 78.65778190954774
+        }
+      ]
+    }
+  }
+}
