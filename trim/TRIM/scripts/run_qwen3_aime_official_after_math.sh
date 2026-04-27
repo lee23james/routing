@@ -32,13 +32,13 @@ math_complete() {
 }
 
 main() {
-    log "[info] waiting for math sweep to finish before starting official AIME sweep"
+    log "[info] waiting for math sweep to finish before starting official AIME parallel sweep"
     until math_complete; do
         log "[wait] math sweep incomplete; sleeping ${WAIT_SECONDS}s"
         sleep "${WAIT_SECONDS}"
     done
 
-    log "[start] math sweep complete; launching official AIME sweep"
+    log "[start] math sweep complete; launching official AIME parallel sweep on GPU 2/3"
     exec bash "${ROOT_DIR}/scripts/run_qwen3_aime_official_sweep.sh"
 }
 
