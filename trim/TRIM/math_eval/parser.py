@@ -565,11 +565,14 @@ def extract_answer(pred_str, data_name, use_last_number=True):
         pred = pred[:-1]
     if pred != "" and pred[-1] == "/":
         pred = pred[:-1]
-    pred = strip_string(pred, skip_unit=data_name in ["carp_en", "minerva_math", "aime"])
+    pred = strip_string(
+        pred,
+        skip_unit=data_name in ["carp_en", "minerva_math", "aime", "aime2020_2024"],
+    )
     return pred
 
 
-STRIP_EXCEPTIONS = ["carp_en", "minerva_math", "aime"]
+STRIP_EXCEPTIONS = ["carp_en", "minerva_math", "aime", "aime2020_2024"]
 
 
 def parse_ground_truth(example: Dict[str, Any], data_name):
@@ -583,7 +586,7 @@ def parse_ground_truth(example: Dict[str, Any], data_name):
         return example["gt_cot"], gt_ans
 
     # parse ground truth
-    if data_name in ["math", "minerva_math", "math500", "aime"]:  #关键代码
+    if data_name in ["math", "minerva_math", "math500", "aime", "aime2020_2024"]:  #关键代码
         gt_cot = example["solution"]
         gt_ans = extract_answer(gt_cot, data_name)
     elif data_name == "gsm8k":
