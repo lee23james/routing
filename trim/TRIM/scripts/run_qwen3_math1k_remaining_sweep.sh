@@ -12,6 +12,9 @@ SUPERVISOR_LOG="${LOG_DIR}/trim_agg_math1k_remaining_sweep.log"
 TARGET_MODEL="/mnt/hdd2/chengcheng/qwen3-14b"
 DRAFT_MODEL="/mnt/hdd2/chengcheng/qwen3-1.7b"
 PRM_MODEL="/mnt/hdd2/chengcheng/qwen2.5-math-prm-7b"
+TARGET_SERVER_URL="${TARGET_SERVER_URL:-http://localhost:30000/v1}"
+DRAFT_SERVER_URL="${DRAFT_SERVER_URL:-http://localhost:30001/v1}"
+PRM_SERVER_URL="${PRM_SERVER_URL:-http://localhost:30002}"
 
 TRAIN_DATASET_NAME="math"
 TRAIN_SPLIT="train_1k"
@@ -26,6 +29,7 @@ EVAL_EVERY="50"
 SEED="10"
 
 WAIT_SECONDS="${WAIT_SECONDS:-30}"
+MAX_WORKERS="${MAX_WORKERS:-16}"
 
 mkdir -p "${LOG_DIR}" "${SAVE_DIR}" "${OUTPUT_DIR}"
 
@@ -72,10 +76,12 @@ eval_log_path() {
 }
 
 assert_vllm_ready() {
-    local port
-    for port in 30000 30001 30002; do
-        if ! curl -sf "http://localhost:${port}/health" > /dev/null; then
-            log "[error] vLLM server on port ${port} is unavailable."
+    local url
+    local health_url
+    for url in "${TARGET_SERVER_URL}" "${DRAFT_SERVER_URL}" "${PRM_SERVER_URL}"; do
+        health_url="${url%/v1}/health"
+        if ! curl -sf "${health_url}" > /dev/null; then
+            log "[error] vLLM server is unavailable: ${health_url}"
             exit 1
         fi
     done
@@ -122,8 +128,11 @@ run_train() {
         "${PYTHON_BIN}" TRIM_Agg.py \
             --mode train \
             --draft_model_name "${DRAFT_MODEL}" \
+            --draft_server_url "${DRAFT_SERVER_URL}" \
             --target_model_name "${TARGET_MODEL}" \
+            --target_server_url "${TARGET_SERVER_URL}" \
             --prm_model_name "${PRM_MODEL}" \
+            --prm_server_url "${PRM_SERVER_URL}" \
             --train_dataset_name "${TRAIN_DATASET_NAME}" \
             --train_split "${TRAIN_SPLIT}" \
             --eval_dataset_name "${EVAL_DATASET_NAME}" \
@@ -138,6 +147,7 @@ run_train() {
             --seed "${SEED}" \
             --target_disable_thinking "${TARGET_DISABLE_THINKING}" \
             --cost_per_token "${cost}" \
+            --max_workers "${MAX_WORKERS}" \
             --resume true \
             --use_wandb false
     ) 2>&1 | tee -a "${train_log}"
@@ -182,14 +192,18 @@ run_eval() {
         "${PYTHON_BIN}" TRIM_Agg.py \
             --mode eval \
             --draft_model_name "${DRAFT_MODEL}" \
+            --draft_server_url "${DRAFT_SERVER_URL}" \
             --target_model_name "${TARGET_MODEL}" \
+            --target_server_url "${TARGET_SERVER_URL}" \
             --prm_model_name "${PRM_MODEL}" \
+            --prm_server_url "${PRM_SERVER_URL}" \
             --eval_dataset_name "${EVAL_DATASET_NAME}" \
             --eval_split "${EVAL_SPLIT}" \
             --checkpoint "${ckpt}" \
             --output_dir "${OUTPUT_DIR}" \
             --target_disable_thinking "${TARGET_DISABLE_THINKING}" \
-            --cost_per_token "${cost}"
+            --cost_per_token "${cost}" \
+            --max_workers "${MAX_WORKERS}"
     ) 2>&1 | tee -a "${eval_log}"
 
     if [[ ! -f "${metrics}" ]]; then
@@ -205,6 +219,7 @@ main() {
     log "[info] train dataset: ${TRAIN_DATASET_NAME}/${TRAIN_SPLIT}; eval dataset: ${EVAL_DATASET_NAME}/${EVAL_SPLIT}"
     log "[info] train config: num_epochs=${NUM_EPOCHS}, batch_size=${BATCH_SIZE}, val_fraction=${VAL_FRACTION}, val_every=${VAL_EVERY}, eval_every=${EVAL_EVERY}, seed=${SEED}"
     log "[info] models: target=${TARGET_MODEL}, draft=${DRAFT_MODEL}, prm=${PRM_MODEL}"
+    log "[info] servers: target=${TARGET_SERVER_URL}, draft=${DRAFT_SERVER_URL}, prm=${PRM_SERVER_URL}, max_workers=${MAX_WORKERS}"
 
     run_eval "6e-4"
 
