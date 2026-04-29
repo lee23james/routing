@@ -25,9 +25,11 @@ from config import (
     EPISODES_DIR, MAX_STEPS, MAX_NEW_TOKENS, PRM_DEVICE, THINK_MODE,
 )
 from vllm_client import VLLMClient
-from models import PRMScorer, split_steps, extract_answer, check_correctness
+from models import (
+    PRMScorer, ServerPRMScorer, split_steps, extract_answer, check_correctness,
+)
 from data.datasets import (
-    load_math500, load_aime2025, load_aime_1983_2024, load_omnimath,
+    load_math500, load_math_train, load_aime2025, load_aime_1983_2024,
     save_jsonl, load_jsonl,
 )
 
@@ -46,6 +48,15 @@ def generate_episodes(
     dataset_name: str,
     output_dir: str = None,
     prm_device: str = "cuda:0",
+    srm_port: int = VLLM_SRM_PORT,
+    lrm_port: int = VLLM_LRM_PORT,
+    srm_server_url: str = None,
+    lrm_server_url: str = None,
+    srm_model_name: str = "srm",
+    lrm_model_name: str = "lrm",
+    prm_server_url: str = None,
+    prm_model_name: str = PRM_MODEL,
+    max_new_tokens: int = MAX_NEW_TOKENS,
     n_solutions: int = 1,
     temperature: float = 0.0,
     max_workers: int = 4,
@@ -53,8 +64,20 @@ def generate_episodes(
 ):
     if dataset_name == "math500":
         items = load_math500()
+    elif dataset_name in ("math_train_1k", "trim_math_train_1k"):
+        items = load_math_train()
+        dataset_name = "math_train_1k"
+    elif dataset_name in ("math500_test_100", "trim_math500_test_100"):
+        items = load_math500()
+        dataset_name = "math500_test_100"
     elif dataset_name == "aime2025":
         items = load_aime2025()
+    elif dataset_name in ("aime_train", "trim_aime_train"):
+        items = load_aime_1983_2024()
+        dataset_name = "aime_train"
+    elif dataset_name in ("aime_test", "trim_aime_test"):
+        items = load_aime2025()
+        dataset_name = "aime_test"
     elif dataset_name == "aime":
         items = load_aime_1983_2024()
     elif dataset_name.startswith("aime_"):
@@ -72,9 +95,9 @@ def generate_episodes(
     elif dataset_name == "all":
         items = load_math500() + load_aime2025()
     elif dataset_name == "omnimath":
-        items = load_omnimath(max_items=200, min_diff=1.0, max_diff=4.0)
+        items = load_math_train()
     elif dataset_name == "omnimath_full":
-        items = load_omnimath(max_items=500)
+        items = load_math_train()
     else:
         raise ValueError(f"Unknown dataset: {dataset_name}")
 
@@ -97,12 +120,20 @@ def generate_episodes(
         print("All episodes already generated.")
         return
 
-    srm = VLLMClient(VLLM_SRM_PORT, model_name="srm")
-    lrm = VLLMClient(VLLM_LRM_PORT, model_name="lrm")
+    srm = VLLMClient(srm_port, model_name=srm_model_name, server_url=srm_server_url)
+    lrm = VLLMClient(lrm_port, model_name=lrm_model_name, server_url=lrm_server_url)
 
-    print(f"Loading PRM on {prm_device} ...")
-    prm = PRMScorer(PRM_MODEL, device=prm_device)
-    print("PRM loaded.")
+    if prm_server_url:
+        print(f"Using PRM server: {prm_server_url}")
+        prm = ServerPRMScorer(
+            prm_server_url,
+            model_name=prm_model_name,
+            max_workers=max_workers,
+        )
+    else:
+        print(f"Loading PRM on {prm_device} ...")
+        prm = PRMScorer(prm_model_name, device=prm_device)
+    print("PRM ready.")
 
     total = len(items)
     elapsed_times = []
@@ -121,7 +152,7 @@ def generate_episodes(
         # ---- SRM solution ----
         t_srm = time.time()
         srm_text, srm_tok = srm.generate_solution(
-            query, max_tokens=MAX_NEW_TOKENS, temperature=temperature,
+            query, max_tokens=max_new_tokens, temperature=temperature,
             think_mode=THINK_MODE
         )
         srm_time = time.time() - t_srm
@@ -134,7 +165,7 @@ def generate_episodes(
         # ---- LRM solution ----
         t_lrm = time.time()
         lrm_text, lrm_tok = lrm.generate_solution(
-            query, max_tokens=MAX_NEW_TOKENS, temperature=temperature,
+            query, max_tokens=max_new_tokens, temperature=temperature,
             think_mode=THINK_MODE
         )
         lrm_time = time.time() - t_lrm
@@ -219,6 +250,16 @@ if __name__ == "__main__":
     parser.add_argument("--dataset", type=str, default="all")
     parser.add_argument("--output_dir", type=str, default=None)
     parser.add_argument("--prm_device", type=str, default=PRM_DEVICE)
+    parser.add_argument("--srm_port", type=int, default=VLLM_SRM_PORT)
+    parser.add_argument("--lrm_port", type=int, default=VLLM_LRM_PORT)
+    parser.add_argument("--srm_server_url", type=str, default=None)
+    parser.add_argument("--lrm_server_url", type=str, default=None)
+    parser.add_argument("--srm_model_name", type=str, default="srm")
+    parser.add_argument("--lrm_model_name", type=str, default="lrm")
+    parser.add_argument("--prm_server_url", type=str, default=None,
+                        help="Root PRM server URL, e.g. http://localhost:30002")
+    parser.add_argument("--prm_model_name", type=str, default=PRM_MODEL)
+    parser.add_argument("--max_new_tokens", type=int, default=MAX_NEW_TOKENS)
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--max_workers", type=int, default=4)
     parser.add_argument("--no_resume", action="store_true")
@@ -234,6 +275,15 @@ if __name__ == "__main__":
         dataset_name=args.dataset,
         output_dir=args.output_dir,
         prm_device=args.prm_device,
+        srm_port=args.srm_port,
+        lrm_port=args.lrm_port,
+        srm_server_url=args.srm_server_url,
+        lrm_server_url=args.lrm_server_url,
+        srm_model_name=args.srm_model_name,
+        lrm_model_name=args.lrm_model_name,
+        prm_server_url=args.prm_server_url,
+        prm_model_name=args.prm_model_name,
+        max_new_tokens=args.max_new_tokens,
         temperature=args.temperature,
         max_workers=args.max_workers,
         resume=not args.no_resume,

@@ -1,0 +1,16 @@
+models/
+.hf_cache/
+__pycache__/
+*.py[cod]
+
+# Experiment artifacts and generated data
+src/data/episodes/*.jsonl
+src/data/rubrics/
+src/checkpoints/
+src/results/
+src/logs/
+data/episodes/
+data/rubrics/
+checkpoints/
+results/
+logs/

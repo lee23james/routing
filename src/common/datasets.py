@@ -3,42 +3,42 @@
 import json
 import os
 import re
+from pathlib import Path
 from typing import List, Dict
 
 DATA_DIR = "/export/shy/pp/pp5/data"
+TRIM_DATA_DIR = os.environ.get(
+    "TRIM_DATA_DIR",
+    str(Path(__file__).resolve().parents[2] / "trim" / "TRIM" / "math_eval" / "data"),
+)
 
 
 def load_math500() -> List[Dict]:
-    path = os.path.join(DATA_DIR, "math500.jsonl")
-    items = []
-    for i, row in enumerate(_load_jsonl(path)):
-        answer = row.get("answer", "")
-        if not answer:
-            answer = _extract_boxed(row.get("solution", ""))
-        items.append({
-            "id": f"math500_{i:04d}",
-            "problem": row["problem"],
-            "answer": answer,
-            "dataset": "math500",
-        })
-    return items
+    return _load_trim_dataset("math500", "test_100")
 
 
 def load_aime(year_from: int = 2020, year_to: int = 2024) -> List[Dict]:
-    path = os.path.join(DATA_DIR, "aime_1983_2024.jsonl")
+    return _load_trim_dataset("aime", "test")
+
+
+def _load_trim_dataset(dataset_name: str, split: str) -> List[Dict]:
+    path = os.path.join(TRIM_DATA_DIR, dataset_name, f"{split}.jsonl")
     items = []
-    for row in _load_jsonl(path):
-        y = row.get("year", 0)
-        if y < year_from or y > year_to:
+    for i, row in enumerate(_load_jsonl(path)):
+        problem = row.get("problem") or row.get("question")
+        if not problem:
             continue
-        answer = str(row["answer"]).strip()
+        answer = str(row.get("answer") or "").strip()
+        if not answer:
+            answer = _extract_boxed(row.get("solution", "")) or str(row.get("solution", "")).strip()
         if "or" in answer.lower():
             answer = re.split(r"\s+or\s+", answer)[0].strip()
+        raw_id = row.get("unique_id") or row.get("ID") or row.get("id")
         items.append({
-            "id": row["id"],
-            "problem": row["question"],
+            "id": str(raw_id or f"{dataset_name}_{split}_{i:05d}").replace("/", "_"),
+            "problem": problem,
             "answer": answer,
-            "dataset": "aime",
+            "dataset": dataset_name,
         })
     return items
 

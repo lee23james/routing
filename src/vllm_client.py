@@ -13,9 +13,21 @@ from config import SYSTEM_PROMPT
 class VLLMClient:
     """Call a vLLM-served model through its HTTP endpoint."""
 
-    def __init__(self, port: int, model_name: str = "default",
-                 timeout: int = 600, max_retries: int = 3):
-        self.url = f"http://localhost:{port}/v1/chat/completions"
+    def __init__(self, port: int = None, model_name: str = "default",
+                 timeout: int = 600, max_retries: int = 3,
+                 server_url: str = None):
+        if server_url:
+            base = server_url.rstrip("/")
+            if base.endswith("/chat/completions"):
+                self.url = base
+            elif base.endswith("/v1"):
+                self.url = f"{base}/chat/completions"
+            else:
+                self.url = f"{base}/v1/chat/completions"
+        elif port is not None:
+            self.url = f"http://localhost:{port}/v1/chat/completions"
+        else:
+            raise ValueError("Either port or server_url must be provided")
         self.model_name = model_name
         self.timeout = timeout
         self.max_retries = max_retries
@@ -40,6 +52,8 @@ class VLLMClient:
                 data = resp.json()
                 if "error" in data:
                     raise RuntimeError(data["error"])
+                if data.get("object") == "error":
+                    raise RuntimeError(data.get("message", data))
                 return data
             except Exception as e:
                 if attempt == self.max_retries - 1:

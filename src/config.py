@@ -1,11 +1,14 @@
 """Configuration for Stepwise Model Routing with Rubric-Guided Process Reward."""
 
 import os
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 # ============================================================
 # Model paths (local weights for PRM; SRM/LRM via vLLM API)
 # ============================================================
-MODEL_ROOT = "/export/yuguo/ppyg2/model"
+MODEL_ROOT = os.environ.get("MODEL_ROOT", str(REPO_ROOT / "models"))
 
 SRM_MODEL = os.path.join(MODEL_ROOT, "qwen3-1.7b")
 LRM_MODEL = os.path.join(MODEL_ROOT, "qwen3-14b")
@@ -22,7 +25,16 @@ VLLM_LRM_PORT = 4001
 # ============================================================
 # Paths
 # ============================================================
-PROJECT_ROOT = "/export/shy/pp/pp5"
+PROJECT_ROOT = os.environ.get("ROUTING_SRC_ROOT", str(REPO_ROOT / "src"))
+TRIM_ROOT = os.environ.get(
+    "TRIM_ROOT",
+    str(REPO_ROOT / "trim" / "TRIM"),
+)
+TRIM_DATA_DIR = os.environ.get(
+    "TRIM_DATA_DIR",
+    str(Path(TRIM_ROOT) / "math_eval" / "data"),
+)
+
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 EPISODES_DIR = os.path.join(DATA_DIR, "episodes")
 RUBRIC_DIR = os.path.join(DATA_DIR, "rubrics")

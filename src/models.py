@@ -1,8 +1,10 @@
 """LLM inference wrapper: supports vLLM (fast) or HuggingFace transformers (fallback)."""
 
 import re
+import time
 from typing import List, Optional, Tuple
 
+import requests
 import torch
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModel, AutoModelForCausalLM
@@ -221,6 +223,105 @@ class PRMScorer:
         Same as score_trace but called after each new step is added.
         Returns scores for all steps so far.
         """
+        return self.score_trace(query, steps)
+
+
+class ServerPRMScorer:
+    """PRM scorer backed by a vLLM `/pooling` server.
+
+    This mirrors TRIM's ServerPRM contract but keeps the simple
+    `score_trace(query, steps)` interface used by the offline episode pipeline.
+    """
+
+    STEP_TOKEN = "<extra_0>"
+
+    def __init__(self, server_url: str, model_name: str,
+                 tokenizer_path: str = None, max_workers: int = 4,
+                 timeout: int = 300, max_retries: int = 5):
+        self.base_url = server_url.rstrip("/")
+        self.model_name = model_name
+        self.max_workers = max_workers
+        self.timeout = timeout
+        self.max_retries = max_retries
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            tokenizer_path or model_name,
+            trust_remote_code=True,
+        )
+
+    def _format_text(self, query: str, steps: List[str]) -> str:
+        response_text = "".join(f"{step}{self.STEP_TOKEN}" for step in steps)
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": query},
+            {"role": "assistant", "content": response_text},
+        ]
+        return self.tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=False,
+        )
+
+    def _pooling(self, text: str) -> dict:
+        delay = 2.0
+        for attempt in range(self.max_retries):
+            try:
+                resp = requests.post(
+                    f"{self.base_url}/pooling",
+                    json={
+                        "model": self.model_name,
+                        "input": text,
+                        "truncate_prompt_tokens": 4096,
+                    },
+                    timeout=self.timeout,
+                )
+                resp.raise_for_status()
+                return resp.json()
+            except requests.RequestException:
+                if attempt == self.max_retries - 1:
+                    raise
+                time.sleep(delay)
+                delay *= 2.0
+
+    @staticmethod
+    def _extract_outputs(payload: dict) -> list:
+        data = payload.get("data")
+        if not isinstance(data, list) or not data:
+            raise RuntimeError(f"Unexpected /pooling response: {payload}")
+        item = data[0]
+        if isinstance(item.get("data"), list):
+            return item["data"]
+        outputs = item.get("outputs")
+        if isinstance(outputs, dict) and isinstance(outputs.get("data"), list):
+            return outputs["data"]
+        raise RuntimeError(f"Could not find token outputs in /pooling response: {payload}")
+
+    @staticmethod
+    def _positive_prob(output) -> float:
+        if isinstance(output, list) and len(output) == 2:
+            return float(output[1])
+        if isinstance(output, dict):
+            for key in ("data", "scores", "probabilities"):
+                values = output.get(key)
+                if isinstance(values, list) and len(values) == 2:
+                    return float(values[1])
+        raise RuntimeError(f"Unsupported PRM token output: {output}")
+
+    def score_trace(self, query: str, steps: List[str]) -> List[float]:
+        if not steps:
+            return []
+
+        payload = self._pooling(self._format_text(query, steps))
+        outputs = self._extract_outputs(payload)
+        if len(outputs) > len(steps):
+            raise RuntimeError(
+                f"PRM returned {len(outputs)} scores for {len(steps)} steps"
+            )
+        scores = [self._positive_prob(output) for output in outputs]
+        if len(scores) < len(steps):
+            scores = [1.0] * (len(steps) - len(scores)) + scores
+        return scores[:len(steps)]
+
+    def score_steps_incremental(self, query: str, steps: List[str]) -> List[float]:
         return self.score_trace(query, steps)
 
 

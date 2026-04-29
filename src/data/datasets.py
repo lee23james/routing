@@ -1,136 +1,102 @@
-"""Dataset loading utilities — reads local JSONL files."""
+"""Dataset loading utilities — reads local and TRIM JSONL files."""
 
 import json
 import os
-import re
-from typing import List, Dict, Tuple
+from typing import List, Dict
+
+from config import DATA_DIR, TRIM_DATA_DIR
+
 
 # Local data directory
-LOCAL_DATA_DIR = "/export/shy/pp/pp5/data"
+LOCAL_DATA_DIR = os.environ.get("LOCAL_DATA_DIR", DATA_DIR)
 
 
 def load_math500() -> List[Dict]:
-    """Load MATH-500 test set from local JSONL."""
-    path = os.path.join(LOCAL_DATA_DIR, "math500.jsonl")
-    items = []
-    for i, row in enumerate(load_jsonl(path)):
-        items.append({
-            "id": f"math500_{i:05d}",
-            "query": row["problem"],
-            "answer": row.get("answer", _extract_boxed(row.get("solution", ""))),
-            "subject": row.get("subject", ""),
-            "level": row.get("level", 0),
-            "dataset": "math500",
-            "split": "test",
-        })
-    print(f"Loaded {len(items)} problems from {path}")
-    return items
+    """Load the Math eval split used by the TRIM-Agg experiment sweep."""
+    return load_trim_dataset("math500", "test_100")
 
 
 def load_aime2025() -> List[Dict]:
-    """Load AIME 2025 (I + II) from local JSONL files."""
-    items = []
-    for fname in ["aime2025-I.jsonl", "aime2025-II.jsonl"]:
-        path = os.path.join(LOCAL_DATA_DIR, fname)
-        if not os.path.exists(path):
-            print(f"Warning: {path} not found, skipping")
-            continue
-        tag = fname.replace(".jsonl", "")
-        for i, row in enumerate(load_jsonl(path)):
-            items.append({
-                "id": f"{tag}_{i:05d}",
-                "query": row["question"],
-                "answer": str(row["answer"]),
-                "dataset": "aime2025",
-                "split": "test",
-            })
-    print(f"Loaded {len(items)} AIME 2025 problems")
-    return items
+    """Load the official AIME test split used by the experiment sweep."""
+    return load_trim_dataset("aime", "test")
 
 
 def load_math_train() -> List[Dict]:
-    """Load MATH training set from HuggingFace (for RL training data generation).
+    """Load the Math train split used by the TRIM-Agg experiment sweep."""
+    return load_trim_dataset("math", "train_1k")
 
-    Falls back to local math500 if HF is unavailable.
+
+def load_trim_dataset(dataset_name: str, split: str) -> List[Dict]:
+    """Load the exact JSONL dataset used by trim/TRIM/TRIM_Agg.py.
+
+    Examples:
+      - dataset_name="math", split="train_1k"
+      - dataset_name="math500", split="test_100"
+      - dataset_name="aime", split="train" or "test"
     """
-    try:
-        from datasets import load_dataset
-        ds = load_dataset("lighteval/MATH", split="train", trust_remote_code=True)
-        items = []
-        for i, row in enumerate(ds):
-            answer = _extract_boxed(row["solution"])
-            items.append({
-                "id": f"math_train_{i:05d}",
-                "query": row["problem"],
-                "answer": answer,
-                "full_solution": row["solution"],
-                "dataset": "math",
-                "split": "train",
-            })
-        print(f"Loaded {len(items)} MATH training problems from HuggingFace")
-        return items
-    except Exception as e:
-        print(f"Failed to load MATH from HuggingFace: {e}")
-        print("Falling back to local math500.jsonl as training data")
-        return load_math500()
+    path = os.path.join(TRIM_DATA_DIR, dataset_name, f"{split}.jsonl")
+    rows = load_jsonl(path)
+    items = []
+    for i, row in enumerate(rows):
+        query = row.get("problem") or row.get("question")
+        if not query:
+            continue
+
+        answer = row.get("answer")
+        if answer is None or str(answer).strip() == "":
+            # Official AIME files store the numeric answer in "solution".
+            answer = _extract_boxed(row.get("solution", "")) or row.get("solution", "")
+
+        raw_id = row.get("unique_id") or row.get("ID") or row.get("id")
+        item_id = raw_id if raw_id else f"{dataset_name}_{split}_{i:05d}"
+        item_id = str(item_id).replace("/", "_")
+
+        items.append({
+            "id": item_id,
+            "query": query,
+            "answer": str(answer).strip(),
+            "dataset": dataset_name,
+            "split": split,
+            "source_path": path,
+            "subject": row.get("subject", ""),
+            "level": row.get("level", row.get("Level", 0)),
+            "year": row.get("Year", row.get("year", 0)),
+        })
+    print(f"Loaded {len(items)} TRIM problems from {path}")
+    return items
+
+
+TRIM_DATASET_ALIASES = {
+    "trim_math_train_1k": ("math", "train_1k"),
+    "trim_math500_test_100": ("math500", "test_100"),
+    "trim_aime_train": ("aime", "train"),
+    "trim_aime_test": ("aime", "test"),
+}
+
+
+def load_trim_dataset_alias(alias: str) -> List[Dict]:
+    if alias not in TRIM_DATASET_ALIASES:
+        raise ValueError(f"Unknown TRIM dataset alias: {alias}")
+    dataset_name, split = TRIM_DATASET_ALIASES[alias]
+    return load_trim_dataset(dataset_name, split)
 
 
 def load_omnimath(max_items: int = 0, min_diff: float = 1.0, max_diff: float = 10.0) -> List[Dict]:
-    """Load OmniMath dataset from local JSONL for RL training (held-out from test)."""
-    path = os.path.join(LOCAL_DATA_DIR, "omnimath.jsonl")
-    items = []
-    for i, row in enumerate(load_jsonl(path)):
-        diff = row.get("difficulty", 5.0)
-        if diff < min_diff or diff > max_diff:
-            continue
-        answer = row.get("answer", "")
-        if not answer or answer.strip() == "":
-            answer = _extract_boxed(row.get("solution", ""))
-        if not answer.strip():
-            continue
-        items.append({
-            "id": f"omnimath_{i:05d}",
-            "query": row["problem"],
-            "answer": answer,
-            "difficulty": diff,
-            "source": row.get("source", ""),
-            "domain": row.get("domain", []),
-            "dataset": "omnimath",
-            "split": "train",
-        })
+    """Compatibility wrapper: use the experiment Math train_1k split."""
+    items = load_math_train()
     if max_items > 0:
         items = items[:max_items]
-    print(f"Loaded {len(items)} OmniMath problems (diff {min_diff}-{max_diff})")
     return items
 
 
 def load_aime_1983_2024() -> List[Dict]:
-    """Load AIME 1983-2024 from local JSONL (converted from CSV)."""
-    path = os.path.join(LOCAL_DATA_DIR, "aime_1983_2024.jsonl")
-    items = []
-    for row in load_jsonl(path):
-        answer = str(row["answer"]).strip()
-        if "both" in answer.lower() or "or" in answer.lower():
-            answer = re.split(r'\s+or\s+', answer)[0].strip()
-        items.append({
-            "id": row["id"],
-            "query": row["question"],
-            "answer": answer,
-            "year": row.get("year", 0),
-            "dataset": "aime",
-            "split": "test",
-        })
-    print(f"Loaded {len(items)} AIME 1983-2024 problems from {path}")
-    return items
+    """Compatibility wrapper: use the official AIME train split."""
+    return load_trim_dataset("aime", "train")
 
 
 def load_aime_train() -> List[Dict]:
-    """Load AIME training data from local JSONL or HuggingFace."""
-    try:
-        return load_aime_1983_2024()
-    except Exception as e:
-        print(f"Failed to load local AIME: {e}")
-        return load_aime2025()
+    """Load the official AIME train split used by the experiment sweep."""
+    return load_trim_dataset("aime", "train")
 
 
 def _extract_boxed(solution: str) -> str:
