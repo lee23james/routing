@@ -30,6 +30,8 @@ SEED="10"
 
 WAIT_SECONDS="${WAIT_SECONDS:-30}"
 MAX_WORKERS="${MAX_WORKERS:-16}"
+PRE_EVAL_COSTS_CSV="${PRE_EVAL_COSTS_CSV:-6e-4}"
+COSTS_CSV="${COSTS_CSV:-5e-4,4e-4,3e-4}"
 
 mkdir -p "${LOG_DIR}" "${SAVE_DIR}" "${OUTPUT_DIR}"
 
@@ -220,10 +222,22 @@ main() {
     log "[info] train config: num_epochs=${NUM_EPOCHS}, batch_size=${BATCH_SIZE}, val_fraction=${VAL_FRACTION}, val_every=${VAL_EVERY}, eval_every=${EVAL_EVERY}, seed=${SEED}"
     log "[info] models: target=${TARGET_MODEL}, draft=${DRAFT_MODEL}, prm=${PRM_MODEL}"
     log "[info] servers: target=${TARGET_SERVER_URL}, draft=${DRAFT_SERVER_URL}, prm=${PRM_SERVER_URL}, max_workers=${MAX_WORKERS}"
+    log "[info] pre-eval cost grid: ${PRE_EVAL_COSTS_CSV:-<none>}"
+    log "[info] train/eval cost grid: ${COSTS_CSV}"
 
-    run_eval "6e-4"
+    if [[ -n "${PRE_EVAL_COSTS_CSV//[[:space:]]/}" ]]; then
+        IFS=',' read -r -a pre_eval_costs <<< "${PRE_EVAL_COSTS_CSV}"
+        for cost in "${pre_eval_costs[@]}"; do
+            cost="${cost//[[:space:]]/}"
+            [[ -n "${cost}" ]] || continue
+            run_eval "${cost}"
+        done
+    fi
 
-    for cost in "5e-4" "4e-4" "3e-4"; do
+    IFS=',' read -r -a raw_costs <<< "${COSTS_CSV}"
+    for cost in "${raw_costs[@]}"; do
+        cost="${cost//[[:space:]]/}"
+        [[ -n "${cost}" ]] || continue
         run_train "${cost}"
         run_eval "${cost}"
     done

@@ -2,10 +2,9 @@
 
 import json
 import os
-from typing import List, Dict
+from typing import Dict, List
 
 from config import DATA_DIR, TRIM_DATA_DIR
-
 
 # Local data directory
 LOCAL_DATA_DIR = os.environ.get("LOCAL_DATA_DIR", DATA_DIR)
@@ -51,17 +50,19 @@ def load_trim_dataset(dataset_name: str, split: str) -> List[Dict]:
         item_id = raw_id if raw_id else f"{dataset_name}_{split}_{i:05d}"
         item_id = str(item_id).replace("/", "_")
 
-        items.append({
-            "id": item_id,
-            "query": query,
-            "answer": str(answer).strip(),
-            "dataset": dataset_name,
-            "split": split,
-            "source_path": path,
-            "subject": row.get("subject", ""),
-            "level": row.get("level", row.get("Level", 0)),
-            "year": row.get("Year", row.get("year", 0)),
-        })
+        items.append(
+            {
+                "id": item_id,
+                "query": query,
+                "answer": str(answer).strip(),
+                "dataset": dataset_name,
+                "split": split,
+                "source_path": path,
+                "subject": row.get("subject", ""),
+                "level": row.get("level", row.get("Level", 0)),
+                "year": row.get("Year", row.get("year", 0)),
+            }
+        )
     print(f"Loaded {len(items)} TRIM problems from {path}")
     return items
 

@@ -11,13 +11,18 @@ from collections import defaultdict
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import RESULTS_DIR
+from config import PROJECT_ROOT, RESULTS_DIR
 
 try:
     from matplotlib import font_manager
-    font_path = "/export/shy/pp/pp4/src/study/ARIAL.TTF"
-    if os.path.exists(font_path):
-        font_manager.fontManager.addfont(font_path)
+    font_candidates = [
+        os.environ.get("TRIM_FONT_PATH"),
+        os.path.join(PROJECT_ROOT, "ARIAL.TTF"),
+    ]
+    for font_path in font_candidates:
+        if font_path and os.path.exists(font_path):
+            font_manager.fontManager.addfont(font_path)
+            break
     import matplotlib
     matplotlib.use("Agg")
     matplotlib.rcParams['font.family'] = 'Arial'

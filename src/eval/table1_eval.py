@@ -32,7 +32,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from router.policy import RouterPolicy
 from router.env import TRIMEnv
-from config import STATE_DIM, HIDDEN_DIM, ACTION_DIM, TOKEN_NORMALISER, RESULTS_DIR
+from config import (
+    ACTION_DIM,
+    CHECKPOINTS_DIR,
+    HIDDEN_DIM,
+    RESULTS_DIR,
+    STATE_DIM,
+    TOKEN_NORMALISER,
+)
 
 
 # ============================================================
@@ -641,7 +648,7 @@ def main():
     parser.add_argument("--episodes_path", type=str, required=True,
                         help="Episodes JSONL 文件路径")
     parser.add_argument("--checkpoint_dir", type=str,
-                        default="/export/shy/pp/pp5/checkpoints",
+                        default=CHECKPOINTS_DIR,
                         help="Checkpoints 目录")
     parser.add_argument("--target_cpts", type=str, default="0.50,0.80,0.95",
                         help="目标 CPT 值, 逗号分隔")

@@ -56,6 +56,65 @@ pp5/
 - GPU: 至少 2 张 (SRM 1张, LRM 2张 TP)
 - 模型权重: `/export/yuguo/ppyg2/model/{qwen3-1.7b, qwen3-14b, qwen2.5-math-prm-7b}`
 
+### 虚拟环境与依赖
+
+当前 `trim/TRIM` 子项目已经提供了可复现环境文件，推荐优先使用：
+
+```bash
+cd /home/chencheng/routing/trim/TRIM
+conda env create -f environment.yml
+conda activate trim
+```
+
+如果环境已经存在，更新方式为：
+
+```bash
+cd /home/chencheng/routing/trim/TRIM
+conda env update -f environment.yml --prune
+conda activate trim
+```
+
+如果你更想手动创建虚拟环境，最小安装步骤是：
+
+```bash
+conda create -n trim python=3.11 -y
+conda activate trim
+pip install -r /home/chencheng/routing/trim/TRIM/requirements.txt
+```
+
+实验当前依赖的核心 Python 包如下：
+
+- `torch>=2.4.0,<2.7`
+- `vllm>=0.8.0`
+- `transformers>=4.46.0,<5.0.0`
+- `datasets>=3.0.0`
+- `tokenizers>=0.20.0`
+- `openai>=1.50.0`
+- `httpx>=0.27.0`
+- `sympy>=1.13`
+- `latex2sympy2>=1.9.1`
+- `word2number>=1.1`
+- `regex>=2024.7.24`
+- `wandb>=0.18.0`
+- `numpy>=1.26`
+- `tqdm>=4.66`
+
+配套文件位置：
+
+- Conda 环境文件：`trim/TRIM/environment.yml`
+- Conda 锁定文件：`trim/TRIM/environment.lock.yml`
+- pip 依赖：`trim/TRIM/requirements.txt`
+- pip 锁定文件：`trim/TRIM/requirements.lock.txt`
+
+系统侧建议与当前实验保持一致：
+
+- CUDA 12.x 驱动环境
+- NVIDIA GPU，推荐至少 2 张卡；TRIM-Agg 双 island 并行建议 4 张卡
+- 已下载本地模型权重：
+  - `qwen3-14b`
+  - `qwen3-1.7b`
+  - `qwen2.5-math-prm-7b`
+
 ### 运行全部流程
 ```bash
 # 1. 启动 vLLM 服务

@@ -6,14 +6,14 @@
 #   - Routing:  SRM port 4013, LRM port 4011
 
 set -e
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="${TRIM_PROJECT_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
 
 echo "============================================"
 echo "  TRIM 全流程实验"
 echo "  Baseline ports: 4003 (SRM), 4001 (LRM)"
 echo "  Routing  ports: 4013 (SRM), 4011 (LRM)"
 echo "============================================"
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo ""
 echo ">>> Step 1: Baseline (background) ..."
@@ -43,5 +43,5 @@ wait $BASELINE_PID
 echo ""
 echo "============================================"
 echo "  All experiments complete!"
-echo "  Results in: /export/shy/pp/pp5/results/"
+echo "  Results in: ${PROJECT_ROOT}/results/"
 echo "============================================"

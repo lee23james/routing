@@ -4,7 +4,9 @@
 # 模型: qwen3-1.7b (SRM, port 4003), qwen3-14b (LRM, port 4001)
 
 set -e
-cd /export/shy/pp/pp5/src
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="${TRIM_PROJECT_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
+cd "${PROJECT_ROOT}/src"
 
 echo "=============================="
 echo " Step 1: Baseline Evaluation"

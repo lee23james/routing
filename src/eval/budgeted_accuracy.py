@@ -28,7 +28,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from router.policy import RouterPolicy
 from router.env import TRIMEnv
-from config import STATE_DIM, HIDDEN_DIM, ACTION_DIM, TOKEN_NORMALISER, RESULTS_DIR
+from config import (
+    ACTION_DIM,
+    CHECKPOINTS_DIR,
+    HIDDEN_DIM,
+    RESULTS_DIR,
+    STATE_DIM,
+    TOKEN_NORMALISER,
+)
 
 
 # ============================================================
@@ -486,7 +493,7 @@ def main():
     parser = argparse.ArgumentParser(description="Budgeted Accuracy 评估")
     parser.add_argument("--episodes_path", type=str, required=True)
     parser.add_argument("--checkpoint_dir", type=str,
-                        default="/export/shy/pp/pp5/checkpoints")
+                        default=CHECKPOINTS_DIR)
     parser.add_argument("--budget_ratios", type=str, default="0.10,0.15,0.20,0.25,0.30",
                         help="LRM 预算百分比, 逗号分隔")
     parser.add_argument("--device", type=str, default="cpu")

@@ -4,9 +4,10 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
 
-DATA_DIR = "/export/shy/pp/pp5/data"
+from common.config import DATA_DIR
+
 TRIM_DATA_DIR = os.environ.get(
     "TRIM_DATA_DIR",
     str(Path(__file__).resolve().parents[2] / "trim" / "TRIM" / "math_eval" / "data"),
@@ -34,12 +35,14 @@ def _load_trim_dataset(dataset_name: str, split: str) -> List[Dict]:
         if "or" in answer.lower():
             answer = re.split(r"\s+or\s+", answer)[0].strip()
         raw_id = row.get("unique_id") or row.get("ID") or row.get("id")
-        items.append({
-            "id": str(raw_id or f"{dataset_name}_{split}_{i:05d}").replace("/", "_"),
-            "problem": problem,
-            "answer": answer,
-            "dataset": dataset_name,
-        })
+        items.append(
+            {
+                "id": str(raw_id or f"{dataset_name}_{split}_{i:05d}").replace("/", "_"),
+                "problem": problem,
+                "answer": answer,
+                "dataset": dataset_name,
+            }
+        )
     return items
 
 

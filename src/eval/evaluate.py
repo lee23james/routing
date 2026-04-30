@@ -1,6 +1,6 @@
 """Evaluation for stepwise routing methods via vLLM API.
 
-Saves ALL outputs to /export/shy/pp/pp5/results/:
+Saves ALL outputs under the configured results directory:
   - Per-problem inference outputs (solution text, predicted answer, actions)
   - Accuracy, cost metrics, PGR
   - Summary comparison tables

@@ -1,7 +1,16 @@
 models/
 .hf_cache/
+
+# Python caches
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
+
+# Local virtual environments
+.venv/
+venv/
+env/
 
 # Experiment artifacts and generated data
 src/data/episodes/*.jsonl
@@ -14,3 +23,13 @@ data/rubrics/
 checkpoints/
 results/
 logs/
+results/tmp_router_smoke/
+trim/TRIM/logs/
+trim/TRIM/plots/
+
+# Large local checkpoint directories
+trim/TRIM/rlpolicy_checkpoints_qwen3_math1k_sweep/*/
+trim/TRIM/rlpolicy_checkpoints_qwen3_aime_official_sweep/*/
+
+# Local reference material
+paper/knowledge_base/*.pdf

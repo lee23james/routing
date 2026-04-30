@@ -5,11 +5,25 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
+
+def _default_project_root() -> str:
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+PROJECT_ROOT = os.environ.get("TRIM_PROJECT_ROOT", _default_project_root())
+MODEL_ROOT = os.environ.get(
+    "TRIM_MODEL_ROOT",
+    os.environ.get("MODEL_ROOT", str(REPO_ROOT / "models")),
+)
+DATA_DIR = os.path.join(PROJECT_ROOT, "data")
+EPISODES_DIR = os.path.join(DATA_DIR, "episodes")
+RUBRIC_DIR = os.path.join(DATA_DIR, "rubrics")
+CHECKPOINTS_DIR = os.path.join(PROJECT_ROOT, "checkpoints")
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+
 # ============================================================
 # Model paths (local weights for PRM; SRM/LRM via vLLM API)
 # ============================================================
-MODEL_ROOT = os.environ.get("MODEL_ROOT", str(REPO_ROOT / "models"))
-
 SRM_MODEL = os.path.join(MODEL_ROOT, "qwen3-1.7b")
 LRM_MODEL = os.path.join(MODEL_ROOT, "qwen3-14b")
 PRM_MODEL = os.path.join(MODEL_ROOT, "qwen2.5-math-prm-7b")
@@ -17,15 +31,18 @@ PRM_MODEL = os.path.join(MODEL_ROOT, "qwen2.5-math-prm-7b")
 # ============================================================
 # vLLM API endpoints (models already deployed)
 # ============================================================
-VLLM_SRM_URL = "http://localhost:4003/v1/chat/completions"
-VLLM_LRM_URL = "http://localhost:4001/v1/chat/completions"
-VLLM_SRM_PORT = 4003
-VLLM_LRM_PORT = 4001
+VLLM_SRM_PORT = int(os.environ.get("TRIM_SRM_PORT", "4003"))
+VLLM_LRM_PORT = int(os.environ.get("TRIM_LRM_PORT", "4001"))
+VLLM_SRM_URL = os.environ.get(
+    "TRIM_SRM_URL", f"http://localhost:{VLLM_SRM_PORT}/v1/chat/completions"
+)
+VLLM_LRM_URL = os.environ.get(
+    "TRIM_LRM_URL", f"http://localhost:{VLLM_LRM_PORT}/v1/chat/completions"
+)
 
 # ============================================================
 # Paths
 # ============================================================
-PROJECT_ROOT = os.environ.get("ROUTING_SRC_ROOT", str(REPO_ROOT / "src"))
 TRIM_ROOT = os.environ.get(
     "TRIM_ROOT",
     str(REPO_ROOT / "trim" / "TRIM"),
@@ -34,12 +51,6 @@ TRIM_DATA_DIR = os.environ.get(
     "TRIM_DATA_DIR",
     str(Path(TRIM_ROOT) / "math_eval" / "data"),
 )
-
-DATA_DIR = os.path.join(PROJECT_ROOT, "data")
-EPISODES_DIR = os.path.join(DATA_DIR, "episodes")
-RUBRIC_DIR = os.path.join(DATA_DIR, "rubrics")
-CHECKPOINTS_DIR = os.path.join(PROJECT_ROOT, "checkpoints")
-RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 
 # ============================================================
 # Generation config
@@ -53,7 +64,7 @@ SYSTEM_PROMPT = "Please reason step by step, and put your final answer within \\
 # ============================================================
 # PRM config
 # ============================================================
-PRM_DEVICE = "cuda:0"  # GPUs 0-3 and 7 are free
+PRM_DEVICE = os.environ.get("TRIM_PRM_DEVICE", "cuda:0")
 
 # ============================================================
 # TRIM-Agg Router config (aligned with TRIM source)

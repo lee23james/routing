@@ -12,6 +12,7 @@ from transformers import AutoTokenizer
 os.environ["TRITON_MMA"] = "0"
 
 app = FastAPI()
+MODEL_ROOT = os.environ.get("TRIM_MODEL_ROOT", "/mnt/hdd2/chengcheng")
 
 # Note: Use CUDA_VISIBLE_DEVICES environment variable to specify GPUs
 # Example: CUDA_VISIBLE_DEVICES=6,7 python server_vllm.py ...
@@ -59,25 +60,26 @@ async def create_item(request: Request):
         sampling_params = SamplingParams(**sampling_kwargs)
 
         # Qwen3 系列模型的 think 模式支持
-        qwen3_models = [
-            '/export/yuguo/ppyg2/model/qwen3-8b',
-            '/export/yuguo/ppyg2/model/qwen3-4b',
-            '/export/yuguo/ppyg2/model/qwen3-1.7b',
-            '/export/yuguo/ppyg2/model/qwen3-0.6b',
-            '/export/yuguo/ppyg2/model/qwen3-14b',
-            '/export/yuguo/ppyg2/model/qwen3-32b',
-        ]
+        model_name = os.path.basename(os.path.normpath(args.model)).lower()
+        qwen3_models = {
+            'qwen3-8b',
+            'qwen3-4b',
+            'qwen3-1.7b',
+            'qwen3-0.6b',
+            'qwen3-14b',
+            'qwen3-32b',
+        }
         # DeepSeek-R1 系列模型
-        deepseek_r1_models = [
-            '/export/yuguo/ppyg2/model/DeepSeek-R1-1.5B',
-            '/export/yuguo/ppyg2/model/DeepSeek-R1-14B',
-        ]
-        if args.model in qwen3_models:
+        deepseek_r1_models = {
+            'deepseek-r1-1.5b',
+            'deepseek-r1-14b',
+        }
+        if model_name in qwen3_models:
             if think_mode:
                 tokenizer.chat_template = chat_template["Qwen3_8b_think_chat_template"]
             else:
                 tokenizer.chat_template = chat_template["Qwen3_8b_nothink_chat_template"]
-        elif args.model in deepseek_r1_models:
+        elif model_name in deepseek_r1_models:
             if think_mode:
                 tokenizer.chat_template = chat_template["DeepSeek_R1_think_chat_template"]
             else:
@@ -86,7 +88,7 @@ async def create_item(request: Request):
         # 应用 chat template
         # DeepSeek-R1 + continue_final_message 时手动拼接，
         # 因为其 chat template 会删除 <think> 内容导致 continue_final_message 匹配失败
-        if args.model in deepseek_r1_models and continue_final_message:
+        if model_name in deepseek_r1_models and continue_final_message:
             # 手动拼接 DeepSeek-R1 格式的 prompt
             system_prompt = ''
             parts = []

@@ -1,0 +1,20 @@
+{
+  "datasets": [
+    {
+      "dataset_key": "MATH",
+      "dataset_label": "math500/test_100",
+      "method": "TRIM-Agg",
+      "mw_baseline": "/home/chencheng/routing/trim/TRIM/table1_trim_agg/baselines/math500_test100/thr_0_00_metrics.jsonl",
+      "ms_baseline": "/home/chencheng/routing/trim/TRIM/table1_trim_agg/baselines/math500_test100/thr_1_00_metrics.jsonl",
+      "sweep_dir": "/home/chencheng/routing/trim/TRIM/rlpolicy_results_qwen3_math1k_sweep"
+    },
+    {
+      "dataset_key": "AIME",
+      "dataset_label": "aime/test",
+      "method": "TRIM-Agg",
+      "mw_baseline": "/home/chencheng/routing/trim/TRIM/table1_trim_agg/baselines/aime_test/thr_0_00_metrics.jsonl",
+      "ms_baseline": "/home/chencheng/routing/trim/TRIM/table1_trim_agg/baselines/aime_test/thr_1_00_metrics.jsonl",
+      "sweep_dir": "/home/chencheng/routing/trim/TRIM/rlpolicy_results_qwen3_aime_official_sweep"
+    }
+  ]
+}
