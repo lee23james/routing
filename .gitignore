@@ -14,3 +14,6 @@ data/rubrics/
 checkpoints/
 results/
 logs/
+
+# Local reference papers
+paper/相关论文/

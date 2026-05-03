@@ -1,6 +1,7 @@
 """Thin client for vLLM-served models via OpenAI-compatible API."""
 
 import json
+import re
 import time
 from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -8,6 +9,42 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 
 from config import SYSTEM_PROMPT
+
+
+CONTEXT_LENGTH_SAFETY_MARGIN = 64
+
+
+def _extract_error_message(data: dict) -> Optional[str]:
+    if not isinstance(data, dict):
+        return None
+
+    if "error" in data:
+        error = data["error"]
+        if isinstance(error, dict):
+            return str(error.get("message", error))
+        return str(error)
+
+    if data.get("object") == "error":
+        return str(data.get("message", data))
+
+    return None
+
+
+def _context_safe_max_tokens(message: str, requested_completion_tokens: int) -> Optional[int]:
+    """Parse vLLM context-length errors and return a smaller completion cap."""
+    max_len_match = re.search(r"maximum context length is (\d+) tokens", message)
+    prompt_match = re.search(r"\((\d+) in the messages,\s*(\d+) in the completion\)", message)
+    if not max_len_match or not prompt_match:
+        return None
+
+    max_model_len = int(max_len_match.group(1))
+    prompt_tokens = int(prompt_match.group(1))
+    completion_tokens = int(prompt_match.group(2))
+    if completion_tokens != requested_completion_tokens:
+        return None
+
+    adjusted = max_model_len - prompt_tokens - CONTEXT_LENGTH_SAFETY_MARGIN
+    return max(1, adjusted)
 
 
 class VLLMClient:
@@ -46,19 +83,33 @@ class VLLMClient:
         if stop:
             payload["stop"] = stop
 
-        for attempt in range(self.max_retries):
+        context_adjusted = False
+        attempt = 0
+        while attempt < self.max_retries:
             try:
                 resp = requests.post(self.url, json=payload, timeout=self.timeout)
                 data = resp.json()
-                if "error" in data:
-                    raise RuntimeError(data["error"])
-                if data.get("object") == "error":
-                    raise RuntimeError(data.get("message", data))
+                error_message = _extract_error_message(data)
+                if error_message:
+                    adjusted_max_tokens = _context_safe_max_tokens(
+                        error_message,
+                        payload["max_tokens"],
+                    )
+                    if (
+                        adjusted_max_tokens is not None
+                        and adjusted_max_tokens < payload["max_tokens"]
+                        and not context_adjusted
+                    ):
+                        payload["max_tokens"] = adjusted_max_tokens
+                        context_adjusted = True
+                        continue
+                    raise RuntimeError(error_message)
                 return data
             except Exception as e:
-                if attempt == self.max_retries - 1:
+                attempt += 1
+                if attempt == self.max_retries:
                     raise
-                time.sleep(2 ** attempt)
+                time.sleep(2 ** (attempt - 1))
 
     def generate_solution(self, query: str, max_tokens: int = 4096,
                           temperature: float = 0.0,
