@@ -74,4 +74,8 @@
 ## 工作原则
 
 - 代码和实验设计优先保持与基础论文一致，再在其上扩展到 RoRo 方向。
+- 后续代码修改默认限制在 `/home/deepseek_VG/deepseek_VG/routing/routing/src` 下进行，除非任务明确需要同步修改脚本、测试、文档或 TRIM 侧适配文件。
+- 所有新功能默认建立在当前 trim-rubric pipeline 的基础上扩展，优先复用已有的数据构造、vLLM 调用、rubric 评分与测试结构，避免另起一套不兼容流程。
 - 尽量采用小粒度、边界清晰的提交方式，确保每完成一个功能都可以通过 git 历史单独回退。
+- 每完成一个相对完整的功能或可运行阶段后，先提交到本地 git，并同步到本机备份 remote `local-backup`，用于在误操作 `git reset` 后恢复当前代码。
+- 当前本地恢复点为 `backup/current-code-2026-05-04` 和 `snapshot/current-code-2026-05-04`；如需回退到该版本，可执行 `git reset --hard backup/current-code-2026-05-04`。
