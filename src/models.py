@@ -147,8 +147,8 @@ class PRMScorer:
             model_path,
             trust_remote_code=True,
             torch_dtype=torch.bfloat16,
-            device_map=device,
         )
+        self.model.to(device)
         self.model.eval()
         self.device = device
         self.step_sep_id = self.tokenizer.encode("<extra_0>")[0]
@@ -202,7 +202,7 @@ class PRMScorer:
             conversation_str, return_tensors="pt"
         ).to(self.model.device)
 
-        outputs = self.model(input_ids=input_ids)
+        outputs = self.model(input_ids=input_ids, use_cache=False)
 
         token_masks = (input_ids == self.step_sep_id)
         step_rewards = self._make_step_rewards(outputs[0], token_masks)
@@ -227,17 +227,19 @@ class PRMScorer:
 
 
 class ServerPRMScorer:
-    """PRM scorer backed by a vLLM `/pooling` server.
-
-    This mirrors TRIM's ServerPRM contract but keeps the simple
-    `score_trace(query, steps)` interface used by the offline episode pipeline.
-    """
+    """PRM scorer backed by a vLLM `/pooling` server."""
 
     STEP_TOKEN = "<extra_0>"
 
-    def __init__(self, server_url: str, model_name: str,
-                 tokenizer_path: str = None, max_workers: int = 4,
-                 timeout: int = 300, max_retries: int = 5):
+    def __init__(
+        self,
+        server_url: str,
+        model_name: str,
+        tokenizer_path: str = None,
+        max_workers: int = 4,
+        timeout: int = 300,
+        max_retries: int = 5,
+    ):
         self.base_url = server_url.rstrip("/")
         self.model_name = model_name
         self.max_workers = max_workers

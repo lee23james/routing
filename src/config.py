@@ -3,7 +3,8 @@
 import os
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+SRC_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = SRC_ROOT.parent
 
 # ============================================================
 # Model paths (local weights for PRM; SRM/LRM via vLLM API)
@@ -25,16 +26,9 @@ VLLM_LRM_PORT = 4001
 # ============================================================
 # Paths
 # ============================================================
-PROJECT_ROOT = os.environ.get("ROUTING_SRC_ROOT", str(REPO_ROOT / "src"))
-TRIM_ROOT = os.environ.get(
-    "TRIM_ROOT",
-    str(REPO_ROOT / "trim" / "TRIM"),
-)
-TRIM_DATA_DIR = os.environ.get(
-    "TRIM_DATA_DIR",
-    str(Path(TRIM_ROOT) / "math_eval" / "data"),
-)
-
+PROJECT_ROOT = os.environ.get("ROUTING_SRC_ROOT", str(SRC_ROOT))
+TRIM_ROOT = os.environ.get("TRIM_ROOT", str(REPO_ROOT / "trim" / "TRIM"))
+TRIM_DATA_DIR = os.environ.get("TRIM_DATA_DIR", str(Path(TRIM_ROOT) / "math_eval" / "data"))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 EPISODES_DIR = os.path.join(DATA_DIR, "episodes")
 RUBRIC_DIR = os.path.join(DATA_DIR, "rubrics")

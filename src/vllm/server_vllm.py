@@ -72,12 +72,15 @@ async def create_item(request: Request):
             '/export/yuguo/ppyg2/model/DeepSeek-R1-1.5B',
             '/export/yuguo/ppyg2/model/DeepSeek-R1-14B',
         ]
-        if args.model in qwen3_models:
+        model_name = os.path.basename(args.model).lower()
+        is_qwen3 = args.model in qwen3_models or model_name.startswith("qwen3-")
+        is_deepseek_r1 = args.model in deepseek_r1_models or model_name.startswith("deepseek-r1-")
+        if is_qwen3:
             if think_mode:
                 tokenizer.chat_template = chat_template["Qwen3_8b_think_chat_template"]
             else:
                 tokenizer.chat_template = chat_template["Qwen3_8b_nothink_chat_template"]
-        elif args.model in deepseek_r1_models:
+        elif is_deepseek_r1:
             if think_mode:
                 tokenizer.chat_template = chat_template["DeepSeek_R1_think_chat_template"]
             else:
@@ -86,7 +89,7 @@ async def create_item(request: Request):
         # 应用 chat template
         # DeepSeek-R1 + continue_final_message 时手动拼接，
         # 因为其 chat template 会删除 <think> 内容导致 continue_final_message 匹配失败
-        if args.model in deepseek_r1_models and continue_final_message:
+        if is_deepseek_r1 and continue_final_message:
             # 手动拼接 DeepSeek-R1 格式的 prompt
             system_prompt = ''
             parts = []
@@ -183,6 +186,9 @@ def parse_args():
     parser.add_argument('--model', type=str, required=True, help="Model to load (e.g., 'microsoft/Phi-3-mini-4k-instruct')")
     parser.add_argument('--port', type=int, default=4000, help="Port to run the server on")
     parser.add_argument('--tensor-parallel-size', type=int, default=None, help="Number of GPUs to use for tensor parallelism (default: use all available GPUs)")
+    parser.add_argument('--max-model-len', type=int, default=16384)
+    parser.add_argument('--gpu-memory-utilization', type=float, default=0.90)
+    parser.add_argument('--max-num-seqs', type=int, default=256)
     return parser.parse_args()
 
 if __name__ == '__main__':
@@ -204,8 +210,9 @@ if __name__ == '__main__':
     model = LLM(model = args.model, 
                 tensor_parallel_size=tensor_parallel_size, 
                 trust_remote_code=True,
-                max_model_len=16384,  # 减少最大序列长度以节省KV cache内存
-                gpu_memory_utilization=0.90,  # 限制GPU内存使用率
+                max_model_len=args.max_model_len,
+                gpu_memory_utilization=args.gpu_memory_utilization,
+                max_num_seqs=args.max_num_seqs,
                 enforce_eager=True,  # 禁用CUDA Graph以节省内存
                 )
 

@@ -19,6 +19,7 @@ Usage:
 import argparse
 import json
 import os
+import random
 import sys
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
@@ -82,7 +83,16 @@ def train_ppo(
     save_dir: str = None,
     log_interval: int = 10,
     tag: str = "",
+    save_every: int = 0,
+    save_epoch_checkpoints: bool = False,
+    seed: int = 42,
 ):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
     policy = RouterPolicy(STATE_DIM, HIDDEN_DIM, ACTION_DIM, DROPOUT).to(device)
     optimizer = optim.Adam(policy.parameters(), lr=LR, eps=1e-5, weight_decay=1e-5)
 
@@ -229,6 +239,10 @@ def train_ppo(
 
         log_entry = {
             "epoch": epoch,
+            "lam": lam,
+            "lam_rubric": lam_rubric,
+            "seed": seed,
+            "save_dir": save_dir,
             "mean_reward": mean_reward,
             "mean_regens": mean_regens,
             "mean_correct": mean_correct,
@@ -246,9 +260,30 @@ def train_ppo(
             best_reward = mean_reward
             torch.save(policy.state_dict(), os.path.join(save_dir, "best.pt"))
 
+        if save_epoch_checkpoints and save_every > 0 and (
+            (epoch + 1) % save_every == 0 or epoch == num_epochs - 1
+        ):
+            ckpt_name = f"epoch_{epoch + 1:04d}.pt"
+            torch.save(policy.state_dict(), os.path.join(save_dir, ckpt_name))
+
     torch.save(policy.state_dict(), os.path.join(save_dir, "final.pt"))
+    metadata = {
+        "lam": lam,
+        "lam_rubric": lam_rubric,
+        "seed": seed,
+        "num_epochs": num_epochs,
+        "episodes_per_epoch": episodes_per_epoch,
+        "ppo_epochs": ppo_epochs,
+        "mini_batch_size": mini_batch_size,
+        "device": device,
+        "save_dir": save_dir,
+        "save_every": save_every,
+        "save_epoch_checkpoints": save_epoch_checkpoints,
+    }
     with open(os.path.join(save_dir, "train_log.json"), "w") as f:
         json.dump(log_data, f, indent=2)
+    with open(os.path.join(save_dir, "metadata.json"), "w") as f:
+        json.dump(metadata, f, indent=2)
 
     print(f"\nTraining done. Best reward: {best_reward:.4f}")
     print(f"Checkpoints → {save_dir}")
@@ -268,6 +303,9 @@ def main():
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--save_dir", type=str, default=None)
     parser.add_argument("--tag", type=str, default="")
+    parser.add_argument("--save_every", type=int, default=0)
+    parser.add_argument("--save_epoch_checkpoints", action="store_true")
+    parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
     rubric_w = None
@@ -291,6 +329,9 @@ def main():
         device=args.device,
         save_dir=args.save_dir,
         tag=args.tag,
+        save_every=args.save_every,
+        save_epoch_checkpoints=args.save_epoch_checkpoints,
+        seed=args.seed,
     )
 
 

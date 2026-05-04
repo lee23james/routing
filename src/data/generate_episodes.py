@@ -25,12 +25,10 @@ from config import (
     EPISODES_DIR, MAX_STEPS, MAX_NEW_TOKENS, PRM_DEVICE, THINK_MODE,
 )
 from vllm_client import VLLMClient
-from models import (
-    PRMScorer, ServerPRMScorer, split_steps, extract_answer, check_correctness,
-)
+from models import PRMScorer, ServerPRMScorer, split_steps, extract_answer, check_correctness
 from data.datasets import (
-    load_math500, load_math_train, load_aime2025, load_aime_1983_2024,
-    save_jsonl, load_jsonl,
+    load_math500, load_aime2025, load_aime_1983_2024, load_omnimath,
+    load_math_train, save_jsonl, load_jsonl,
 )
 
 
@@ -42,6 +40,46 @@ def _distribute_tokens(steps: List[str], total_tokens: int) -> List[int]:
     total_chars = sum(char_lens)
     per_step = [max(1, round(c / total_chars * total_tokens)) for c in char_lens]
     return per_step
+
+
+def load_items_for_dataset(dataset_name: str) -> List[Dict]:
+    if dataset_name == "math500":
+        return load_math500()
+    elif dataset_name == "math_train_200":
+        return load_math_train()[:200]
+    elif dataset_name in ("math_train_1k", "trim_math_train_1k"):
+        return load_math_train()
+    elif dataset_name in ("math500_test_100", "trim_math500_test_100"):
+        return load_math500()
+    elif dataset_name == "aime2025":
+        return load_aime2025()
+    elif dataset_name in ("aime_train", "trim_aime_train"):
+        return load_aime_1983_2024()
+    elif dataset_name in ("aime_test", "trim_aime_test"):
+        return load_aime2025()
+    elif dataset_name == "aime":
+        return load_aime_1983_2024()
+    elif dataset_name.startswith("aime_"):
+        all_aime = load_aime_1983_2024()
+        try:
+            parts = dataset_name.split("_")[1:]
+            if len(parts) == 2:
+                y_from, y_to = int(parts[0]), int(parts[1])
+            else:
+                y_from = y_to = int(parts[0])
+            items = [it for it in all_aime if y_from <= it.get("year", 0) <= y_to]
+            print(f"Filtered AIME {y_from}-{y_to}: {len(items)} problems")
+        except ValueError:
+            items = all_aime
+        return items
+    elif dataset_name == "all":
+        return load_math500() + load_aime2025()
+    elif dataset_name == "omnimath":
+        return load_omnimath(max_items=200, min_diff=1.0, max_diff=4.0)
+    elif dataset_name == "omnimath_full":
+        return load_omnimath(max_items=500)
+    else:
+        raise ValueError(f"Unknown dataset: {dataset_name}")
 
 
 def generate_episodes(
@@ -62,44 +100,7 @@ def generate_episodes(
     max_workers: int = 4,
     resume: bool = True,
 ):
-    if dataset_name == "math500":
-        items = load_math500()
-    elif dataset_name in ("math_train_1k", "trim_math_train_1k"):
-        items = load_math_train()
-        dataset_name = "math_train_1k"
-    elif dataset_name in ("math500_test_100", "trim_math500_test_100"):
-        items = load_math500()
-        dataset_name = "math500_test_100"
-    elif dataset_name == "aime2025":
-        items = load_aime2025()
-    elif dataset_name in ("aime_train", "trim_aime_train"):
-        items = load_aime_1983_2024()
-        dataset_name = "aime_train"
-    elif dataset_name in ("aime_test", "trim_aime_test"):
-        items = load_aime2025()
-        dataset_name = "aime_test"
-    elif dataset_name == "aime":
-        items = load_aime_1983_2024()
-    elif dataset_name.startswith("aime_"):
-        all_aime = load_aime_1983_2024()
-        try:
-            parts = dataset_name.split("_")[1:]
-            if len(parts) == 2:
-                y_from, y_to = int(parts[0]), int(parts[1])
-            else:
-                y_from = y_to = int(parts[0])
-            items = [it for it in all_aime if y_from <= it.get("year", 0) <= y_to]
-            print(f"Filtered AIME {y_from}-{y_to}: {len(items)} problems")
-        except ValueError:
-            items = all_aime
-    elif dataset_name == "all":
-        items = load_math500() + load_aime2025()
-    elif dataset_name == "omnimath":
-        items = load_math_train()
-    elif dataset_name == "omnimath_full":
-        items = load_math_train()
-    else:
-        raise ValueError(f"Unknown dataset: {dataset_name}")
+    items = load_items_for_dataset(dataset_name)
 
     print(f"Loaded {len(items)} problems ({dataset_name})")
 

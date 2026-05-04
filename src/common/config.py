@@ -3,8 +3,10 @@
 import os
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-PROJECT_ROOT = os.environ.get("ROUTING_SRC_ROOT", str(REPO_ROOT / "src"))
+SRC_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = SRC_ROOT.parent
+
+PROJECT_ROOT = os.environ.get("ROUTING_SRC_ROOT", str(SRC_ROOT))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 CHECKPOINTS_DIR = os.path.join(PROJECT_ROOT, "checkpoints")

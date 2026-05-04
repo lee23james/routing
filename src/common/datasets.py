@@ -6,7 +6,6 @@ import re
 from pathlib import Path
 from typing import List, Dict
 
-DATA_DIR = "/export/shy/pp/pp5/data"
 TRIM_DATA_DIR = os.environ.get(
     "TRIM_DATA_DIR",
     str(Path(__file__).resolve().parents[2] / "trim" / "TRIM" / "math_eval" / "data"),
@@ -18,7 +17,12 @@ def load_math500() -> List[Dict]:
 
 
 def load_aime(year_from: int = 2020, year_to: int = 2024) -> List[Dict]:
-    return _load_trim_dataset("aime", "test")
+    items = _load_trim_dataset("aime", "test")
+    return [
+        item
+        for item in items
+        if year_from <= item.get("year", 0) <= year_to
+    ]
 
 
 def _load_trim_dataset(dataset_name: str, split: str) -> List[Dict]:
@@ -39,6 +43,7 @@ def _load_trim_dataset(dataset_name: str, split: str) -> List[Dict]:
             "problem": problem,
             "answer": answer,
             "dataset": dataset_name,
+            "year": row.get("Year", row.get("year", 0)),
         })
     return items
 
