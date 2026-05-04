@@ -1,0 +1,20 @@
+{
+  "datasets": [
+    {
+      "dataset_key": "MATH",
+      "dataset_label": "math500/test_100",
+      "method": "TRIM-Agg",
+      "mw_baseline": "/absolute/path/to/math_mw_baseline_eval_metrics.jsonl",
+      "ms_baseline": "/absolute/path/to/math_ms_baseline_eval_metrics.jsonl",
+      "sweep_dir": "/absolute/path/to/rlpolicy_results_qwen3_math1k_sweep"
+    },
+    {
+      "dataset_key": "AIME",
+      "dataset_label": "aime/test",
+      "method": "TRIM-Agg",
+      "mw_baseline": "/absolute/path/to/aime_mw_baseline_eval_metrics.jsonl",
+      "ms_baseline": "/absolute/path/to/aime_ms_baseline_eval_metrics.jsonl",
+      "sweep_dir": "/absolute/path/to/rlpolicy_results_qwen3_aime_official_sweep"
+    }
+  ]
+}

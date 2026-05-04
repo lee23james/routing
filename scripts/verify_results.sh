@@ -13,8 +13,10 @@
 # ============================================================
 set -euo pipefail
 
-PROJECT_ROOT="/export/shy/pp/pp5"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="${TRIM_PROJECT_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
 RESULTS_DIR="${PROJECT_ROOT}/results"
+export RESULTS_DIR
 
 echo ""
 echo "============================================"
@@ -55,7 +57,7 @@ cd "${PROJECT_ROOT}/src"
 python3 << 'PYEOF'
 import json, os, sys
 
-results_dir = "/export/shy/pp/pp5/results"
+results_dir = os.environ["RESULTS_DIR"]
 all_pass = True
 
 for dataset in ["math500", "aime2025"]:

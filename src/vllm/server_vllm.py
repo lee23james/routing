@@ -12,6 +12,7 @@ from transformers import AutoTokenizer
 os.environ["TRITON_MMA"] = "0"
 
 app = FastAPI()
+MODEL_ROOT = os.environ.get("TRIM_MODEL_ROOT", "/mnt/hdd2/chengcheng")
 
 # Note: Use CUDA_VISIBLE_DEVICES environment variable to specify GPUs
 # Example: CUDA_VISIBLE_DEVICES=6,7 python server_vllm.py ...
@@ -59,22 +60,22 @@ async def create_item(request: Request):
         sampling_params = SamplingParams(**sampling_kwargs)
 
         # Qwen3 系列模型的 think 模式支持
-        qwen3_models = [
-            '/export/yuguo/ppyg2/model/qwen3-8b',
-            '/export/yuguo/ppyg2/model/qwen3-4b',
-            '/export/yuguo/ppyg2/model/qwen3-1.7b',
-            '/export/yuguo/ppyg2/model/qwen3-0.6b',
-            '/export/yuguo/ppyg2/model/qwen3-14b',
-            '/export/yuguo/ppyg2/model/qwen3-32b',
-        ]
+        model_name = os.path.basename(os.path.normpath(args.model)).lower()
+        qwen3_models = {
+            'qwen3-8b',
+            'qwen3-4b',
+            'qwen3-1.7b',
+            'qwen3-0.6b',
+            'qwen3-14b',
+            'qwen3-32b',
+        }
         # DeepSeek-R1 系列模型
-        deepseek_r1_models = [
-            '/export/yuguo/ppyg2/model/DeepSeek-R1-1.5B',
-            '/export/yuguo/ppyg2/model/DeepSeek-R1-14B',
-        ]
-        model_name = os.path.basename(args.model).lower()
-        is_qwen3 = args.model in qwen3_models or model_name.startswith("qwen3-")
-        is_deepseek_r1 = args.model in deepseek_r1_models or model_name.startswith("deepseek-r1-")
+        deepseek_r1_models = {
+            'deepseek-r1-1.5b',
+            'deepseek-r1-14b',
+        }
+        is_qwen3 = model_name in qwen3_models or model_name.startswith("qwen3-")
+        is_deepseek_r1 = model_name in deepseek_r1_models or model_name.startswith("deepseek-r1-")
         if is_qwen3:
             if think_mode:
                 tokenizer.chat_template = chat_template["Qwen3_8b_think_chat_template"]

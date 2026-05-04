@@ -26,7 +26,14 @@ import torch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from config import STATE_DIM, HIDDEN_DIM, ACTION_DIM, CHECKPOINTS_DIR, RESULTS_DIR
+from config import (
+    ACTION_DIM,
+    CHECKPOINTS_DIR,
+    HIDDEN_DIM,
+    PROJECT_ROOT,
+    RESULTS_DIR,
+    STATE_DIM,
+)
 from router.policy import RouterPolicy
 from router.env import TRIMEnv
 from data.datasets import load_jsonl
@@ -38,9 +45,14 @@ from eval.flops_eval import (
 
 try:
     from matplotlib import font_manager
-    font_path = "/export/shy/pp/pp4/src/study/ARIAL.TTF"
-    if os.path.exists(font_path):
-        font_manager.fontManager.addfont(font_path)
+    font_candidates = [
+        os.environ.get("TRIM_FONT_PATH"),
+        os.path.join(PROJECT_ROOT, "ARIAL.TTF"),
+    ]
+    for font_path in font_candidates:
+        if font_path and os.path.exists(font_path):
+            font_manager.fontManager.addfont(font_path)
+            break
     import matplotlib
     matplotlib.rcParams['font.family'] = 'Arial'
 except Exception:

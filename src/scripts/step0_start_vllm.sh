@@ -9,20 +9,32 @@
 # 预计时间: ~2min
 # ================================================================
 
-set -e
+set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VLLM_DIR="$SCRIPT_DIR/../vllm"
-CONDA_ENV="shy_think_or_not"
+MODEL_ROOT="${TRIM_MODEL_ROOT:-$(cd "$SCRIPT_DIR/../.." && pwd)/models}"
+CONDA_ENV="${TRIM_CONDA_ENV:-routing}"
+CONDA_SH="${TRIM_CONDA_SH:-}"
+
+curl_local() {
+    env -u HTTP_PROXY -u HTTPS_PROXY -u ALL_PROXY -u http_proxy -u https_proxy -u all_proxy \
+        curl "$@"
+}
+
+ACTIVATE_CMD="conda activate $CONDA_ENV"
+if [ -n "$CONDA_SH" ]; then
+    ACTIVATE_CMD="source $CONDA_SH && conda activate $CONDA_ENV"
+fi
 
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  Step 0: 启动 vLLM 服务"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # 检查是否已在运行
-SRM_RUNNING=$(curl -s --max-time 2 http://localhost:4003/v1/chat/completions \
+SRM_RUNNING=$(curl_local -s --max-time 2 http://localhost:4003/v1/chat/completions \
     -H "Content-Type: application/json" \
     -d '{"model":"x","messages":[{"role":"user","content":"1"}],"max_tokens":1}' 2>/dev/null | grep -c "choices" || echo 0)
-LRM_RUNNING=$(curl -s --max-time 5 http://localhost:4001/v1/chat/completions \
+LRM_RUNNING=$(curl_local -s --max-time 5 http://localhost:4001/v1/chat/completions \
     -H "Content-Type: application/json" \
     -d '{"model":"x","messages":[{"role":"user","content":"1"}],"max_tokens":1}' 2>/dev/null | grep -c "choices" || echo 0)
 
@@ -40,11 +52,11 @@ echo ""
 echo "请在对应的 tmux/screen 窗口中运行:"
 echo ""
 [ "$SRM_RUNNING" -eq 0 ] && echo "  # SRM:"
-[ "$SRM_RUNNING" -eq 0 ] && echo "  conda activate $CONDA_ENV"
-[ "$SRM_RUNNING" -eq 0 ] && echo "  cd $VLLM_DIR && CUDA_VISIBLE_DEVICES=4 python server_vllm.py --model /export/yuguo/ppyg2/model/qwen3-1.7b --port 4003"
+[ "$SRM_RUNNING" -eq 0 ] && echo "  $ACTIVATE_CMD"
+[ "$SRM_RUNNING" -eq 0 ] && echo "  cd $VLLM_DIR && CUDA_VISIBLE_DEVICES=4 python server_vllm.py --model $MODEL_ROOT/qwen3-1.7b --port 4003 --tensor-parallel-size 1 --max-model-len 4096 --max-num-seqs 16"
 echo ""
 [ "$LRM_RUNNING" -eq 0 ] && echo "  # LRM:"
-[ "$LRM_RUNNING" -eq 0 ] && echo "  conda activate $CONDA_ENV"
-[ "$LRM_RUNNING" -eq 0 ] && echo "  cd $VLLM_DIR && CUDA_VISIBLE_DEVICES=5,6 python server_vllm.py --model /export/yuguo/ppyg2/model/qwen3-14b --port 4001 --tensor-parallel-size 2"
+[ "$LRM_RUNNING" -eq 0 ] && echo "  $ACTIVATE_CMD"
+[ "$LRM_RUNNING" -eq 0 ] && echo "  cd $VLLM_DIR && CUDA_VISIBLE_DEVICES=5,6 python server_vllm.py --model $MODEL_ROOT/qwen3-14b --port 4001 --tensor-parallel-size 2 --max-model-len 4096 --max-num-seqs 8"
 echo ""
 echo "启动后再次运行此脚本验证。"

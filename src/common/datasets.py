@@ -4,7 +4,9 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
+
+from common.config import DATA_DIR
 
 TRIM_DATA_DIR = os.environ.get(
     "TRIM_DATA_DIR",

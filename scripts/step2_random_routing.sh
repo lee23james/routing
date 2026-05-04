@@ -3,7 +3,9 @@
 # 测试不同 p(LRM) 比例的 random routing
 
 set -e
-cd /export/shy/pp/pp5/src
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="${TRIM_PROJECT_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
+cd "${PROJECT_ROOT}/src"
 
 echo "=============================="
 echo " Step 2: Random Routing"

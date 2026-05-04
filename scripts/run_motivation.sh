@@ -13,7 +13,8 @@
 # ============================================================
 set -euo pipefail
 
-PROJECT_ROOT="/export/shy/pp/pp5"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="${TRIM_PROJECT_ROOT:-$(cd "${SCRIPT_DIR}/.." && pwd)}"
 SRC_DIR="${PROJECT_ROOT}/src"
 CKPT_DIR="${PROJECT_ROOT}/checkpoints"
 OUT_BASE="${PROJECT_ROOT}/results/motivation"
