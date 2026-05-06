@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# Search MATH-trained TRIM-Agg PPO checkpoints on the local 4-GPU box.
+# Search AIME Part I-trained TRIM-Agg PPO checkpoints on the local 4-GPU box.
 
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
 PYTHON_BIN="${PYTHON_BIN:-/home/chencheng/miniconda3/envs/trim/bin/python}"
-EPISODES_PATH="${EPISODES_PATH:-data/episodes/math_train_200_episodes.jsonl}"
+EPISODES_PATH="${EPISODES_PATH:-data/episodes/aime_2010_2024_part1_train_episodes.jsonl}"
 NUM_EPOCHS="${NUM_EPOCHS:-40}"
 EPISODES_PER_EPOCH="${EPISODES_PER_EPOCH:-64}"
 SAVE_EVERY="${SAVE_EVERY:-10}"
 SEED="${SEED:-1}"
 
-LOG_DIR="logs/trim_agg_math200_point_search"
+LOG_DIR="logs/trim_agg_aime_part1_204_point_search"
 CKPT_ROOT="checkpoints"
 mkdir -p "$LOG_DIR" "$CKPT_ROOT"
 
@@ -28,12 +28,17 @@ sanitize_lam() {
   printf "%s" "$1" | sed 's/+//g'
 }
 
+if [ ! -f "$EPISODES_PATH" ]; then
+  echo "episodes file not found: $EPISODES_PATH" >&2
+  exit 1
+fi
+
 run_one() {
   local lam="$1"
   local gpu="$2"
   local lam_tag
   lam_tag="$(sanitize_lam "$lam")"
-  local tag="trim_agg_math200_point_search_lam${lam_tag}_seed${SEED}"
+  local tag="trim_agg_aime_part1_204_point_search_lam${lam_tag}_seed${SEED}"
   local save_dir="${CKPT_ROOT}/${tag}"
   local log_file="${LOG_DIR}/train_lam${lam_tag}_seed${SEED}_gpu${gpu}.log"
 
@@ -64,4 +69,4 @@ done
 
 wait
 
-echo "[$(date '+%F %T')] all MATH point-search training jobs finished"
+echo "[$(date '+%F %T')] all AIME TRIM-Agg point-search training jobs finished"

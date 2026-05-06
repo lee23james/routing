@@ -23,6 +23,48 @@ def load_aime2025() -> List[Dict]:
     return load_trim_dataset("aime", "test")
 
 
+def load_aime_2010_2024_part1_train() -> List[Dict]:
+    """Load 2010-2024 AIME Part I problems for AIME quick-search training."""
+    path = os.path.join(LOCAL_DATA_DIR, "aime_1983_2024.jsonl")
+    items = []
+    for row in load_jsonl(path):
+        year = int(row.get("year", 0) or 0)
+        part = str(row.get("part", "")).strip()
+        if not (2010 <= year <= 2024 and part == "I"):
+            continue
+        item = _normalise_aime_row(
+            row,
+            dataset="aime_2010_2024_part1_train",
+            split="train",
+            source_path=path,
+            fallback_id=f"aime_part1_train_{len(items):05d}",
+        )
+        items.append(item)
+    print(f"Loaded {len(items)} AIME 2010-2024 Part I train problems from {path}")
+    return items
+
+
+def load_aime_2020_2024_part2_test() -> List[Dict]:
+    """Load the TRIM/Agg AIME 2020-2024 Part II test split."""
+    path = os.path.join(TRIM_DATA_DIR, "aime2020_2024", "test.jsonl")
+    items = []
+    for row in load_jsonl(path):
+        year = int(row.get("year", 0) or 0)
+        part = str(row.get("part", "")).strip()
+        if not (2020 <= year <= 2024 and part == "II"):
+            continue
+        item = _normalise_aime_row(
+            row,
+            dataset="aime_2020_2024_part2_test",
+            split="test",
+            source_path=path,
+            fallback_id=f"aime_part2_test_{len(items):05d}",
+        )
+        items.append(item)
+    print(f"Loaded {len(items)} AIME 2020-2024 Part II test problems from {path}")
+    return items
+
+
 def load_math_train() -> List[Dict]:
     """Load the full local MATH train split for MATH-only point search."""
     local_path = os.path.join(TRIM_DATA_DIR, "math", "train.jsonl")
@@ -103,6 +145,27 @@ def _load_math_rows(path: str, dataset: str, split: str, id_prefix: str) -> List
             "split": split,
         })
     return items
+
+
+def _normalise_aime_row(row: Dict, dataset: str, split: str, source_path: str, fallback_id: str) -> Dict:
+    query = row.get("problem") or row.get("question")
+    answer = row.get("answer")
+    if answer is None or str(answer).strip() == "":
+        answer = _extract_boxed(row.get("solution", "")) or row.get("solution", "")
+    raw_id = row.get("source_id") or row.get("unique_id") or row.get("ID") or row.get("id") or fallback_id
+    return {
+        "id": str(raw_id).replace("/", "_"),
+        "query": query,
+        "answer": str(answer).strip(),
+        "full_solution": row.get("solution", ""),
+        "source_path": source_path,
+        "source_id": row.get("source_id", raw_id),
+        "problem_number": row.get("problem_number", 0),
+        "part": str(row.get("part", "")).strip(),
+        "year": int(row.get("year", row.get("Year", 0)) or 0),
+        "dataset": dataset,
+        "split": split,
+    }
 
 
 def load_omnimath(max_items: int = 0, min_diff: float = 1.0, max_diff: float = 10.0) -> List[Dict]:

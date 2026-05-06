@@ -16,6 +16,7 @@ import json
 import os
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from typing import List, Dict
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -28,7 +29,8 @@ from vllm_client import VLLMClient
 from models import PRMScorer, ServerPRMScorer, split_steps, extract_answer, check_correctness
 from data.datasets import (
     load_math500, load_aime2025, load_aime_1983_2024, load_omnimath,
-    load_math_train, save_jsonl, load_jsonl,
+    load_math_train, load_aime_2010_2024_part1_train,
+    load_aime_2020_2024_part2_test, save_jsonl, load_jsonl,
 )
 
 
@@ -53,6 +55,10 @@ def load_items_for_dataset(dataset_name: str) -> List[Dict]:
         return load_math500()
     elif dataset_name == "aime2025":
         return load_aime2025()
+    elif dataset_name == "aime_2010_2024_part1_train":
+        return load_aime_2010_2024_part1_train()
+    elif dataset_name == "aime_2020_2024_part2_test":
+        return load_aime_2020_2024_part2_test()
     elif dataset_name in ("aime_train", "trim_aime_train"):
         return load_aime_1983_2024()
     elif dataset_name in ("aime_test", "trim_aime_test"):
@@ -80,6 +86,35 @@ def load_items_for_dataset(dataset_name: str) -> List[Dict]:
         return load_omnimath(max_items=500)
     else:
         raise ValueError(f"Unknown dataset: {dataset_name}")
+
+
+def generate_model_solutions_parallel(
+    srm: VLLMClient,
+    lrm: VLLMClient,
+    query: str,
+    max_new_tokens: int,
+    temperature: float,
+    think_mode: bool,
+) -> Dict[str, tuple]:
+    """Generate SRM and LRM solutions for one problem concurrently."""
+
+    def _generate(client: VLLMClient):
+        start = time.time()
+        text, tokens = client.generate_solution(
+            query,
+            max_tokens=max_new_tokens,
+            temperature=temperature,
+            think_mode=think_mode,
+        )
+        return text, tokens, time.time() - start
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        srm_future = pool.submit(_generate, srm)
+        lrm_future = pool.submit(_generate, lrm)
+        return {
+            "srm": srm_future.result(),
+            "lrm": lrm_future.result(),
+        }
 
 
 def generate_episodes(
@@ -150,26 +185,24 @@ def generate_episodes(
         answer = item["answer"]
         t0 = time.time()
 
-        # ---- SRM solution ----
-        t_srm = time.time()
-        srm_text, srm_tok = srm.generate_solution(
-            query, max_tokens=max_new_tokens, temperature=temperature,
-            think_mode=THINK_MODE
+        # ---- SRM/LRM solutions ----
+        model_outputs = generate_model_solutions_parallel(
+            srm=srm,
+            lrm=lrm,
+            query=query,
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            think_mode=THINK_MODE,
         )
-        srm_time = time.time() - t_srm
+        srm_text, srm_tok, srm_time = model_outputs["srm"]
+        lrm_text, lrm_tok, lrm_time = model_outputs["lrm"]
+
         srm_steps = split_steps(srm_text)[:MAX_STEPS]
         srm_prm = prm.score_trace(query, srm_steps) if srm_steps else []
         srm_tokens = _distribute_tokens(srm_steps, srm_tok)
         srm_answer = extract_answer(srm_text)
         srm_correct = check_correctness(srm_answer, answer)
 
-        # ---- LRM solution ----
-        t_lrm = time.time()
-        lrm_text, lrm_tok = lrm.generate_solution(
-            query, max_tokens=max_new_tokens, temperature=temperature,
-            think_mode=THINK_MODE
-        )
-        lrm_time = time.time() - t_lrm
         lrm_steps = split_steps(lrm_text)[:MAX_STEPS]
         lrm_prm = prm.score_trace(query, lrm_steps) if lrm_steps else []
         lrm_tokens = _distribute_tokens(lrm_steps, lrm_tok)

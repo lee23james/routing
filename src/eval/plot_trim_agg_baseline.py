@@ -1,7 +1,8 @@
-"""Local TRIM-Agg baseline plots and main-results table.
+"""Local TRIM-Agg/TRIM-Rubric baseline plots and main-results table.
 
 This script reproduces a compact baseline figure from the current ``src``
-workspace: SRM-only, LRM-only, Random Routing, and TRIM-Agg (PPO).
+workspace: SRM-only, LRM-only, Random Routing, TRIM-Agg (PPO), and
+optionally TRIM-Rubric (PPO).
 It intentionally avoids the historical ``v4_agg_*`` paths used by
 ``plot_results.py`` and reads the local ``trim_agg_baseline_lam*/best.pt``
 checkpoints instead.
@@ -47,11 +48,21 @@ SRC_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_EPISODES = {
     "math500": SRC_ROOT / "data/episodes/math500_episodes.jsonl",
     "aime2025": SRC_ROOT / "data/episodes/aime2025_episodes.jsonl",
+    "aime_2020_2024_part2_test": SRC_ROOT / "data/episodes/aime_2020_2024_part2_test_episodes.jsonl",
 }
 DEFAULT_CHECKPOINT_GLOB = str(SRC_ROOT / "checkpoints/trim_agg_baseline_lam*/best.pt")
 DEFAULT_OUTPUT_DIR = SRC_ROOT / "results/trim_agg_baseline/plots_copy_style"
-DATASETS = ["math500", "aime2025", "all"]
-DS_LABELS = {"math500": "MATH-500", "aime2025": "AIME 2025 I&II", "all": "Overall"}
+DATASETS = ["math500", "aime2025", "aime_2020_2024_part2_test", "all"]
+DS_LABELS = {
+    "math500": "MATH-500",
+    "aime2025": "AIME 2025 I&II",
+    "aime_2020_2024_part2_test": "AIME 2020-2024 Part II",
+    "all": "Overall",
+}
+PPO_METHODS = {
+    "TRIM-Agg (PPO)": "ppo_agg",
+    "TRIM-Rubric (PPO)": "ppo_rubric",
+}
 
 
 def probability_thresholds() -> List[float]:
@@ -188,8 +199,10 @@ def _lrm_only_routing_flops(ep: Dict) -> float:
     return _routing_flops(ep, [1] * _num_routing_steps(ep))
 
 
-def compute_baselines(groups: Dict[str, List[Dict]], datasets: Iterable[str] = DATASETS) -> Dict[str, Dict]:
+def compute_baselines(groups: Dict[str, List[Dict]], datasets: Optional[Iterable[str]] = None) -> Dict[str, Dict]:
     baselines = {}
+    if datasets is None:
+        datasets = groups.keys()
     for dataset in datasets:
         episodes = groups[dataset]
         n = len(episodes)
@@ -501,8 +514,8 @@ def _metric(method: str, dataset: str, plot_data: Dict) -> Dict:
         curve = plot_data["random_curves"][dataset]
         acc_at_60 = find_acc_at_flops(curve, flops_60)
         flops_at_98 = find_flops_at_acc(curve, acc_98)
-    elif method == "TRIM-Agg (PPO)":
-        curve = plot_data["ppo_curves"][dataset]["ppo_agg"]
+    elif method in PPO_METHODS:
+        curve = plot_data["ppo_curves"][dataset].get(PPO_METHODS[method], [])
         acc_at_60 = find_acc_at_flops(curve, flops_60)
         flops_at_98 = find_flops_at_acc(curve, acc_98)
     else:
@@ -540,8 +553,10 @@ def build_main_results(plot_data: Dict) -> Dict:
         "SRM-Only": "No",
         "LRM-Only": "No",
         "Random Routing": "Yes",
-        "TRIM-Agg (PPO)": "Yes",
     }
+    for method, curve_key in PPO_METHODS.items():
+        if any(plot_data["ppo_curves"].get(dataset, {}).get(curve_key) for dataset in datasets):
+            method_extra_tokens[method] = "Yes"
     rows = []
     for method, extra_tokens in method_extra_tokens.items():
         rows.append(
@@ -651,11 +666,135 @@ def render_main_results_latex(main_results: Dict) -> str:
     return "\n".join(lines)
 
 
+def build_method_60_98_summary(plot_data: Dict, method: str, dataset: str = "math500") -> Dict:
+    """Extract the two headline metrics for one plotted method/dataset."""
+    if dataset not in plot_data["baselines"]:
+        raise ValueError(f"Dataset not present in plot data: {dataset}")
+
+    method_row = next(
+        (row for row in plot_data["main_results"]["rows"] if row["method"] == method),
+        None,
+    )
+    if method_row is None:
+        raise ValueError(f"{method} row not found in main results")
+    if dataset not in method_row["metrics"]:
+        raise ValueError(f"{method} metrics not present for dataset: {dataset}")
+
+    baseline = plot_data["baselines"][dataset]
+    metrics = method_row["metrics"][dataset]
+    return {
+        "dataset": dataset,
+        "dataset_label": DS_LABELS.get(dataset, dataset),
+        "method": method,
+        "n": baseline["n"],
+        "acc_at_60_lrm_flops": metrics["acc_at_60"],
+        "flops_at_98_lrm_acc_tflops": metrics["flops_at_98_tflops"],
+        "flops_at_98_lrm_acc_pct_lrm": metrics["flops_at_98_pct"],
+        "lrm_acc": baseline["lrm_acc"],
+        "lrm_flops_tflops": baseline["lrm_flops"],
+        "target_60_lrm_flops_tflops": baseline["lrm_flops"] * 0.6,
+        "target_98_lrm_acc": baseline["lrm_acc"] * 0.98,
+    }
+
+
+def build_trim_agg_60_98_summary(plot_data: Dict, dataset: str = "math500") -> Dict:
+    """Extract the two headline TRIM-Agg metrics for one dataset."""
+    return build_method_60_98_summary(plot_data, "TRIM-Agg (PPO)", dataset)
+
+
+def _format_optional_number(value: Optional[float], suffix: str = "", precision: int = 1) -> str:
+    if value is None:
+        return "unreachable in current search"
+    return f"{value:.{precision}f}{suffix}"
+
+
+def render_trim_agg_60_98_markdown(summary: Dict) -> str:
+    title_method = summary["method"].replace(" (PPO)", "")
+    lines = [
+        f"# {title_method} 60/98 Metrics",
+        "",
+        f"- Dataset: {summary['dataset_label']} (n={summary['n']})",
+        f"- Method: {summary['method']}",
+        f"- LRM-only accuracy: {summary['lrm_acc']:.1f}%",
+        f"- LRM-only FLOPs: {summary['lrm_flops_tflops']:.4f} TFLOPs/query",
+        f"- 60% LRM FLOPs target: {summary['target_60_lrm_flops_tflops']:.4f} TFLOPs/query",
+        f"- 98% LRM accuracy target: {summary['target_98_lrm_acc']:.1f}%",
+        "",
+        "| Metric | Value |",
+        "| --- | --- |",
+        "| Acc@60% LRM FLOPs | "
+        f"{_format_optional_number(summary['acc_at_60_lrm_flops'], '%')} |",
+        "| FLOPs@98% LRM Acc | "
+        f"{_format_optional_number(summary['flops_at_98_lrm_acc_tflops'], ' TFLOPs/query', 4)} |",
+        "| FLOPs@98% LRM Acc (% LRM) | "
+        f"{_format_optional_number(summary['flops_at_98_lrm_acc_pct_lrm'], '%')} |",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def render_method_60_98_compare_markdown(summaries: List[Dict]) -> str:
+    if not summaries:
+        return "# TRIM 60/98 Comparison\n\nNo method summaries available.\n"
+    first = summaries[0]
+    lines = [
+        "# TRIM 60/98 Comparison",
+        "",
+        f"- Dataset: {first['dataset_label']} (n={first['n']})",
+        f"- LRM-only accuracy: {first['lrm_acc']:.1f}%",
+        f"- LRM-only FLOPs: {first['lrm_flops_tflops']:.4f} TFLOPs/query",
+        f"- 60% LRM FLOPs target: {first['target_60_lrm_flops_tflops']:.4f} TFLOPs/query",
+        f"- 98% LRM accuracy target: {first['target_98_lrm_acc']:.1f}%",
+        "",
+        "| Method | 60% LRM FLOPs Point | 98% LRM Acc Point |",
+        "| --- | --- | --- |",
+    ]
+    for summary in summaries:
+        acc_60 = _format_optional_number(summary["acc_at_60_lrm_flops"], "%")
+        flops_60 = f"{summary['target_60_lrm_flops_tflops']:.4f} TFLOPs/query"
+        flops_98 = _format_optional_number(
+            summary["flops_at_98_lrm_acc_tflops"],
+            " TFLOPs/query",
+            4,
+        )
+        acc_98 = f"{summary['target_98_lrm_acc']:.1f}%"
+        lines.append(
+            f"| {summary['method']} | ({flops_60}, {acc_60}) | ({flops_98}, {acc_98}) |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
 def _subsample(points: List[Dict], n_markers: int) -> List[Dict]:
     if len(points) <= n_markers:
         return points
     indices = np.linspace(0, len(points) - 1, n_markers, dtype=int)
     return [points[i] for i in indices]
+
+
+def _method_slug(method: str) -> str:
+    if method == "TRIM-Agg (PPO)":
+        return "trim_agg"
+    if method == "TRIM-Rubric (PPO)":
+        return "trim_rubric"
+    return re.sub(r"[^a-z0-9]+", "_", method.lower()).strip("_")
+
+
+def _curve_title(curve_key: str) -> str:
+    for method, key in PPO_METHODS.items():
+        if key == curve_key:
+            return method
+    return curve_key
+
+
+def _checkpoint_patterns_for_args(args: argparse.Namespace) -> Dict[str, List[str]]:
+    agg_glob = getattr(args, "agg_checkpoint_glob", None) or args.checkpoint_glob
+    rubric_glob = getattr(args, "rubric_checkpoint_glob", "")
+    patterns = {
+        "ppo_agg": [p.strip() for p in agg_glob.split(",") if p.strip()],
+        "ppo_rubric": [p.strip() for p in rubric_glob.split(",") if p.strip()],
+    }
+    return {key: value for key, value in patterns.items() if value}
 
 
 def _plot_figures(plot_data: Dict, output_dir: Path) -> None:
@@ -685,29 +824,37 @@ def _plot_figures(plot_data: Dict, output_dir: Path) -> None:
                 zorder=2,
             )
 
-            ppo_curve = plot_data["ppo_curves"][dataset]["ppo_agg"]
-            if ppo_curve:
+            ppo_styles = [
+                ("ppo_agg", "TRIM-Agg (PPO)", "#2196F3", "s", "--", 4, 5),
+                ("ppo_rubric", "TRIM-Rubric (PPO)", "#E91E63", "o", "-.", 5, 6),
+            ]
+            plotted_ppo_points = []
+            for curve_key, label, color, marker, linestyle, line_z, marker_z in ppo_styles:
+                ppo_curve = plot_data["ppo_curves"][dataset].get(curve_key, [])
+                if not ppo_curve:
+                    continue
+                plotted_ppo_points.extend(ppo_curve)
                 marker_points = _subsample(ppo_curve, 10)
                 ax.plot(
                     [x_value(p["avg_flops_tflops"]) for p in ppo_curve],
                     [p["accuracy"] for p in ppo_curve],
-                    linestyle="--",
-                    color="#2196F3",
+                    linestyle=linestyle,
+                    color=color,
                     linewidth=2.5,
                     label="_nolegend_",
-                    zorder=4,
+                    zorder=line_z,
                 )
                 ax.plot(
                     [x_value(p["avg_flops_tflops"]) for p in marker_points],
                     [p["accuracy"] for p in marker_points],
                     linestyle="",
-                    marker="s",
+                    marker=marker,
                     markersize=8,
-                    color="#2196F3",
+                    color=color,
                     markeredgecolor="white",
                     markeredgewidth=0.8,
-                    label="TRIM-Agg (PPO)",
-                    zorder=5,
+                    label=label,
+                    zorder=marker_z,
                 )
 
             ax.scatter(
@@ -739,14 +886,14 @@ def _plot_figures(plot_data: Dict, output_dir: Path) -> None:
             ax.axhline(y=acc_98, color="#9E9E9E", linestyle="-.", alpha=0.45, linewidth=1)
 
             y_values = [baseline["srm_acc"], baseline["lrm_acc"]]
-            y_values.extend([p["accuracy"] for p in ppo_curve])
+            y_values.extend([p["accuracy"] for p in plotted_ppo_points])
             y_pad = max((max(y_values) - min(y_values)) * 0.12, 3)
             y_min = max(min(y_values) - y_pad, 0)
             y_max = min(max(y_values) + y_pad, 100)
             ax.set_ylim(y_min, y_max)
 
             x_values = [baseline["srm_flops"], baseline["lrm_flops"]]
-            x_values.extend([p["avg_flops_tflops"] for p in ppo_curve])
+            x_values.extend([p["avg_flops_tflops"] for p in plotted_ppo_points])
             if use_pct_axis:
                 ax.set_xlim(-2, max(110, max(x_value(x) for x in x_values) * 1.05))
                 ax.set_xlabel("% of LRM FLOPs", fontsize=16)
@@ -795,7 +942,7 @@ def _plot_figures(plot_data: Dict, output_dir: Path) -> None:
             list(unique.values()),
             list(unique.keys()),
             loc="upper center",
-            ncol=4,
+            ncol=5,
             frameon=False,
             fontsize=16,
             bbox_to_anchor=(0.5, 1.05),
@@ -813,32 +960,45 @@ def build_plot_data(args: argparse.Namespace) -> Dict:
     episode_paths = {
         "math500": Path(args.math500_episodes),
         "aime2025": Path(args.aime2025_episodes),
+        "aime_2020_2024_part2_test": Path(args.aime_part2_episodes),
     }
     groups = load_episode_groups(episode_paths, datasets)
     baselines = compute_baselines(groups, datasets)
     thresholds = probability_thresholds()
-    checkpoint_patterns = [p.strip() for p in args.checkpoint_glob.split(",") if p.strip()]
-    checkpoints = expand_checkpoint_globs(checkpoint_patterns)
-    if not checkpoints:
-        raise FileNotFoundError(f"No checkpoints matched: {checkpoint_patterns}")
+    checkpoint_patterns_by_curve = _checkpoint_patterns_for_args(args)
+    checkpoints_by_curve = {
+        curve_key: expand_checkpoint_globs(patterns)
+        for curve_key, patterns in checkpoint_patterns_by_curve.items()
+    }
+    if not any(checkpoints_by_curve.values()):
+        raise FileNotFoundError(f"No checkpoints matched: {checkpoint_patterns_by_curve}")
 
-    print(f"Found {len(checkpoints)} checkpoints", flush=True)
-    for checkpoint in checkpoints:
-        print(f"  {checkpoint.parent.name}", flush=True)
+    for curve_key, checkpoints in checkpoints_by_curve.items():
+        print(f"Found {len(checkpoints)} checkpoints for {_curve_title(curve_key)}", flush=True)
+        for checkpoint in checkpoints:
+            print(f"  {checkpoint.parent.name}", flush=True)
 
-    raw_curves = {dataset: [] for dataset in _base_datasets_for(datasets)}
+    raw_curves = {
+        curve_key: {dataset: [] for dataset in _base_datasets_for(datasets)}
+        for curve_key in checkpoints_by_curve
+    }
     for dataset in _base_datasets_for(datasets):
         path = episode_paths[dataset]
-        print(f"\n=== PPO threshold sweep: {dataset} ===", flush=True)
-        for ckpt_idx, checkpoint in enumerate(checkpoints, 1):
-            print(f"  [{ckpt_idx}/{len(checkpoints)}] {checkpoint.parent.name}", flush=True)
-            curve = evaluate_policy_threshold_curve(path, checkpoint, thresholds, args.device)
-            raw_curves[dataset].extend(curve)
+        for curve_key, checkpoints in checkpoints_by_curve.items():
+            print(f"\n=== {_curve_title(curve_key)} threshold sweep: {dataset} ===", flush=True)
+            for ckpt_idx, checkpoint in enumerate(checkpoints, 1):
+                print(f"  [{ckpt_idx}/{len(checkpoints)}] {checkpoint.parent.name}", flush=True)
+                curve = evaluate_policy_threshold_curve(path, checkpoint, thresholds, args.device)
+                raw_curves[curve_key][dataset].extend(curve)
 
     if "all" in datasets:
-        raw_curves["all"] = aggregate_all_dataset_points(raw_curves)
+        for curve_key in raw_curves:
+            raw_curves[curve_key]["all"] = aggregate_all_dataset_points(raw_curves[curve_key])
     ppo_curves = {
-        dataset: {"ppo_agg": pareto_envelope(raw_curves[dataset])}
+        dataset: {
+            curve_key: pareto_envelope(raw_curves[curve_key].get(dataset, []))
+            for curve_key in raw_curves
+        }
         for dataset in datasets
     }
     random_curves = {dataset: random_curve(baselines[dataset]) for dataset in datasets}
@@ -850,18 +1010,22 @@ def build_plot_data(args: argparse.Namespace) -> Dict:
         "ppo_curves": ppo_curves,
         "raw_ppo_points": raw_curves,
         "source_files": {k: str(v) for k, v in episode_paths.items()},
-        "checkpoint_patterns": checkpoint_patterns,
+        "checkpoint_patterns": checkpoint_patterns_by_curve.get("ppo_agg", []),
+        "checkpoint_patterns_by_curve": checkpoint_patterns_by_curve,
         "thresholds": thresholds,
     }
     plot_data["main_results"] = build_main_results(plot_data)
     plot_data["selected_points"] = {
-        dataset: select_even_accuracy_points(
-            dataset,
-            baselines[dataset],
-            raw_curves[dataset],
-            n_targets=args.n_selected_points,
-        )
-        for dataset in datasets
+        curve_key: {
+            dataset: select_even_accuracy_points(
+                dataset,
+                baselines[dataset],
+                raw_curves[curve_key].get(dataset, []),
+                n_targets=args.n_selected_points,
+            )
+            for dataset in datasets
+        }
+        for curve_key in raw_curves
     }
     return plot_data
 
@@ -889,51 +1053,96 @@ def write_outputs(plot_data: Dict, output_dir: Path) -> None:
     main_results_tex.write_text(render_main_results_latex(main_results), encoding="utf-8")
     print(f"Saved -> {main_results_tex}")
 
-    for dataset, selected in plot_data.get("selected_points", {}).items():
-        json_path = output_dir / f"selected_points_{dataset}.json"
-        with open(json_path, "w") as f:
-            json.dump(selected, f, indent=2, ensure_ascii=False)
-        print(f"Saved -> {json_path}")
+    for dataset in plot_data["datasets"]:
+        method_summaries = []
+        for method, curve_key in PPO_METHODS.items():
+            if plot_data["ppo_curves"].get(dataset, {}).get(curve_key):
+                summary = build_method_60_98_summary(plot_data, method, dataset)
+                method_summaries.append(summary)
+                slug = _method_slug(method)
+                summary_json = output_dir / f"{slug}_{dataset}_60_98.json"
+                with open(summary_json, "w") as f:
+                    json.dump(summary, f, indent=2, ensure_ascii=False)
+                print(f"Saved -> {summary_json}")
 
-        csv_path = output_dir / f"selected_points_{dataset}.csv"
-        fieldnames = [
-            "dataset", "target_acc", "actual_acc", "acc_gap",
-            "avg_flops_tflops", "pct_lrm_flops", "regen_ratio",
-            "checkpoint", "checkpoint_file", "checkpoint_dir", "checkpoint_kind",
-            "lambda", "seed", "epoch", "threshold", "correct", "n",
-        ]
-        with open(csv_path, "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            for row in selected.get("points", []):
-                writer.writerow({key: row.get(key) for key in fieldnames})
-        print(f"Saved -> {csv_path}")
+                summary_md = output_dir / f"{slug}_{dataset}_60_98.md"
+                summary_md.write_text(render_trim_agg_60_98_markdown(summary), encoding="utf-8")
+                print(f"Saved -> {summary_md}")
+
+        if method_summaries:
+            compare_json = output_dir / f"trim_{dataset}_60_98_compare.json"
+            with open(compare_json, "w") as f:
+                json.dump(method_summaries, f, indent=2, ensure_ascii=False)
+            print(f"Saved -> {compare_json}")
+
+            compare_md = output_dir / f"trim_{dataset}_60_98_compare.md"
+            compare_md.write_text(render_method_60_98_compare_markdown(method_summaries), encoding="utf-8")
+            print(f"Saved -> {compare_md}")
+
+    fieldnames = [
+        "dataset", "target_acc", "actual_acc", "acc_gap",
+        "avg_flops_tflops", "pct_lrm_flops", "regen_ratio",
+        "checkpoint", "checkpoint_file", "checkpoint_dir", "checkpoint_kind",
+        "lambda", "seed", "epoch", "threshold", "correct", "n",
+    ]
+    for curve_key, selected_by_dataset in plot_data.get("selected_points", {}).items():
+        slug = "trim_agg" if curve_key == "ppo_agg" else "trim_rubric" if curve_key == "ppo_rubric" else curve_key
+        for dataset, selected in selected_by_dataset.items():
+            json_path = output_dir / f"selected_points_{slug}_{dataset}.json"
+            with open(json_path, "w") as f:
+                json.dump(selected, f, indent=2, ensure_ascii=False)
+            print(f"Saved -> {json_path}")
+
+            legacy_json_path = output_dir / f"selected_points_{dataset}.json"
+            if curve_key == "ppo_agg":
+                with open(legacy_json_path, "w") as f:
+                    json.dump(selected, f, indent=2, ensure_ascii=False)
+                print(f"Saved -> {legacy_json_path}")
+
+            csv_path = output_dir / f"selected_points_{slug}_{dataset}.csv"
+            with open(csv_path, "w", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                for row in selected.get("points", []):
+                    writer.writerow({key: row.get(key) for key in fieldnames})
+            print(f"Saved -> {csv_path}")
+
+            legacy_csv_path = output_dir / f"selected_points_{dataset}.csv"
+            if curve_key == "ppo_agg":
+                with open(legacy_csv_path, "w", newline="") as f:
+                    writer = csv.DictWriter(f, fieldnames=fieldnames)
+                    writer.writeheader()
+                    for row in selected.get("points", []):
+                        writer.writerow({key: row.get(key) for key in fieldnames})
+                print(f"Saved -> {legacy_csv_path}")
 
     summary_lines = [
-        "# TRIM-Agg Point Search Summary",
+        "# TRIM Point Search Summary",
         "",
-        f"Checkpoint patterns: {', '.join(plot_data.get('checkpoint_patterns', []))}",
+        f"Checkpoint patterns: {json.dumps(plot_data.get('checkpoint_patterns_by_curve', {}), ensure_ascii=False)}",
         "",
     ]
     for dataset in plot_data["datasets"]:
-        selected = plot_data.get("selected_points", {}).get(dataset, {})
-        points = selected.get("points", [])
         summary_lines.append(f"## {DS_LABELS.get(dataset, dataset)}")
-        summary_lines.append(f"- Selected points: {len(points)}")
-        summary_lines.append(f"- Limited by accuracy granularity: {selected.get('limited_by_accuracy_granularity')}")
-        for row in points:
-            summary_lines.append(
-                "- target={target:.2f}, actual={actual:.2f}, flops={flops:.2f}T "
-                "({pct:.1f}% LRM), regen={regen:.2%}, ckpt={ckpt}, th={th}".format(
-                    target=row["target_acc"],
-                    actual=row["actual_acc"],
-                    flops=row["avg_flops_tflops"],
-                    pct=row["pct_lrm_flops"],
-                    regen=row["regen_ratio"],
-                    ckpt=row["checkpoint"],
-                    th=row["threshold"],
+        for curve_key, selected_by_dataset in plot_data.get("selected_points", {}).items():
+            selected = selected_by_dataset.get(dataset, {})
+            points = selected.get("points", [])
+            summary_lines.append(f"### {_curve_title(curve_key)}")
+            summary_lines.append(f"- Selected points: {len(points)}")
+            summary_lines.append(f"- Limited by accuracy granularity: {selected.get('limited_by_accuracy_granularity')}")
+            for row in points:
+                summary_lines.append(
+                    "- target={target:.2f}, actual={actual:.2f}, flops={flops:.2f}T "
+                    "({pct:.1f}% LRM), regen={regen:.2%}, ckpt={ckpt}, th={th}".format(
+                        target=row["target_acc"],
+                        actual=row["actual_acc"],
+                        flops=row["avg_flops_tflops"],
+                        pct=row["pct_lrm_flops"],
+                        regen=row["regen_ratio"],
+                        ckpt=row["checkpoint"],
+                        th=row["threshold"],
+                    )
                 )
-            )
         summary_lines.append("")
 
     summary_path = output_dir / "search_summary.md"
@@ -942,16 +1151,31 @@ def write_outputs(plot_data: Dict, output_dir: Path) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Generate local TRIM-Agg baseline plots")
+    parser = argparse.ArgumentParser(description="Generate local TRIM-Agg/TRIM-Rubric baseline plots")
     parser.add_argument(
         "--datasets",
         default="math500,aime2025",
-        help="Comma-separated datasets to evaluate: math500, aime2025, all. "
+        help="Comma-separated datasets to evaluate: math500, aime2025, "
+        "aime_2020_2024_part2_test, all. "
         "If math500 and aime2025 are both requested, all is added automatically.",
     )
     parser.add_argument("--math500_episodes", default=str(DEFAULT_EPISODES["math500"]))
     parser.add_argument("--aime2025_episodes", default=str(DEFAULT_EPISODES["aime2025"]))
+    parser.add_argument(
+        "--aime_part2_episodes",
+        default=str(DEFAULT_EPISODES["aime_2020_2024_part2_test"]),
+    )
     parser.add_argument("--checkpoint_glob", default=DEFAULT_CHECKPOINT_GLOB)
+    parser.add_argument(
+        "--agg_checkpoint_glob",
+        default=None,
+        help="TRIM-Agg checkpoint glob. Defaults to --checkpoint_glob for backward compatibility.",
+    )
+    parser.add_argument(
+        "--rubric_checkpoint_glob",
+        default="",
+        help="Optional TRIM-Rubric checkpoint glob.",
+    )
     parser.add_argument("--output_dir", default=str(DEFAULT_OUTPUT_DIR))
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--n_selected_points", type=int, default=8)
