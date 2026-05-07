@@ -64,6 +64,10 @@ MAX_STEPS = 30
 MAX_NEW_TOKENS = 16384
 THINK_MODE = True
 SYSTEM_PROMPT = "Please reason step by step, and put your final answer within \\boxed{}."
+MCQ_SYSTEM_PROMPT = (
+    "Please reason step by step, and end with exactly one final answer choice "
+    "from A, B, C, or D."
+)
 
 # ============================================================
 # PRM config

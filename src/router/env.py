@@ -198,6 +198,7 @@ class TRIMEnv:
         srm_steps = ep.get("srm_steps", [])
         lrm_steps = ep.get("lrm_steps", [])
         gt = ep.get("answer", "")
+        mode = "multiple_choice" if str(ep.get("dataset", "")).startswith("gpqa") else "math"
         if srm_steps and lrm_steps and gt:
             mixed = []
             for i in range(n_steps):
@@ -205,9 +206,9 @@ class TRIMEnv:
                     mixed.append(lrm_steps[i])
                 elif i < len(srm_steps):
                     mixed.append(srm_steps[i])
-            pred = extract_answer("\n\n".join(mixed))
+            pred = extract_answer("\n\n".join(mixed), mode=mode)
             if pred:
-                return check_correctness(pred, gt)
+                return check_correctness(pred, gt, mode=mode)
 
         srm_correct = ep.get("srm_correct", False)
         lrm_correct = ep.get("lrm_correct", False)

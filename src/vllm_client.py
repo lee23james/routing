@@ -1,6 +1,5 @@
 """Thin client for vLLM-served models via OpenAI-compatible API."""
 
-import json
 import re
 import time
 from typing import List, Optional
@@ -8,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
 
-from config import SYSTEM_PROMPT
+from config import SYSTEM_PROMPT, MCQ_SYSTEM_PROMPT
 
 
 CONTEXT_LENGTH_SAFETY_MARGIN = 64
@@ -113,13 +112,14 @@ class VLLMClient:
 
     def generate_solution(self, query: str, max_tokens: int = 4096,
                           temperature: float = 0.0,
-                          think_mode: bool = False) -> tuple:
+                          think_mode: bool = False,
+                          system_prompt: str = None) -> tuple:
         """Generate a full solution for a math problem.
 
         Returns (response_text, completion_tokens).
         """
         messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt or SYSTEM_PROMPT},
             {"role": "user", "content": query},
         ]
         data = self._call(messages, max_tokens=max_tokens, temperature=temperature,
@@ -144,13 +144,19 @@ class VLLMClient:
                                   max_tokens: int = 4096,
                                   temperature: float = 0.0,
                                   max_workers: int = 4,
-                                  think_mode: bool = False) -> List[tuple]:
+                                  think_mode: bool = False,
+                                  system_prompt: str = None) -> List[tuple]:
         """Generate solutions for multiple queries in parallel."""
         results = [None] * len(queries)
 
         def _gen(idx, q):
-            return idx, self.generate_solution(q, max_tokens, temperature,
-                                               think_mode=think_mode)
+            return idx, self.generate_solution(
+                q,
+                max_tokens,
+                temperature,
+                think_mode=think_mode,
+                system_prompt=system_prompt,
+            )
 
         with ThreadPoolExecutor(max_workers=max_workers) as pool:
             futs = {pool.submit(_gen, i, q): i for i, q in enumerate(queries)}

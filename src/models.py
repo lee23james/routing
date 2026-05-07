@@ -17,6 +17,7 @@ except ImportError:
     print("Warning: vLLM not installed. Using HuggingFace transformers (slower).")
 
 SYSTEM_PROMPT = "Please reason step by step, and put your final answer within \\boxed{}."
+MCQ_SYSTEM_PROMPT = "Please reason step by step, and end with exactly one final answer choice from A, B, C, or D."
 
 
 class StepwiseLLM:
@@ -48,10 +49,10 @@ class StepwiseLLM:
             self.hf_model.eval()
             self.backend = "hf"
 
-    def _build_prompt(self, query: str) -> str:
-        """Build chat prompt for a math query."""
+    def _build_prompt(self, query: str, system_prompt: str = SYSTEM_PROMPT) -> str:
+        """Build chat prompt for a query."""
         messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": query},
         ]
         try:
@@ -59,7 +60,7 @@ class StepwiseLLM:
                 messages, tokenize=False, add_generation_prompt=True
             )
         except Exception:
-            return f"{SYSTEM_PROMPT}\n\n{query}\n\n"
+            return f"{system_prompt}\n\n{query}\n\n"
 
     def generate_step(self, prefixes: List[str], max_tokens: int = 512,
                       temperature: float = 0.0) -> List[str]:
@@ -93,9 +94,10 @@ class StepwiseLLM:
             return results
 
     def generate_full_solution(self, queries: List[str], max_tokens: int = 2048,
-                                temperature: float = 0.0, n: int = 1) -> List[str]:
+                                temperature: float = 0.0, n: int = 1,
+                                system_prompt: str = SYSTEM_PROMPT) -> List[str]:
         """Generate complete solutions (all steps at once)."""
-        prompts = [self._build_prompt(q) for q in queries]
+        prompts = [self._build_prompt(q, system_prompt=system_prompt) for q in queries]
 
         if self.backend == "vllm":
             sampling_params = SamplingParams(
@@ -327,12 +329,39 @@ class ServerPRMScorer:
         return self.score_trace(query, steps)
 
 
-def extract_answer(text: str) -> str:
+def _normalize_mcq_letter(text: str) -> str:
+    if not text:
+        return ""
+    upper = text.upper()
+    candidates = re.findall(r"\b([ABCD])\b", upper)
+    if candidates:
+        return candidates[-1]
+    match = re.search(r"\(([ABCD])\)", upper)
+    if match:
+        return match.group(1)
+    if upper in {"A", "B", "C", "D"}:
+        return upper
+    return ""
+
+
+def extract_answer(text: str, mode: str = "math") -> str:
     """Extract the final answer from solution text.
 
     Qwen3 produces <think>...</think> blocks; we must extract \boxed{}
     from OUTSIDE the think block (the final answer part) when possible.
     """
+    if mode == "multiple_choice":
+        clean = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
+        if not clean:
+            clean = text
+        letter = _normalize_mcq_letter(clean)
+        if letter:
+            return letter
+        letter = _normalize_mcq_letter(text)
+        if letter:
+            return letter
+        return ""
+
     # Strip <think>...</think> to get the final answer portion
     clean = re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
     if not clean:
@@ -387,11 +416,14 @@ def extract_answer(text: str) -> str:
     return lines[-1] if lines else ""
 
 
-def check_correctness(predicted: str, ground_truth: str) -> bool:
+def check_correctness(predicted: str, ground_truth: str, mode: str = "math") -> bool:
     """Check if predicted answer matches ground truth.
 
     Handles integers, fractions, tuples, LaTeX formatting differences.
     """
+    if mode == "multiple_choice":
+        return _normalize_mcq_letter(predicted) == _normalize_mcq_letter(ground_truth)
+
     def normalize(s):
         s = s.strip()
         # Remove common LaTeX wrappers

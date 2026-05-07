@@ -24,13 +24,15 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import (
     VLLM_SRM_PORT, VLLM_LRM_PORT, PRM_MODEL,
     EPISODES_DIR, MAX_STEPS, MAX_NEW_TOKENS, PRM_DEVICE, THINK_MODE,
+    SYSTEM_PROMPT, MCQ_SYSTEM_PROMPT,
 )
 from vllm_client import VLLMClient
 from models import PRMScorer, ServerPRMScorer, split_steps, extract_answer, check_correctness
 from data.datasets import (
     load_math500, load_aime2025, load_aime_1983_2024, load_omnimath,
     load_math_train, load_aime_2010_2024_part1_train,
-    load_aime_2020_2024_part2_test, save_jsonl, load_jsonl,
+    load_aime_2020_2024_part2_test, load_gpqa_main_train_200,
+    load_gpqa_diamond_test_100, save_jsonl, load_jsonl,
 )
 
 
@@ -65,6 +67,10 @@ def load_items_for_dataset(dataset_name: str) -> List[Dict]:
         return load_aime2025()
     elif dataset_name == "aime":
         return load_aime_1983_2024()
+    elif dataset_name == "gpqa_main_train_200":
+        return load_gpqa_main_train_200()
+    elif dataset_name == "gpqa_diamond_test_100":
+        return load_gpqa_diamond_test_100()
     elif dataset_name.startswith("aime_"):
         all_aime = load_aime_1983_2024()
         try:
@@ -95,17 +101,27 @@ def generate_model_solutions_parallel(
     max_new_tokens: int,
     temperature: float,
     think_mode: bool,
+    system_prompt: str = SYSTEM_PROMPT,
 ) -> Dict[str, tuple]:
     """Generate SRM and LRM solutions for one problem concurrently."""
 
     def _generate(client: VLLMClient):
         start = time.time()
-        text, tokens = client.generate_solution(
-            query,
-            max_tokens=max_new_tokens,
-            temperature=temperature,
-            think_mode=think_mode,
-        )
+        try:
+            text, tokens = client.generate_solution(
+                query,
+                max_tokens=max_new_tokens,
+                temperature=temperature,
+                think_mode=think_mode,
+                system_prompt=system_prompt,
+            )
+        except TypeError:
+            text, tokens = client.generate_solution(
+                query,
+                max_tokens=max_new_tokens,
+                temperature=temperature,
+                think_mode=think_mode,
+            )
         return text, tokens, time.time() - start
 
     with ThreadPoolExecutor(max_workers=2) as pool:
@@ -183,6 +199,8 @@ def generate_episodes(
         qid = item["id"]
         query = item["query"]
         answer = item["answer"]
+        is_mcq = item.get("dataset", "").startswith("gpqa")
+        system_prompt = MCQ_SYSTEM_PROMPT if is_mcq else SYSTEM_PROMPT
         t0 = time.time()
 
         # ---- SRM/LRM solutions ----
@@ -193,6 +211,7 @@ def generate_episodes(
             max_new_tokens=max_new_tokens,
             temperature=temperature,
             think_mode=THINK_MODE,
+            system_prompt=system_prompt,
         )
         srm_text, srm_tok, srm_time = model_outputs["srm"]
         lrm_text, lrm_tok, lrm_time = model_outputs["lrm"]
@@ -200,14 +219,14 @@ def generate_episodes(
         srm_steps = split_steps(srm_text)[:MAX_STEPS]
         srm_prm = prm.score_trace(query, srm_steps) if srm_steps else []
         srm_tokens = _distribute_tokens(srm_steps, srm_tok)
-        srm_answer = extract_answer(srm_text)
-        srm_correct = check_correctness(srm_answer, answer)
+        srm_answer = extract_answer(srm_text, mode="multiple_choice" if is_mcq else "math")
+        srm_correct = check_correctness(srm_answer, answer, mode="multiple_choice" if is_mcq else "math")
 
         lrm_steps = split_steps(lrm_text)[:MAX_STEPS]
         lrm_prm = prm.score_trace(query, lrm_steps) if lrm_steps else []
         lrm_tokens = _distribute_tokens(lrm_steps, lrm_tok)
-        lrm_answer = extract_answer(lrm_text)
-        lrm_correct = check_correctness(lrm_answer, answer)
+        lrm_answer = extract_answer(lrm_text, mode="multiple_choice" if is_mcq else "math")
+        lrm_correct = check_correctness(lrm_answer, answer, mode="multiple_choice" if is_mcq else "math")
 
         # ---- Build LRM alternatives for each SRM step position ----
         lrm_alt_steps, lrm_alt_prm, lrm_alt_tokens = [], [], []

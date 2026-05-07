@@ -49,14 +49,16 @@ DEFAULT_EPISODES = {
     "math500": SRC_ROOT / "data/episodes/math500_episodes.jsonl",
     "aime2025": SRC_ROOT / "data/episodes/aime2025_episodes.jsonl",
     "aime_2020_2024_part2_test": SRC_ROOT / "data/episodes/aime_2020_2024_part2_test_episodes.jsonl",
+    "gpqa_diamond_test_100": SRC_ROOT / "data/episodes/gpqa_diamond_test_100_episodes.jsonl",
 }
 DEFAULT_CHECKPOINT_GLOB = str(SRC_ROOT / "checkpoints/trim_agg_baseline_lam*/best.pt")
 DEFAULT_OUTPUT_DIR = SRC_ROOT / "results/trim_agg_baseline/plots_copy_style"
-DATASETS = ["math500", "aime2025", "aime_2020_2024_part2_test", "all"]
+DATASETS = ["math500", "aime2025", "aime_2020_2024_part2_test", "gpqa_diamond_test_100", "all"]
 DS_LABELS = {
     "math500": "MATH-500",
     "aime2025": "AIME 2025 I&II",
     "aime_2020_2024_part2_test": "AIME 2020-2024 Part II",
+    "gpqa_diamond_test_100": "GPQA Diamond-100",
     "all": "Overall",
 }
 PPO_METHODS = {
@@ -961,6 +963,9 @@ def build_plot_data(args: argparse.Namespace) -> Dict:
         "math500": Path(args.math500_episodes),
         "aime2025": Path(args.aime2025_episodes),
         "aime_2020_2024_part2_test": Path(args.aime_part2_episodes),
+        "gpqa_diamond_test_100": Path(
+            getattr(args, "gpqa_diamond_episodes", str(DEFAULT_EPISODES["gpqa_diamond_test_100"]))
+        ),
     }
     groups = load_episode_groups(episode_paths, datasets)
     baselines = compute_baselines(groups, datasets)
@@ -1156,7 +1161,7 @@ def parse_args() -> argparse.Namespace:
         "--datasets",
         default="math500,aime2025",
         help="Comma-separated datasets to evaluate: math500, aime2025, "
-        "aime_2020_2024_part2_test, all. "
+        "aime_2020_2024_part2_test, gpqa_diamond_test_100, all. "
         "If math500 and aime2025 are both requested, all is added automatically.",
     )
     parser.add_argument("--math500_episodes", default=str(DEFAULT_EPISODES["math500"]))
@@ -1164,6 +1169,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--aime_part2_episodes",
         default=str(DEFAULT_EPISODES["aime_2020_2024_part2_test"]),
+    )
+    parser.add_argument(
+        "--gpqa_diamond_episodes",
+        default=str(DEFAULT_EPISODES["gpqa_diamond_test_100"]),
     )
     parser.add_argument("--checkpoint_glob", default=DEFAULT_CHECKPOINT_GLOB)
     parser.add_argument(

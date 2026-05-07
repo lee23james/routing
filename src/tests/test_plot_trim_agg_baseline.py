@@ -243,6 +243,9 @@ class PlotTrimAggBaselineTest(unittest.TestCase):
         self.assertIn("75.0%", text)
         self.assertIn("unreachable in current search", text)
 
+    def test_parse_dataset_names_accepts_gpqa_and_adds_no_all_aggregate(self):
+        self.assertEqual(parse_dataset_names("gpqa_diamond_test_100"), ["gpqa_diamond_test_100"])
+
     def test_routing_flops_anchors_use_same_stepwise_endpoint_cost_as_policy_curve(self):
         ep = {
             "srm_steps": ["a", "b", "c"],

@@ -1,8 +1,11 @@
-"""Dataset loading utilities — reads local and TRIM JSONL files."""
+"""Dataset loading utilities — reads local, raw, and TRIM JSONL files."""
 
+import csv
 import json
 import os
 import re
+import random
+from zipfile import ZipFile
 from pathlib import Path
 from typing import Dict, List
 
@@ -11,6 +14,15 @@ from config import DATA_DIR, TRIM_DATA_DIR
 
 REPO_DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 LOCAL_DATA_DIR = os.environ.get("LOCAL_DATA_DIR", str(REPO_DATA_DIR))
+SRC_DATA_DIR = Path(__file__).resolve().parent
+RAW_DATA_DIR = Path(os.environ.get("RAW_DATA_DIR", str(SRC_DATA_DIR / "raw")))
+WIKITQ_RAW_DIR = RAW_DATA_DIR / "wikitablequestions"
+TABLEBENCH_RAW_DIR = RAW_DATA_DIR / "tablebench"
+GPQA_CACHE_ZIP = Path(os.environ.get(
+    "GPQA_CACHE_ZIP",
+    str(Path.home() / ".cache/vscode-tmp/gpqa_dataset.zip"),
+))
+GPQA_CACHE_PASSWORD = os.environ.get("GPQA_CACHE_PASSWORD", "deserted-untie-orchid")
 
 
 def load_math500() -> List[Dict]:
@@ -21,6 +33,86 @@ def load_math500() -> List[Dict]:
 def load_aime2025() -> List[Dict]:
     """Load the official AIME test split used by the experiment sweep."""
     return load_trim_dataset("aime", "test")
+
+
+def load_wikitq(split: str = "train", raw_dir: str | None = None) -> List[Dict]:
+    """Load WikiTableQuestions examples with inline CSV tables.
+
+    Supported split aliases:
+    - train / training
+    - test / pristine-unseen-tables
+    - dev / pristine-seen-tables
+    """
+    split_map = {
+        "train": ("training.tsv", "train"),
+        "training": ("training.tsv", "train"),
+        "test": ("pristine-unseen-tables.tsv", "test"),
+        "pristine-unseen-tables": ("pristine-unseen-tables.tsv", "test"),
+        "dev": ("pristine-seen-tables.tsv", "dev"),
+        "pristine-seen-tables": ("pristine-seen-tables.tsv", "dev"),
+    }
+    if split not in split_map:
+        raise ValueError(f"Unsupported WikiTQ split: {split}")
+
+    dataset_file, normalized_split = split_map[split]
+    root = _resolve_wikitq_root(Path(raw_dir) if raw_dir else WIKITQ_RAW_DIR)
+    tsv_path = root / "data" / dataset_file
+    if not tsv_path.exists():
+        raise FileNotFoundError(f"WikiTQ split not found: {tsv_path}")
+
+    items = []
+    with open(tsv_path, encoding="utf-8") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        for row in reader:
+            context_rel = row["context"]
+            table_path = root / context_rel
+            table = _load_csv_table(table_path)
+            items.append({
+                "id": row["id"],
+                "query": row["utterance"],
+                "answer": row["targetValue"],
+                "table": table,
+                "dataset": "wikitq",
+                "split": normalized_split,
+                "source_path": str(tsv_path),
+                "context_path": context_rel,
+                "qtype": "TableQA",
+                "qsubtype": "WikiTableQuestions",
+            })
+    print(f"Loaded {len(items)} WikiTQ {normalized_split} examples from {tsv_path}")
+    return items
+
+
+def load_tablebench(
+    raw_dir: str | None = None,
+    include_visualization: bool = False,
+) -> List[Dict]:
+    """Load TableBench test items from the official JSONL file."""
+    root = Path(raw_dir) if raw_dir else TABLEBENCH_RAW_DIR
+    jsonl_path = root / "TableBench.jsonl"
+    if not jsonl_path.exists():
+        raise FileNotFoundError(f"TableBench file not found: {jsonl_path}")
+
+    items = []
+    for row in load_jsonl(str(jsonl_path)):
+        if not include_visualization and row.get("qtype") == "Visualization":
+            continue
+        items.append({
+            "id": row["id"],
+            "query": row["question"],
+            "answer": row["answer"],
+            "table": row["table"],
+            "dataset": "tablebench",
+            "split": "test",
+            "source_path": str(jsonl_path),
+            "qtype": row.get("qtype", ""),
+            "qsubtype": row.get("qsubtype", ""),
+        })
+    print(
+        f"Loaded {len(items)} TableBench items from {jsonl_path} "
+        f"(include_visualization={include_visualization})"
+    )
+    return items
 
 
 def load_aime_2010_2024_part1_train() -> List[Dict]:
@@ -62,6 +154,83 @@ def load_aime_2020_2024_part2_test() -> List[Dict]:
         )
         items.append(item)
     print(f"Loaded {len(items)} AIME 2020-2024 Part II test problems from {path}")
+    return items
+
+
+def _load_gpqa_csv_rows(csv_name: str) -> List[Dict]:
+    if not GPQA_CACHE_ZIP.exists():
+        raise FileNotFoundError(f"GPQA archive not found: {GPQA_CACHE_ZIP}")
+    with ZipFile(GPQA_CACHE_ZIP) as zf:
+        zf.setpassword(GPQA_CACHE_PASSWORD.encode("utf-8"))
+        with zf.open(f"dataset/{csv_name}") as handle:
+            text = (line.decode("utf-8") for line in handle)
+            return list(csv.DictReader(text))
+
+
+def _normalize_gpqa_row(row: Dict, dataset: str, split: str, fallback_id: str, seed: int) -> Dict:
+    choices = [
+        str(row.get("Correct Answer", "")).strip(),
+        str(row.get("Incorrect Answer 1", "")).strip(),
+        str(row.get("Incorrect Answer 2", "")).strip(),
+        str(row.get("Incorrect Answer 3", "")).strip(),
+    ]
+    indexed = list(enumerate(choices))
+    rng = random.Random(seed)
+    rng.shuffle(indexed)
+    shuffled_choices = [choice for _, choice in indexed]
+    answer_idx = next(idx for idx, (orig_idx, _) in enumerate(indexed) if orig_idx == 0)
+    answer_letter = "ABCD"[answer_idx]
+    query = f"{row['Question'].strip()}\nAnswer Choices: " + " ".join(
+        f"({lab}) {choice}" for lab, choice in zip("ABCD", shuffled_choices)
+    )
+    return {
+        "id": fallback_id,
+        "query": query,
+        "answer": answer_letter,
+        "choices": shuffled_choices,
+        "dataset": dataset,
+        "split": split,
+        "source_path": str(GPQA_CACHE_ZIP),
+        "subject": row.get("Subdomain", ""),
+        "task_type": "multiple_choice",
+    }
+
+
+def load_gpqa_main_train_200(seed: int = 1) -> List[Dict]:
+    rows = _load_gpqa_csv_rows("gpqa_main.csv")
+    items = [
+        _normalize_gpqa_row(
+            row,
+            dataset="gpqa_main_train_200",
+            split="train",
+            fallback_id=f"gpqa_main_{idx:05d}",
+            seed=seed + idx,
+        )
+        for idx, row in enumerate(rows)
+    ]
+    rng = random.Random(seed)
+    rng.shuffle(items)
+    items = items[:200]
+    print(f"Loaded {len(items)} GPQA main train items from {GPQA_CACHE_ZIP}")
+    return items
+
+
+def load_gpqa_diamond_test_100(seed: int = 1) -> List[Dict]:
+    rows = _load_gpqa_csv_rows("gpqa_diamond.csv")
+    items = [
+        _normalize_gpqa_row(
+            row,
+            dataset="gpqa_diamond_test_100",
+            split="test",
+            fallback_id=f"gpqa_diamond_{idx:05d}",
+            seed=seed + idx,
+        )
+        for idx, row in enumerate(rows)
+    ]
+    rng = random.Random(seed)
+    rng.shuffle(items)
+    items = items[:100]
+    print(f"Loaded {len(items)} GPQA diamond test items from {GPQA_CACHE_ZIP}")
     return items
 
 
@@ -231,6 +400,23 @@ def _extract_boxed(solution: str) -> str:
                 depth -= 1
         i = idx + 1
     return last_match.strip()
+
+
+def _resolve_wikitq_root(root: Path) -> Path:
+    if (root / "WikiTableQuestions").exists():
+        return root / "WikiTableQuestions"
+    return root
+
+
+def _load_csv_table(path: Path) -> Dict:
+    with open(path, encoding="utf-8", newline="") as handle:
+        rows = list(csv.reader(handle))
+    if not rows:
+        return {"columns": [], "data": []}
+    return {
+        "columns": rows[0],
+        "data": rows[1:],
+    }
 
 
 def save_jsonl(items: List[Dict], path: str):

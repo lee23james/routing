@@ -8,6 +8,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from data.generate_episodes import generate_model_solutions_parallel, load_items_for_dataset
 from data.datasets import (
+    load_gpqa_main_train_200,
+    load_gpqa_diamond_test_100,
     load_aime_2010_2024_part1_train,
     load_aime_2020_2024_part2_test,
 )
@@ -42,6 +44,19 @@ class GenerateEpisodesTest(unittest.TestCase):
         self.assertTrue(all(2020 <= item["year"] <= 2024 for item in items))
         self.assertEqual({item["part"] for item in items}, {"II"})
 
+    def test_gpqa_loaders_return_fixed_train_and_test_sizes(self):
+        train_items = load_gpqa_main_train_200(seed=1)
+        test_items = load_gpqa_diamond_test_100(seed=1)
+
+        self.assertEqual(len(train_items), 200)
+        self.assertEqual(len(test_items), 100)
+        self.assertTrue(all(item["dataset"] == "gpqa_main_train_200" for item in train_items))
+        self.assertTrue(all(item["dataset"] == "gpqa_diamond_test_100" for item in test_items))
+        self.assertTrue(all(item["split"] == "train" for item in train_items))
+        self.assertTrue(all(item["split"] == "test" for item in test_items))
+        self.assertTrue(all(item["answer"] in {"A", "B", "C", "D"} for item in train_items))
+        self.assertTrue(all(item["answer"] in {"A", "B", "C", "D"} for item in test_items))
+
     def test_aime_part1_train_and_part2_test_ids_are_disjoint(self):
         train_ids = {item["id"] for item in load_aime_2010_2024_part1_train()}
         test_ids = {item["id"] for item in load_aime_2020_2024_part2_test()}
@@ -61,6 +76,20 @@ class GenerateEpisodesTest(unittest.TestCase):
         ):
             self.assertEqual(load_items_for_dataset("aime_2010_2024_part1_train"), train_items)
             self.assertEqual(load_items_for_dataset("aime_2020_2024_part2_test"), test_items)
+
+    def test_load_items_for_dataset_accepts_gpqa_search_names(self):
+        train_items = [{"id": "gpqa-train-0"}]
+        test_items = [{"id": "gpqa-test-0"}]
+
+        with patch(
+            "data.generate_episodes.load_gpqa_main_train_200",
+            return_value=train_items,
+        ), patch(
+            "data.generate_episodes.load_gpqa_diamond_test_100",
+            return_value=test_items,
+        ):
+            self.assertEqual(load_items_for_dataset("gpqa_main_train_200"), train_items)
+            self.assertEqual(load_items_for_dataset("gpqa_diamond_test_100"), test_items)
 
     def test_generate_model_solutions_parallel_runs_srm_and_lrm_concurrently(self):
         class FakeClient:
