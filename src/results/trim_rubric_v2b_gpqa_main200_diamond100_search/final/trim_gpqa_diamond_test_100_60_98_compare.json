@@ -1,0 +1,41 @@
+[
+  {
+    "dataset": "gpqa_diamond_test_100",
+    "dataset_label": "GPQA Diamond-100",
+    "method": "TRIM-Agg (PPO)",
+    "n": 100,
+    "acc_at_60_lrm_flops": 39.71123183135778,
+    "flops_at_98_lrm_acc_tflops": 74.769502,
+    "flops_at_98_lrm_acc_pct_lrm": 66.01108403847007,
+    "lrm_acc": 42.0,
+    "lrm_flops_tflops": 113.268102,
+    "target_60_lrm_flops_tflops": 67.9608612,
+    "target_98_lrm_acc": 41.16
+  },
+  {
+    "dataset": "gpqa_diamond_test_100",
+    "dataset_label": "GPQA Diamond-100",
+    "method": "TRIM-Rubric (PPO)",
+    "n": 100,
+    "acc_at_60_lrm_flops": 40.20478032964836,
+    "flops_at_98_lrm_acc_tflops": 74.995742,
+    "flops_at_98_lrm_acc_pct_lrm": 66.21082253148376,
+    "lrm_acc": 42.0,
+    "lrm_flops_tflops": 113.268102,
+    "target_60_lrm_flops_tflops": 67.9608612,
+    "target_98_lrm_acc": 41.16
+  },
+  {
+    "dataset": "gpqa_diamond_test_100",
+    "dataset_label": "GPQA Diamond-100",
+    "method": "TRIM-RubricV2 (PPO)",
+    "n": 100,
+    "acc_at_60_lrm_flops": 39.91891800000778,
+    "flops_at_98_lrm_acc_tflops": 76.437742,
+    "flops_at_98_lrm_acc_pct_lrm": 67.48390822334076,
+    "lrm_acc": 42.0,
+    "lrm_flops_tflops": 113.268102,
+    "target_60_lrm_flops_tflops": 67.9608612,
+    "target_98_lrm_acc": 41.16
+  }
+]

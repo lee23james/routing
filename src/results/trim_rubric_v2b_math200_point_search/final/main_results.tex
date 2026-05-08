@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{llcc}
+\toprule
+Method & Extra Tokens & \multicolumn{2}{c}{MATH-500} &  \\
+ &  & Acc $\uparrow$ & FLOPs $\downarrow$ \\
+\midrule
+SRM-Only & No & 68.6\% & - \\
+LRM-Only & No & - & 100.0\% \\
+Random Routing & Yes & 78.1\% & 91.1\% \\
+TRIM-Agg (PPO) & Yes & 80.0\% & 89.8\% \\
+TRIM-Rubric (PPO) & Yes & \textbf{82.5\%} & \textbf{84.9\%} \\
+TRIM-RubricV2 (PPO) & Yes & \underline{82.3\%} & \underline{87.9\%} \\
+\bottomrule
+\end{tabular}
+\caption{Main Results. Acc is measured at 60\% of LRM-only FLOPs, and FLOPs denotes the computation required to reach 98\% of LRM-only accuracy. The best result is bold, and the second-best result is underlined. Extra Tokens denotes whether the method requires additional token generation during the reasoning process.}
+\end{table}

@@ -1,0 +1,13 @@
+{
+  "dataset": "math500",
+  "dataset_label": "MATH-500",
+  "method": "TRIM-Agg (PPO)",
+  "n": 169,
+  "acc_at_60_lrm_flops": 80.04158417337263,
+  "flops_at_98_lrm_acc_tflops": 20.51522721893491,
+  "flops_at_98_lrm_acc_pct_lrm": 89.7509532374557,
+  "lrm_acc": 85.79881656804734,
+  "lrm_flops_tflops": 22.857949112426034,
+  "target_60_lrm_flops_tflops": 13.71476946745562,
+  "target_98_lrm_acc": 84.0828402366864
+}

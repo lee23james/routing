@@ -64,6 +64,7 @@ DS_LABELS = {
 PPO_METHODS = {
     "TRIM-Agg (PPO)": "ppo_agg",
     "TRIM-Rubric (PPO)": "ppo_rubric",
+    "TRIM-RubricV2 (PPO)": "ppo_rubric_v2",
 }
 
 
@@ -779,6 +780,8 @@ def _method_slug(method: str) -> str:
         return "trim_agg"
     if method == "TRIM-Rubric (PPO)":
         return "trim_rubric"
+    if method == "TRIM-RubricV2 (PPO)":
+        return "trim_rubric_v2"
     return re.sub(r"[^a-z0-9]+", "_", method.lower()).strip("_")
 
 
@@ -792,9 +795,11 @@ def _curve_title(curve_key: str) -> str:
 def _checkpoint_patterns_for_args(args: argparse.Namespace) -> Dict[str, List[str]]:
     agg_glob = getattr(args, "agg_checkpoint_glob", None) or args.checkpoint_glob
     rubric_glob = getattr(args, "rubric_checkpoint_glob", "")
+    rubric_v2_glob = getattr(args, "rubric_v2_checkpoint_glob", "")
     patterns = {
         "ppo_agg": [p.strip() for p in agg_glob.split(",") if p.strip()],
         "ppo_rubric": [p.strip() for p in rubric_glob.split(",") if p.strip()],
+        "ppo_rubric_v2": [p.strip() for p in rubric_v2_glob.split(",") if p.strip()],
     }
     return {key: value for key, value in patterns.items() if value}
 
@@ -829,6 +834,7 @@ def _plot_figures(plot_data: Dict, output_dir: Path) -> None:
             ppo_styles = [
                 ("ppo_agg", "TRIM-Agg (PPO)", "#2196F3", "s", "--", 4, 5),
                 ("ppo_rubric", "TRIM-Rubric (PPO)", "#E91E63", "o", "-.", 5, 6),
+                ("ppo_rubric_v2", "TRIM-RubricV2 (PPO)", "#2E7D32", "^", "-", 6, 7),
             ]
             plotted_ppo_points = []
             for curve_key, label, color, marker, linestyle, line_z, marker_z in ppo_styles:
@@ -1091,7 +1097,7 @@ def write_outputs(plot_data: Dict, output_dir: Path) -> None:
         "lambda", "seed", "epoch", "threshold", "correct", "n",
     ]
     for curve_key, selected_by_dataset in plot_data.get("selected_points", {}).items():
-        slug = "trim_agg" if curve_key == "ppo_agg" else "trim_rubric" if curve_key == "ppo_rubric" else curve_key
+        slug = _method_slug(_curve_title(curve_key))
         for dataset, selected in selected_by_dataset.items():
             json_path = output_dir / f"selected_points_{slug}_{dataset}.json"
             with open(json_path, "w") as f:
@@ -1184,6 +1190,11 @@ def parse_args() -> argparse.Namespace:
         "--rubric_checkpoint_glob",
         default="",
         help="Optional TRIM-Rubric checkpoint glob.",
+    )
+    parser.add_argument(
+        "--rubric_v2_checkpoint_glob",
+        default="",
+        help="Optional TRIM-RubricV2 checkpoint glob.",
     )
     parser.add_argument("--output_dir", default=str(DEFAULT_OUTPUT_DIR))
     parser.add_argument("--device", default="cpu")

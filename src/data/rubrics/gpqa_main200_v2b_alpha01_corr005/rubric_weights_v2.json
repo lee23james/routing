@@ -1,0 +1,181 @@
+{
+  "method": "trim_rubric_v2_router_feedback",
+  "weights": {
+    "timely_escalation": 0.0,
+    "cost_efficiency": 0.0,
+    "cascading_error_prevention": 0.16902387325105844,
+    "recovery_effectiveness": 0.019133771996275348,
+    "budget_allocation": 0.0,
+    "difficulty_awareness": 0.10295831644959932,
+    "confidence_calibration": 0.011677359953243984,
+    "action_consistency": 0.008061562645318092,
+    "marginal_gain": 0.11481943000736788,
+    "no_oscillation": 0.0,
+    "early_detection": 0.15122136717887724,
+    "prm_trajectory_quality": 0.03090613419557758,
+    "critical_step_coverage": 0.0,
+    "prm_improvement_ratio": 0.20550537930467475,
+    "worst_step_rescue": 0.18669280501800747
+  },
+  "active_rubrics": [
+    "cascading_error_prevention",
+    "recovery_effectiveness",
+    "difficulty_awareness",
+    "confidence_calibration",
+    "action_consistency",
+    "marginal_gain",
+    "early_detection",
+    "prm_trajectory_quality",
+    "prm_improvement_ratio",
+    "worst_step_rescue"
+  ],
+  "diagnostics": {
+    "timely_escalation": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.4889100170861608,
+      "status": "low_std"
+    },
+    "cost_efficiency": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.4889100170861608,
+      "status": "low_std"
+    },
+    "cascading_error_prevention": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.4889100170861608,
+      "status": "low_std"
+    },
+    "recovery_effectiveness": {
+      "corr": 0.13819363301713877,
+      "pval": 0.05100038310036636,
+      "std": 0.230361079950539,
+      "utility_std": 0.4889100170861608,
+      "mean": 0.49137123492625834,
+      "status": "active"
+    },
+    "budget_allocation": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.4889100170861608,
+      "status": "low_std"
+    },
+    "difficulty_awareness": {
+      "corr": 0.03451280118969782,
+      "pval": 0.6275557914518302,
+      "std": 0.49877349568717055,
+      "utility_std": 0.4889100170861608,
+      "mean": 0.535,
+      "status": "low_corr"
+    },
+    "confidence_calibration": {
+      "corr": 0.08433971076386652,
+      "pval": 0.2350760902018354,
+      "std": 0.21650635094610965,
+      "utility_std": 0.4889100170861608,
+      "mean": 0.875,
+      "status": "active"
+    },
+    "action_consistency": {
+      "corr": 0.058224621364184194,
+      "pval": 0.4128124834882569,
+      "std": 0.049749371855330994,
+      "utility_std": 0.4889100170861608,
+      "mean": 0.995,
+      "status": "active"
+    },
+    "marginal_gain": {
+      "corr": 0.21827235342296844,
+      "pval": 0.0019026944079246916,
+      "std": 0.09732313944100349,
+      "utility_std": 0.4889100170861608,
+      "mean": 0.48363102423394594,
+      "status": "active"
+    },
+    "no_oscillation": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.4889100170861608,
+      "status": "low_std"
+    },
+    "early_detection": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.4889100170861608,
+      "status": "low_std"
+    },
+    "prm_trajectory_quality": {
+      "corr": 0.22321949732825844,
+      "pval": 0.0014870502688877517,
+      "std": 0.09839442878787538,
+      "utility_std": 0.4889100170861608,
+      "mean": 0.8626179895592168,
+      "status": "active"
+    },
+    "critical_step_coverage": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.4889100170861608,
+      "status": "low_std"
+    },
+    "prm_improvement_ratio": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.4889100170861608,
+      "status": "low_std"
+    },
+    "worst_step_rescue": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.4889100170861608,
+      "status": "low_std"
+    }
+  },
+  "base_weights": {
+    "timely_escalation": 0.0,
+    "cost_efficiency": 0.0,
+    "cascading_error_prevention": 0.18780430361228714,
+    "recovery_effectiveness": 0.0,
+    "budget_allocation": 0.0,
+    "difficulty_awareness": 0.1143981293884437,
+    "confidence_calibration": 0.0,
+    "action_consistency": 0.0,
+    "marginal_gain": 0.09399806533086986,
+    "no_oscillation": 0.0,
+    "early_detection": 0.16802374130986358,
+    "prm_trajectory_quality": 0.0,
+    "critical_step_coverage": 0.0,
+    "prm_improvement_ratio": 0.2283393103385275,
+    "worst_step_rescue": 0.2074364500200083
+  },
+  "router_feedback_weights": {
+    "timely_escalation": 0.0,
+    "cost_efficiency": 0.0,
+    "cascading_error_prevention": 0.0,
+    "recovery_effectiveness": 0.19133771996275348,
+    "budget_allocation": 0.0,
+    "difficulty_awareness": 0.0,
+    "confidence_calibration": 0.11677359953243983,
+    "action_consistency": 0.08061562645318092,
+    "marginal_gain": 0.30221171209585,
+    "no_oscillation": 0.0,
+    "early_detection": 0.0,
+    "prm_trajectory_quality": 0.3090613419557758,
+    "critical_step_coverage": 0.0,
+    "prm_improvement_ratio": 0.0,
+    "worst_step_rescue": 0.0
+  },
+  "alpha": 0.1,
+  "utility_lam": 2e-05,
+  "router_checkpoint": "checkpoints/trim_rubric_gpqa_main200_point_search_lam2e-5_rub0.3_seed1/epoch_0030.pt",
+  "n_rollouts": 200,
+  "episodes_path": "data/episodes/gpqa_main_train_200_episodes.jsonl",
+  "base_rubric_weights": "data/rubrics/gpqa_main200/rubric_weights.json",
+  "base_method": "trim_rubric_static",
+  "corr_threshold": 0.05,
+  "std_threshold": 0.02,
+  "deterministic": true,
+  "max_steps": 30
+}

@@ -1,0 +1,179 @@
+{
+  "method": "trim_rubric_v2_router_feedback",
+  "weights": {
+    "timely_escalation": 0.060107141409204486,
+    "cost_efficiency": 0.0,
+    "cascading_error_prevention": 0.18482637160209112,
+    "recovery_effectiveness": 0.0,
+    "budget_allocation": 0.0,
+    "difficulty_awareness": 0.0,
+    "confidence_calibration": 0.0,
+    "action_consistency": 0.0,
+    "marginal_gain": 0.04064722571720024,
+    "no_oscillation": 0.0,
+    "early_detection": 0.14071646248325342,
+    "prm_trajectory_quality": 0.18154317699387512,
+    "critical_step_coverage": 0.14567200288404156,
+    "prm_improvement_ratio": 0.09219168333029981,
+    "worst_step_rescue": 0.15429593558003427
+  },
+  "active_rubrics": [
+    "timely_escalation",
+    "cascading_error_prevention",
+    "marginal_gain",
+    "early_detection",
+    "prm_trajectory_quality",
+    "critical_step_coverage",
+    "prm_improvement_ratio",
+    "worst_step_rescue"
+  ],
+  "diagnostics": {
+    "timely_escalation": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.438453280835609,
+      "status": "low_std"
+    },
+    "cost_efficiency": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.438453280835609,
+      "status": "low_std"
+    },
+    "cascading_error_prevention": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.438453280835609,
+      "status": "low_std"
+    },
+    "recovery_effectiveness": {
+      "corr": -0.0020546149786093305,
+      "pval": 0.9767326138869411,
+      "std": 0.1632725587916851,
+      "utility_std": 0.438453280835609,
+      "mean": 0.4194376144369595,
+      "status": "negative_corr"
+    },
+    "budget_allocation": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.438453280835609,
+      "status": "low_std"
+    },
+    "difficulty_awareness": {
+      "corr": -0.08718985425030101,
+      "pval": 0.21496397425501276,
+      "std": 0.24426328437845082,
+      "utility_std": 0.438453280835609,
+      "mean": 0.06372549019607843,
+      "status": "negative_corr"
+    },
+    "confidence_calibration": {
+      "corr": -0.15478965471106892,
+      "pval": 0.02706397037480797,
+      "std": 0.2429810535567398,
+      "utility_std": 0.438453280835609,
+      "mean": 0.6911764705882353,
+      "status": "negative_corr"
+    },
+    "action_consistency": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.438453280835609,
+      "status": "low_std"
+    },
+    "marginal_gain": {
+      "corr": 0.1978914425743658,
+      "pval": 0.00455111323062404,
+      "std": 0.054062787308829116,
+      "utility_std": 0.438453280835609,
+      "mean": 0.49399629675304807,
+      "status": "active"
+    },
+    "no_oscillation": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.438453280835609,
+      "status": "low_std"
+    },
+    "early_detection": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.438453280835609,
+      "status": "low_std"
+    },
+    "prm_trajectory_quality": {
+      "corr": 0.28895960096592255,
+      "pval": 2.7702668390305475e-05,
+      "std": 0.0607603692317376,
+      "utility_std": 0.438453280835609,
+      "mean": 0.9530460746688426,
+      "status": "active"
+    },
+    "critical_step_coverage": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.438453280835609,
+      "status": "low_std"
+    },
+    "prm_improvement_ratio": {
+      "corr": -0.12532809465332959,
+      "pval": 0.07408425399231922,
+      "std": 0.034921095217585796,
+      "utility_std": 0.438453280835609,
+      "mean": 0.9975490196078431,
+      "status": "negative_corr"
+    },
+    "worst_step_rescue": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.438453280835609,
+      "status": "low_std"
+    }
+  },
+  "base_weights": {
+    "timely_escalation": 0.06678571267689387,
+    "cost_efficiency": 0.0,
+    "cascading_error_prevention": 0.20536263511343456,
+    "recovery_effectiveness": 0.0,
+    "budget_allocation": 0.0,
+    "difficulty_awareness": 0.0,
+    "confidence_calibration": 0.0,
+    "action_consistency": 0.0,
+    "marginal_gain": 0.0,
+    "no_oscillation": 0.0,
+    "early_detection": 0.15635162498139268,
+    "prm_trajectory_quality": 0.13576711412341705,
+    "critical_step_coverage": 0.16185778098226838,
+    "prm_improvement_ratio": 0.10243520370033313,
+    "worst_step_rescue": 0.1714399284222603
+  },
+  "router_feedback_weights": {
+    "timely_escalation": 0.0,
+    "cost_efficiency": 0.0,
+    "cascading_error_prevention": 0.0,
+    "recovery_effectiveness": 0.0,
+    "budget_allocation": 0.0,
+    "difficulty_awareness": 0.0,
+    "confidence_calibration": 0.0,
+    "action_consistency": 0.0,
+    "marginal_gain": 0.40647225717200236,
+    "no_oscillation": 0.0,
+    "early_detection": 0.0,
+    "prm_trajectory_quality": 0.5935277428279977,
+    "critical_step_coverage": 0.0,
+    "prm_improvement_ratio": 0.0,
+    "worst_step_rescue": 0.0
+  },
+  "alpha": 0.1,
+  "utility_lam": 2e-05,
+  "router_checkpoint": "checkpoints/trim_rubric_aime_part1_204_point_search_lam2e-5_rub0.3_seed1/epoch_0030.pt",
+  "n_rollouts": 204,
+  "episodes_path": "data/episodes/aime_2010_2024_part1_train_episodes.jsonl",
+  "base_rubric_weights": "data/rubrics/aime_part1_204/rubric_weights.json",
+  "base_method": "trim_rubric_static",
+  "corr_threshold": 0.05,
+  "std_threshold": 0.02,
+  "deterministic": true,
+  "max_steps": 30
+}

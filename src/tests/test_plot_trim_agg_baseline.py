@@ -5,6 +5,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from eval.plot_trim_agg_baseline import (
+    _checkpoint_patterns_for_args,
+    _method_slug,
     _routing_flops,
     build_method_60_98_summary,
     build_plot_data,
@@ -145,6 +147,54 @@ class PlotTrimAggBaselineTest(unittest.TestCase):
         self.assertEqual(rubric["metrics"]["toy"]["flops_rank"], "best")
         self.assertEqual(agg["metrics"]["toy"]["flops_rank"], "second")
 
+    def test_build_main_results_includes_trim_rubric_v2_when_curve_is_available(self):
+        plot_data = {
+            "datasets": ["toy"],
+            "baselines": {
+                "toy": {
+                    "srm_acc": 50.0,
+                    "lrm_acc": 80.0,
+                    "srm_flops": 1.0,
+                    "lrm_flops": 10.0,
+                    "n": 4,
+                }
+            },
+            "random_curves": {
+                "toy": [
+                    {"avg_flops_tflops": 1.0, "accuracy": 50.0},
+                    {"avg_flops_tflops": 6.0, "accuracy": 68.0},
+                    {"avg_flops_tflops": 10.0, "accuracy": 80.0},
+                ]
+            },
+            "ppo_curves": {
+                "toy": {
+                    "ppo_agg": [
+                        {"avg_flops_tflops": 1.0, "accuracy": 50.0},
+                        {"avg_flops_tflops": 6.0, "accuracy": 75.0},
+                        {"avg_flops_tflops": 9.0, "accuracy": 79.0},
+                    ],
+                    "ppo_rubric_v2": [
+                        {"avg_flops_tflops": 1.0, "accuracy": 50.0},
+                        {"avg_flops_tflops": 6.0, "accuracy": 78.0},
+                        {"avg_flops_tflops": 7.5, "accuracy": 79.0},
+                    ],
+                }
+            },
+        }
+
+        result = build_main_results(plot_data)
+
+        rows = result["rows"]
+        rubric_v2 = next(r for r in rows if r["method"] == "TRIM-RubricV2 (PPO)")
+        agg = next(r for r in rows if r["method"] == "TRIM-Agg (PPO)")
+
+        self.assertEqual(rubric_v2["metrics"]["toy"]["acc_at_60"], 78.0)
+        self.assertEqual(rubric_v2["metrics"]["toy"]["flops_at_98_pct"], 75.0)
+        self.assertEqual(rubric_v2["metrics"]["toy"]["acc_rank"], "best")
+        self.assertEqual(agg["metrics"]["toy"]["acc_rank"], "second")
+        self.assertEqual(rubric_v2["metrics"]["toy"]["flops_rank"], "best")
+        self.assertEqual(agg["metrics"]["toy"]["flops_rank"], "second")
+
     def test_build_trim_agg_60_98_summary_uses_main_results_metrics(self):
         plot_data = {
             "datasets": ["math500"],
@@ -220,6 +270,41 @@ class PlotTrimAggBaselineTest(unittest.TestCase):
         self.assertEqual(summary["acc_at_60_lrm_flops"], 77.0)
         self.assertEqual(summary["flops_at_98_lrm_acc_tflops"], 8.0)
         self.assertEqual(summary["flops_at_98_lrm_acc_pct_lrm"], 80.0)
+
+    def test_build_method_60_98_summary_supports_trim_rubric_v2(self):
+        plot_data = {
+            "datasets": ["math500"],
+            "baselines": {
+                "math500": {
+                    "srm_acc": 50.0,
+                    "lrm_acc": 80.0,
+                    "srm_flops": 1.0,
+                    "lrm_flops": 10.0,
+                    "n": 169,
+                }
+            },
+            "main_results": {
+                "rows": [
+                    {
+                        "method": "TRIM-RubricV2 (PPO)",
+                        "metrics": {
+                            "math500": {
+                                "acc_at_60": 78.0,
+                                "flops_at_98_tflops": 7.5,
+                                "flops_at_98_pct": 75.0,
+                            }
+                        },
+                    }
+                ]
+            },
+        }
+
+        summary = build_method_60_98_summary(plot_data, "TRIM-RubricV2 (PPO)", "math500")
+
+        self.assertEqual(summary["method"], "TRIM-RubricV2 (PPO)")
+        self.assertEqual(summary["acc_at_60_lrm_flops"], 78.0)
+        self.assertEqual(summary["flops_at_98_lrm_acc_tflops"], 7.5)
+        self.assertEqual(summary["flops_at_98_lrm_acc_pct_lrm"], 75.0)
 
     def test_render_trim_agg_60_98_markdown_marks_unreachable_98_acc(self):
         summary = {
@@ -389,6 +474,7 @@ class PlotTrimAggBaselineTest(unittest.TestCase):
             checkpoint_glob = str(ckpt_path)
             agg_checkpoint_glob = str(ckpt_path)
             rubric_checkpoint_glob = ""
+            rubric_v2_checkpoint_glob = ""
             device = "cpu"
             n_selected_points = 8
 
@@ -424,6 +510,20 @@ class PlotTrimAggBaselineTest(unittest.TestCase):
         )
         self.assertEqual(plot_data["baselines"]["aime_2020_2024_part2_test"]["n"], 1)
 
+    def test_checkpoint_patterns_include_trim_rubric_v2_when_requested(self):
+        class Args:
+            checkpoint_glob = "legacy/*.pt"
+            agg_checkpoint_glob = "agg/*.pt"
+            rubric_checkpoint_glob = "rubric/*.pt"
+            rubric_v2_checkpoint_glob = "rubric_v2/*.pt"
+
+        patterns = _checkpoint_patterns_for_args(Args())
+
+        self.assertEqual(patterns["ppo_agg"], ["agg/*.pt"])
+        self.assertEqual(patterns["ppo_rubric"], ["rubric/*.pt"])
+        self.assertEqual(patterns["ppo_rubric_v2"], ["rubric_v2/*.pt"])
+        self.assertEqual(_method_slug("TRIM-RubricV2 (PPO)"), "trim_rubric_v2")
+
     def test_write_outputs_writes_60_98_summaries_for_each_requested_dataset(self):
         output_dir = Path(self.id()).with_suffix("")
         plot_data = {
@@ -453,10 +553,14 @@ class PlotTrimAggBaselineTest(unittest.TestCase):
                         {"avg_flops_tflops": 6.0, "accuracy": 77.0},
                         {"avg_flops_tflops": 8.0, "accuracy": 79.0},
                     ],
+                    "ppo_rubric_v2": [
+                        {"avg_flops_tflops": 6.0, "accuracy": 78.0},
+                        {"avg_flops_tflops": 7.5, "accuracy": 79.0},
+                    ],
                 }
             },
-            "raw_ppo_points": {"ppo_agg": {}, "ppo_rubric": {}},
-            "selected_points": {"ppo_agg": {}, "ppo_rubric": {}},
+            "raw_ppo_points": {"ppo_agg": {}, "ppo_rubric": {}, "ppo_rubric_v2": {}},
+            "selected_points": {"ppo_agg": {}, "ppo_rubric": {}, "ppo_rubric_v2": {}},
             "checkpoint_patterns_by_curve": {},
             "main_results": None,
         }
@@ -469,6 +573,7 @@ class PlotTrimAggBaselineTest(unittest.TestCase):
             self.assertTrue((output_dir / "trim_aime_2020_2024_part2_test_60_98_compare.md").exists())
             self.assertTrue((output_dir / "trim_agg_aime_2020_2024_part2_test_60_98.md").exists())
             self.assertTrue((output_dir / "trim_rubric_aime_2020_2024_part2_test_60_98.md").exists())
+            self.assertTrue((output_dir / "trim_rubric_v2_aime_2020_2024_part2_test_60_98.md").exists())
         finally:
             for path in sorted(output_dir.glob("*")) if output_dir.exists() else []:
                 path.unlink()

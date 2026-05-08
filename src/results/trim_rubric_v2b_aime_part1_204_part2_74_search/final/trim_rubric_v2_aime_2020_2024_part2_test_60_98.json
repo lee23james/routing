@@ -1,0 +1,13 @@
+{
+  "dataset": "aime_2020_2024_part2_test",
+  "dataset_label": "AIME 2020-2024 Part II",
+  "method": "TRIM-RubricV2 (PPO)",
+  "n": 74,
+  "acc_at_60_lrm_flops": 17.56756756756757,
+  "flops_at_98_lrm_acc_tflops": 72.44945675675675,
+  "flops_at_98_lrm_acc_pct_lrm": 57.958087944093265,
+  "lrm_acc": 17.56756756756757,
+  "lrm_flops_tflops": 125.00318648648648,
+  "target_60_lrm_flops_tflops": 75.0019118918919,
+  "target_98_lrm_acc": 17.216216216216218
+}

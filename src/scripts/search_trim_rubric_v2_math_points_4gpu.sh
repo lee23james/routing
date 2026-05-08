@@ -1,20 +1,24 @@
 #!/usr/bin/env bash
-# Search AIME Part I-trained TRIM-Rubric PPO checkpoints on the local 4-GPU box.
+# Search MATH-trained TRIM-RubricV2 PPO checkpoints on the local 4-GPU box.
 
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
 PYTHON_BIN="${PYTHON_BIN:-/home/chencheng/miniconda3/envs/trim/bin/python}"
-EPISODES_PATH="${EPISODES_PATH:-data/episodes/aime_2010_2024_part1_train_episodes.jsonl}"
-RUBRIC_DIR="${RUBRIC_DIR:-data/rubrics/aime_part1_204}"
-RUBRIC_WEIGHTS="${RUBRIC_WEIGHTS:-data/rubrics/aime_part1_204/rubric_weights.json}"
+EPISODES_PATH="${EPISODES_PATH:-data/episodes/math_train_200_episodes.jsonl}"
+BASE_RUBRIC_WEIGHTS="${BASE_RUBRIC_WEIGHTS:-data/rubrics/math200/rubric_weights.json}"
+RUBRIC_DIR="${RUBRIC_DIR:-data/rubrics/math200_v2}"
+RUBRIC_WEIGHTS="${RUBRIC_WEIGHTS:-$RUBRIC_DIR/rubric_weights_v2.json}"
+ROUTER0_CHECKPOINT="${ROUTER0_CHECKPOINT:-checkpoints/trim_rubric_math200_point_search_lam2e-5_rub0.3_seed1/epoch_0030.pt}"
+EVOLVE_LAM="${EVOLVE_LAM:-2e-5}"
+ALPHA="${ALPHA:-0.3}"
 LAM_RUBRIC="${LAM_RUBRIC:-0.3}"
 NUM_EPOCHS="${NUM_EPOCHS:-40}"
 EPISODES_PER_EPOCH="${EPISODES_PER_EPOCH:-64}"
 SAVE_EVERY="${SAVE_EVERY:-10}"
 SEED="${SEED:-1}"
-SEARCH_NAME="${SEARCH_NAME:-trim_rubric_aime_part1_204_point_search}"
+SEARCH_NAME="${SEARCH_NAME:-trim_rubric_v2_math200_point_search}"
 
 LOG_DIR="logs/$SEARCH_NAME"
 CKPT_ROOT="checkpoints"
@@ -37,12 +41,33 @@ if [ ! -f "$EPISODES_PATH" ]; then
   exit 1
 fi
 
-if [ ! -f "$RUBRIC_WEIGHTS" ]; then
-  echo "[$(date '+%F %T')] generating rubric weights -> $RUBRIC_WEIGHTS"
+if [ ! -f "$BASE_RUBRIC_WEIGHTS" ]; then
+  echo "[$(date '+%F %T')] generating base rubric weights -> $BASE_RUBRIC_WEIGHTS"
+  mkdir -p "$(dirname "$BASE_RUBRIC_WEIGHTS")"
   PYTHONUNBUFFERED=1 "$PYTHON_BIN" -u -m rubric.generate_rubrics \
     --episodes_path "$EPISODES_PATH" \
+    --output_dir "$(dirname "$BASE_RUBRIC_WEIGHTS")" \
+    > "$LOG_DIR/generate_base_rubrics.log" 2>&1
+fi
+
+if [ ! -f "$ROUTER0_CHECKPOINT" ]; then
+  echo "Router0 checkpoint not found: $ROUTER0_CHECKPOINT" >&2
+  echo "Run scripts/search_trim_rubric_math_points_4gpu.sh first, or set ROUTER0_CHECKPOINT." >&2
+  exit 1
+fi
+
+if [ ! -f "$RUBRIC_WEIGHTS" ]; then
+  echo "[$(date '+%F %T')] evolving TRIM-RubricV2 weights -> $RUBRIC_WEIGHTS"
+  PYTHONUNBUFFERED=1 "$PYTHON_BIN" -u -m rubric.evolve_rubric_weights \
+    --episodes_path "$EPISODES_PATH" \
+    --base_rubric_weights "$BASE_RUBRIC_WEIGHTS" \
+    --router_checkpoint "$ROUTER0_CHECKPOINT" \
     --output_dir "$RUBRIC_DIR" \
-    > "$LOG_DIR/generate_rubrics.log" 2>&1
+    --output_name "$(basename "$RUBRIC_WEIGHTS")" \
+    --lam "$EVOLVE_LAM" \
+    --alpha "$ALPHA" \
+    --device cpu \
+    > "$LOG_DIR/evolve_rubric_weights.log" 2>&1
 fi
 
 if ! "$PYTHON_BIN" - <<PY
@@ -98,4 +123,4 @@ done
 
 wait
 
-echo "[$(date '+%F %T')] all AIME TRIM-Rubric point-search training jobs finished"
+echo "[$(date '+%F %T')] all MATH TRIM-RubricV2 point-search training jobs finished"

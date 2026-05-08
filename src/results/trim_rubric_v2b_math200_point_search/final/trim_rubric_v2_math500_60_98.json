@@ -1,0 +1,13 @@
+{
+  "dataset": "math500",
+  "dataset_label": "MATH-500",
+  "method": "TRIM-RubricV2 (PPO)",
+  "n": 169,
+  "acc_at_60_lrm_flops": 82.29909788379298,
+  "flops_at_98_lrm_acc_tflops": 20.087771597633136,
+  "flops_at_98_lrm_acc_pct_lrm": 87.88090085786841,
+  "lrm_acc": 85.79881656804734,
+  "lrm_flops_tflops": 22.857949112426034,
+  "target_60_lrm_flops_tflops": 13.71476946745562,
+  "target_98_lrm_acc": 84.0828402366864
+}

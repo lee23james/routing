@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering
+\small
+\begin{tabular}{llcc}
+\toprule
+Method & Extra Tokens & \multicolumn{2}{c}{AIME 2020-2024 Part II} &  \\
+ &  & Acc $\uparrow$ & FLOPs $\downarrow$ \\
+\midrule
+SRM-Only & No & 9.5\% & - \\
+LRM-Only & No & - & 100.0\% \\
+Random Routing & Yes & 13.9\% & 96.4\% \\
+TRIM-Agg (PPO) & Yes & 17.2\% & \underline{65.9\%} \\
+TRIM-Rubric (PPO) & Yes & \underline{17.2\%} & 65.9\% \\
+TRIM-RubricV2 (PPO) & Yes & \textbf{17.6\%} & \textbf{58.0\%} \\
+\bottomrule
+\end{tabular}
+\caption{Main Results. Acc is measured at 60\% of LRM-only FLOPs, and FLOPs denotes the computation required to reach 98\% of LRM-only accuracy. The best result is bold, and the second-best result is underlined. Extra Tokens denotes whether the method requires additional token generation during the reasoning process.}
+\end{table}
