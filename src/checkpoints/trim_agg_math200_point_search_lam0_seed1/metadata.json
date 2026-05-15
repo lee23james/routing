@@ -1,0 +1,13 @@
+{
+  "lam": 0.0,
+  "lam_rubric": 0.0,
+  "seed": 1,
+  "num_epochs": 40,
+  "episodes_per_epoch": 64,
+  "ppo_epochs": 3,
+  "mini_batch_size": 64,
+  "device": "cuda:0",
+  "save_dir": "checkpoints/trim_agg_math200_point_search_lam0_seed1",
+  "save_every": 10,
+  "save_epoch_checkpoints": true
+}
