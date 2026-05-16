@@ -1,0 +1,13 @@
+{
+  "dataset": "omnimath_mixed_3_4_100_4_9_100_test",
+  "dataset_label": "OmniMath Mixed 3-4/4-9 Test-200",
+  "method": "TRIM-RubricV2 (PPO)",
+  "n": 200,
+  "acc_at_60_lrm_flops": 62.0,
+  "flops_at_98_lrm_acc_tflops": 238.403413,
+  "flops_at_98_lrm_acc_pct_lrm": 53.46799256329182,
+  "lrm_acc": 62.0,
+  "lrm_flops_tflops": 445.880613,
+  "target_60_lrm_flops_tflops": 267.52836779999996,
+  "target_98_lrm_acc": 60.76
+}

@@ -1,0 +1,2633 @@
+{
+  "seed": 1,
+  "inputs": {
+    "omnimath34_episodes": "data/episodes/omnimath_diff3_4_test_200_episodes.jsonl",
+    "omnimath49_episodes": "data/episodes/omnimath_diff4_9_stratified_test_100_episodes.jsonl"
+  },
+  "output": "data/episodes/omnimath_mixed_3_4_100_4_9_100_test_episodes.jsonl",
+  "counts": {
+    "total": 200,
+    "diff3_4": 100,
+    "diff4_9": 100
+  },
+  "difficulty_bucket_counts": {
+    "diff3_4": {
+      "[3,4)": 100
+    },
+    "diff4_9": {
+      "[4,5)": 20,
+      "[5,6)": 20,
+      "[6,7)": 20,
+      "[7,8)": 20,
+      "[8,9)": 20
+    }
+  },
+  "selected": {
+    "diff3_4": [
+      {
+        "id": "omnimath_01134",
+        "source_id": "omnimath_01134",
+        "source_index": 1134,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01538",
+        "source_id": "omnimath_01538",
+        "source_index": 1538,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02551",
+        "source_id": "omnimath_02551",
+        "source_index": 2551,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00385",
+        "source_id": "omnimath_00385",
+        "source_index": 385,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00367",
+        "source_id": "omnimath_00367",
+        "source_index": 367,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00392",
+        "source_id": "omnimath_00392",
+        "source_index": 392,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01261",
+        "source_id": "omnimath_01261",
+        "source_index": 1261,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00329",
+        "source_id": "omnimath_00329",
+        "source_index": 329,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01005",
+        "source_id": "omnimath_01005",
+        "source_index": 1005,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01917",
+        "source_id": "omnimath_01917",
+        "source_index": 1917,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02885",
+        "source_id": "omnimath_02885",
+        "source_index": 2885,
+        "difficulty": 3.0
+      },
+      {
+        "id": "omnimath_02427",
+        "source_id": "omnimath_02427",
+        "source_index": 2427,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01759",
+        "source_id": "omnimath_01759",
+        "source_index": 1759,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02722",
+        "source_id": "omnimath_02722",
+        "source_index": 2722,
+        "difficulty": 3.0
+      },
+      {
+        "id": "omnimath_02453",
+        "source_id": "omnimath_02453",
+        "source_index": 2453,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02026",
+        "source_id": "omnimath_02026",
+        "source_index": 2026,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00842",
+        "source_id": "omnimath_00842",
+        "source_index": 842,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00645",
+        "source_id": "omnimath_00645",
+        "source_index": 645,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01534",
+        "source_id": "omnimath_01534",
+        "source_index": 1534,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00714",
+        "source_id": "omnimath_00714",
+        "source_index": 714,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01496",
+        "source_id": "omnimath_01496",
+        "source_index": 1496,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00447",
+        "source_id": "omnimath_00447",
+        "source_index": 447,
+        "difficulty": 3.0
+      },
+      {
+        "id": "omnimath_03127",
+        "source_id": "omnimath_03127",
+        "source_index": 3127,
+        "difficulty": 3.0
+      },
+      {
+        "id": "omnimath_01781",
+        "source_id": "omnimath_01781",
+        "source_index": 1781,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01292",
+        "source_id": "omnimath_01292",
+        "source_index": 1292,
+        "difficulty": 3.0
+      },
+      {
+        "id": "omnimath_00667",
+        "source_id": "omnimath_00667",
+        "source_index": 667,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00341",
+        "source_id": "omnimath_00341",
+        "source_index": 341,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01986",
+        "source_id": "omnimath_01986",
+        "source_index": 1986,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02356",
+        "source_id": "omnimath_02356",
+        "source_index": 2356,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_03782",
+        "source_id": "omnimath_03782",
+        "source_index": 3782,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02458",
+        "source_id": "omnimath_02458",
+        "source_index": 2458,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00397",
+        "source_id": "omnimath_00397",
+        "source_index": 397,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00370",
+        "source_id": "omnimath_00370",
+        "source_index": 370,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00409",
+        "source_id": "omnimath_00409",
+        "source_index": 409,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00659",
+        "source_id": "omnimath_00659",
+        "source_index": 659,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01193",
+        "source_id": "omnimath_01193",
+        "source_index": 1193,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00605",
+        "source_id": "omnimath_00605",
+        "source_index": 605,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00417",
+        "source_id": "omnimath_00417",
+        "source_index": 417,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00839",
+        "source_id": "omnimath_00839",
+        "source_index": 839,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01977",
+        "source_id": "omnimath_01977",
+        "source_index": 1977,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01904",
+        "source_id": "omnimath_01904",
+        "source_index": 1904,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00949",
+        "source_id": "omnimath_00949",
+        "source_index": 949,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01859",
+        "source_id": "omnimath_01859",
+        "source_index": 1859,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01789",
+        "source_id": "omnimath_01789",
+        "source_index": 1789,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02254",
+        "source_id": "omnimath_02254",
+        "source_index": 2254,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00798",
+        "source_id": "omnimath_00798",
+        "source_index": 798,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02571",
+        "source_id": "omnimath_02571",
+        "source_index": 2571,
+        "difficulty": 3.0
+      },
+      {
+        "id": "omnimath_02434",
+        "source_id": "omnimath_02434",
+        "source_index": 2434,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01921",
+        "source_id": "omnimath_01921",
+        "source_index": 1921,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01305",
+        "source_id": "omnimath_01305",
+        "source_index": 1305,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01858",
+        "source_id": "omnimath_01858",
+        "source_index": 1858,
+        "difficulty": 3.0
+      },
+      {
+        "id": "omnimath_02538",
+        "source_id": "omnimath_02538",
+        "source_index": 2538,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02892",
+        "source_id": "omnimath_02892",
+        "source_index": 2892,
+        "difficulty": 3.0
+      },
+      {
+        "id": "omnimath_00742",
+        "source_id": "omnimath_00742",
+        "source_index": 742,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01995",
+        "source_id": "omnimath_01995",
+        "source_index": 1995,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00383",
+        "source_id": "omnimath_00383",
+        "source_index": 383,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02288",
+        "source_id": "omnimath_02288",
+        "source_index": 2288,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_03370",
+        "source_id": "omnimath_03370",
+        "source_index": 3370,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00419",
+        "source_id": "omnimath_00419",
+        "source_index": 419,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01924",
+        "source_id": "omnimath_01924",
+        "source_index": 1924,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_04374",
+        "source_id": "omnimath_04374",
+        "source_index": 4374,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00971",
+        "source_id": "omnimath_00971",
+        "source_index": 971,
+        "difficulty": 3.75
+      },
+      {
+        "id": "omnimath_02048",
+        "source_id": "omnimath_02048",
+        "source_index": 2048,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01658",
+        "source_id": "omnimath_01658",
+        "source_index": 1658,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01567",
+        "source_id": "omnimath_01567",
+        "source_index": 1567,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02365",
+        "source_id": "omnimath_02365",
+        "source_index": 2365,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02523",
+        "source_id": "omnimath_02523",
+        "source_index": 2523,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_03384",
+        "source_id": "omnimath_03384",
+        "source_index": 3384,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_03548",
+        "source_id": "omnimath_03548",
+        "source_index": 3548,
+        "difficulty": 3.0
+      },
+      {
+        "id": "omnimath_02808",
+        "source_id": "omnimath_02808",
+        "source_index": 2808,
+        "difficulty": 3.0
+      },
+      {
+        "id": "omnimath_03767",
+        "source_id": "omnimath_03767",
+        "source_index": 3767,
+        "difficulty": 3.0
+      },
+      {
+        "id": "omnimath_01806",
+        "source_id": "omnimath_01806",
+        "source_index": 1806,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00756",
+        "source_id": "omnimath_00756",
+        "source_index": 756,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00707",
+        "source_id": "omnimath_00707",
+        "source_index": 707,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01852",
+        "source_id": "omnimath_01852",
+        "source_index": 1852,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01680",
+        "source_id": "omnimath_01680",
+        "source_index": 1680,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01752",
+        "source_id": "omnimath_01752",
+        "source_index": 1752,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_03358",
+        "source_id": "omnimath_03358",
+        "source_index": 3358,
+        "difficulty": 3.75
+      },
+      {
+        "id": "omnimath_00538",
+        "source_id": "omnimath_00538",
+        "source_index": 538,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00508",
+        "source_id": "omnimath_00508",
+        "source_index": 508,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_03642",
+        "source_id": "omnimath_03642",
+        "source_index": 3642,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00820",
+        "source_id": "omnimath_00820",
+        "source_index": 820,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00378",
+        "source_id": "omnimath_00378",
+        "source_index": 378,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01969",
+        "source_id": "omnimath_01969",
+        "source_index": 1969,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01800",
+        "source_id": "omnimath_01800",
+        "source_index": 1800,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01298",
+        "source_id": "omnimath_01298",
+        "source_index": 1298,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00479",
+        "source_id": "omnimath_00479",
+        "source_index": 479,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01974",
+        "source_id": "omnimath_01974",
+        "source_index": 1974,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01532",
+        "source_id": "omnimath_01532",
+        "source_index": 1532,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02656",
+        "source_id": "omnimath_02656",
+        "source_index": 2656,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00623",
+        "source_id": "omnimath_00623",
+        "source_index": 623,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_03354",
+        "source_id": "omnimath_03354",
+        "source_index": 3354,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01756",
+        "source_id": "omnimath_01756",
+        "source_index": 1756,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00880",
+        "source_id": "omnimath_00880",
+        "source_index": 880,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01712",
+        "source_id": "omnimath_01712",
+        "source_index": 1712,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_02377",
+        "source_id": "omnimath_02377",
+        "source_index": 2377,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_00620",
+        "source_id": "omnimath_00620",
+        "source_index": 620,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01436",
+        "source_id": "omnimath_01436",
+        "source_index": 1436,
+        "difficulty": 3.75
+      },
+      {
+        "id": "omnimath_00379",
+        "source_id": "omnimath_00379",
+        "source_index": 379,
+        "difficulty": 3.5
+      },
+      {
+        "id": "omnimath_01020",
+        "source_id": "omnimath_01020",
+        "source_index": 1020,
+        "difficulty": 3.5
+      }
+    ],
+    "diff4_9": [
+      {
+        "id": "omnimath_00101",
+        "source_id": "omnimath_00101",
+        "source_index": 101,
+        "difficulty": 6.5
+      },
+      {
+        "id": "omnimath_03968",
+        "source_id": "omnimath_03968",
+        "source_index": 3968,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_01919",
+        "source_id": "omnimath_01919",
+        "source_index": 1919,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_02186",
+        "source_id": "omnimath_02186",
+        "source_index": 2186,
+        "difficulty": 6.25
+      },
+      {
+        "id": "omnimath_03701",
+        "source_id": "omnimath_03701",
+        "source_index": 3701,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_04378",
+        "source_id": "omnimath_04378",
+        "source_index": 4378,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_01506",
+        "source_id": "omnimath_01506",
+        "source_index": 1506,
+        "difficulty": 5.5
+      },
+      {
+        "id": "omnimath_00227",
+        "source_id": "omnimath_00227",
+        "source_index": 227,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_00229",
+        "source_id": "omnimath_00229",
+        "source_index": 229,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_01577",
+        "source_id": "omnimath_01577",
+        "source_index": 1577,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_00319",
+        "source_id": "omnimath_00319",
+        "source_index": 319,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_03350",
+        "source_id": "omnimath_03350",
+        "source_index": 3350,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_04303",
+        "source_id": "omnimath_04303",
+        "source_index": 4303,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_01675",
+        "source_id": "omnimath_01675",
+        "source_index": 1675,
+        "difficulty": 4.0
+      },
+      {
+        "id": "omnimath_01827",
+        "source_id": "omnimath_01827",
+        "source_index": 1827,
+        "difficulty": 6.0
+      },
+      {
+        "id": "omnimath_02633",
+        "source_id": "omnimath_02633",
+        "source_index": 2633,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_04350",
+        "source_id": "omnimath_04350",
+        "source_index": 4350,
+        "difficulty": 6.0
+      },
+      {
+        "id": "omnimath_00625",
+        "source_id": "omnimath_00625",
+        "source_index": 625,
+        "difficulty": 5.5
+      },
+      {
+        "id": "omnimath_02275",
+        "source_id": "omnimath_02275",
+        "source_index": 2275,
+        "difficulty": 4.0
+      },
+      {
+        "id": "omnimath_03800",
+        "source_id": "omnimath_03800",
+        "source_index": 3800,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_00343",
+        "source_id": "omnimath_00343",
+        "source_index": 343,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_01364",
+        "source_id": "omnimath_01364",
+        "source_index": 1364,
+        "difficulty": 6.0
+      },
+      {
+        "id": "omnimath_01526",
+        "source_id": "omnimath_01526",
+        "source_index": 1526,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_03624",
+        "source_id": "omnimath_03624",
+        "source_index": 3624,
+        "difficulty": 4.0
+      },
+      {
+        "id": "omnimath_04283",
+        "source_id": "omnimath_04283",
+        "source_index": 4283,
+        "difficulty": 6.0
+      },
+      {
+        "id": "omnimath_04423",
+        "source_id": "omnimath_04423",
+        "source_index": 4423,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_01188",
+        "source_id": "omnimath_01188",
+        "source_index": 1188,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_01598",
+        "source_id": "omnimath_01598",
+        "source_index": 1598,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_00476",
+        "source_id": "omnimath_00476",
+        "source_index": 476,
+        "difficulty": 4.0
+      },
+      {
+        "id": "omnimath_02282",
+        "source_id": "omnimath_02282",
+        "source_index": 2282,
+        "difficulty": 4.0
+      },
+      {
+        "id": "omnimath_00509",
+        "source_id": "omnimath_00509",
+        "source_index": 509,
+        "difficulty": 4.0
+      },
+      {
+        "id": "omnimath_00169",
+        "source_id": "omnimath_00169",
+        "source_index": 169,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_00030",
+        "source_id": "omnimath_00030",
+        "source_index": 30,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_03911",
+        "source_id": "omnimath_03911",
+        "source_index": 3911,
+        "difficulty": 7.5
+      },
+      {
+        "id": "omnimath_00236",
+        "source_id": "omnimath_00236",
+        "source_index": 236,
+        "difficulty": 6.0
+      },
+      {
+        "id": "omnimath_00078",
+        "source_id": "omnimath_00078",
+        "source_index": 78,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_03178",
+        "source_id": "omnimath_03178",
+        "source_index": 3178,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_02529",
+        "source_id": "omnimath_02529",
+        "source_index": 2529,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_01987",
+        "source_id": "omnimath_01987",
+        "source_index": 1987,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_02199",
+        "source_id": "omnimath_02199",
+        "source_index": 2199,
+        "difficulty": 4.0
+      },
+      {
+        "id": "omnimath_00163",
+        "source_id": "omnimath_00163",
+        "source_index": 163,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_01135",
+        "source_id": "omnimath_01135",
+        "source_index": 1135,
+        "difficulty": 6.0
+      },
+      {
+        "id": "omnimath_03184",
+        "source_id": "omnimath_03184",
+        "source_index": 3184,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_02337",
+        "source_id": "omnimath_02337",
+        "source_index": 2337,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_00179",
+        "source_id": "omnimath_00179",
+        "source_index": 179,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_01443",
+        "source_id": "omnimath_01443",
+        "source_index": 1443,
+        "difficulty": 4.0
+      },
+      {
+        "id": "omnimath_02290",
+        "source_id": "omnimath_02290",
+        "source_index": 2290,
+        "difficulty": 4.0
+      },
+      {
+        "id": "omnimath_00307",
+        "source_id": "omnimath_00307",
+        "source_index": 307,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_01442",
+        "source_id": "omnimath_01442",
+        "source_index": 1442,
+        "difficulty": 6.0
+      },
+      {
+        "id": "omnimath_03849",
+        "source_id": "omnimath_03849",
+        "source_index": 3849,
+        "difficulty": 6.25
+      },
+      {
+        "id": "omnimath_03319",
+        "source_id": "omnimath_03319",
+        "source_index": 3319,
+        "difficulty": 4.5
+      },
+      {
+        "id": "omnimath_00900",
+        "source_id": "omnimath_00900",
+        "source_index": 900,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_00130",
+        "source_id": "omnimath_00130",
+        "source_index": 130,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_00912",
+        "source_id": "omnimath_00912",
+        "source_index": 912,
+        "difficulty": 4.0
+      },
+      {
+        "id": "omnimath_02202",
+        "source_id": "omnimath_02202",
+        "source_index": 2202,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_00906",
+        "source_id": "omnimath_00906",
+        "source_index": 906,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_03930",
+        "source_id": "omnimath_03930",
+        "source_index": 3930,
+        "difficulty": 6.5
+      },
+      {
+        "id": "omnimath_01073",
+        "source_id": "omnimath_01073",
+        "source_index": 1073,
+        "difficulty": 6.0
+      },
+      {
+        "id": "omnimath_01629",
+        "source_id": "omnimath_01629",
+        "source_index": 1629,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_03802",
+        "source_id": "omnimath_03802",
+        "source_index": 3802,
+        "difficulty": 6.5
+      },
+      {
+        "id": "omnimath_03824",
+        "source_id": "omnimath_03824",
+        "source_index": 3824,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_00587",
+        "source_id": "omnimath_00587",
+        "source_index": 587,
+        "difficulty": 5.25
+      },
+      {
+        "id": "omnimath_01111",
+        "source_id": "omnimath_01111",
+        "source_index": 1111,
+        "difficulty": 6.0
+      },
+      {
+        "id": "omnimath_01792",
+        "source_id": "omnimath_01792",
+        "source_index": 1792,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_00593",
+        "source_id": "omnimath_00593",
+        "source_index": 593,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_01113",
+        "source_id": "omnimath_01113",
+        "source_index": 1113,
+        "difficulty": 4.0
+      },
+      {
+        "id": "omnimath_00177",
+        "source_id": "omnimath_00177",
+        "source_index": 177,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_03778",
+        "source_id": "omnimath_03778",
+        "source_index": 3778,
+        "difficulty": 6.0
+      },
+      {
+        "id": "omnimath_02172",
+        "source_id": "omnimath_02172",
+        "source_index": 2172,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_04173",
+        "source_id": "omnimath_04173",
+        "source_index": 4173,
+        "difficulty": 7.5
+      },
+      {
+        "id": "omnimath_02042",
+        "source_id": "omnimath_02042",
+        "source_index": 2042,
+        "difficulty": 4.75
+      },
+      {
+        "id": "omnimath_02528",
+        "source_id": "omnimath_02528",
+        "source_index": 2528,
+        "difficulty": 4.5
+      },
+      {
+        "id": "omnimath_02285",
+        "source_id": "omnimath_02285",
+        "source_index": 2285,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_01154",
+        "source_id": "omnimath_01154",
+        "source_index": 1154,
+        "difficulty": 6.0
+      },
+      {
+        "id": "omnimath_03901",
+        "source_id": "omnimath_03901",
+        "source_index": 3901,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_03705",
+        "source_id": "omnimath_03705",
+        "source_index": 3705,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_04304",
+        "source_id": "omnimath_04304",
+        "source_index": 4304,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_01665",
+        "source_id": "omnimath_01665",
+        "source_index": 1665,
+        "difficulty": 6.5
+      },
+      {
+        "id": "omnimath_01998",
+        "source_id": "omnimath_01998",
+        "source_index": 1998,
+        "difficulty": 4.5
+      },
+      {
+        "id": "omnimath_01556",
+        "source_id": "omnimath_01556",
+        "source_index": 1556,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_03922",
+        "source_id": "omnimath_03922",
+        "source_index": 3922,
+        "difficulty": 8.5
+      },
+      {
+        "id": "omnimath_03315",
+        "source_id": "omnimath_03315",
+        "source_index": 3315,
+        "difficulty": 7.5
+      },
+      {
+        "id": "omnimath_00065",
+        "source_id": "omnimath_00065",
+        "source_index": 65,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_00235",
+        "source_id": "omnimath_00235",
+        "source_index": 235,
+        "difficulty": 4.5
+      },
+      {
+        "id": "omnimath_01478",
+        "source_id": "omnimath_01478",
+        "source_index": 1478,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_03237",
+        "source_id": "omnimath_03237",
+        "source_index": 3237,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_04291",
+        "source_id": "omnimath_04291",
+        "source_index": 4291,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_02436",
+        "source_id": "omnimath_02436",
+        "source_index": 2436,
+        "difficulty": 5.0
+      },
+      {
+        "id": "omnimath_04311",
+        "source_id": "omnimath_04311",
+        "source_index": 4311,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_04238",
+        "source_id": "omnimath_04238",
+        "source_index": 4238,
+        "difficulty": 6.5
+      },
+      {
+        "id": "omnimath_04196",
+        "source_id": "omnimath_04196",
+        "source_index": 4196,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_02586",
+        "source_id": "omnimath_02586",
+        "source_index": 2586,
+        "difficulty": 4.5
+      },
+      {
+        "id": "omnimath_03606",
+        "source_id": "omnimath_03606",
+        "source_index": 3606,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_00052",
+        "source_id": "omnimath_00052",
+        "source_index": 52,
+        "difficulty": 7.0
+      },
+      {
+        "id": "omnimath_02502",
+        "source_id": "omnimath_02502",
+        "source_index": 2502,
+        "difficulty": 4.5
+      },
+      {
+        "id": "omnimath_03731",
+        "source_id": "omnimath_03731",
+        "source_index": 3731,
+        "difficulty": 6.0
+      },
+      {
+        "id": "omnimath_03640",
+        "source_id": "omnimath_03640",
+        "source_index": 3640,
+        "difficulty": 8.0
+      },
+      {
+        "id": "omnimath_03596",
+        "source_id": "omnimath_03596",
+        "source_index": 3596,
+        "difficulty": 6.5
+      },
+      {
+        "id": "omnimath_02488",
+        "source_id": "omnimath_02488",
+        "source_index": 2488,
+        "difficulty": 4.75
+      },
+      {
+        "id": "omnimath_01450",
+        "source_id": "omnimath_01450",
+        "source_index": 1450,
+        "difficulty": 4.5
+      }
+    ]
+  },
+  "shuffle_order": [
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01675",
+      "source_id": "omnimath_01675",
+      "source_index": 1675,
+      "difficulty": 4.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03178",
+      "source_id": "omnimath_03178",
+      "source_index": 3178,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00229",
+      "source_id": "omnimath_00229",
+      "source_index": 229,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01629",
+      "source_id": "omnimath_01629",
+      "source_index": 1629,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01364",
+      "source_id": "omnimath_01364",
+      "source_index": 1364,
+      "difficulty": 6.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02427",
+      "source_id": "omnimath_02427",
+      "source_index": 2427,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00667",
+      "source_id": "omnimath_00667",
+      "source_index": 667,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02026",
+      "source_id": "omnimath_02026",
+      "source_index": 2026,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00227",
+      "source_id": "omnimath_00227",
+      "source_index": 227,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01298",
+      "source_id": "omnimath_01298",
+      "source_index": 1298,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01526",
+      "source_id": "omnimath_01526",
+      "source_index": 1526,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02048",
+      "source_id": "omnimath_02048",
+      "source_index": 2048,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01712",
+      "source_id": "omnimath_01712",
+      "source_index": 1712,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03911",
+      "source_id": "omnimath_03911",
+      "source_index": 3911,
+      "difficulty": 7.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00179",
+      "source_id": "omnimath_00179",
+      "source_index": 179,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00378",
+      "source_id": "omnimath_00378",
+      "source_index": 378,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02290",
+      "source_id": "omnimath_02290",
+      "source_index": 2290,
+      "difficulty": 4.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00900",
+      "source_id": "omnimath_00900",
+      "source_index": 900,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01556",
+      "source_id": "omnimath_01556",
+      "source_index": 1556,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02254",
+      "source_id": "omnimath_02254",
+      "source_index": 2254,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01020",
+      "source_id": "omnimath_01020",
+      "source_index": 1020,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00659",
+      "source_id": "omnimath_00659",
+      "source_index": 659,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02458",
+      "source_id": "omnimath_02458",
+      "source_index": 2458,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00508",
+      "source_id": "omnimath_00508",
+      "source_index": 508,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00392",
+      "source_id": "omnimath_00392",
+      "source_index": 392,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01792",
+      "source_id": "omnimath_01792",
+      "source_index": 1792,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_03767",
+      "source_id": "omnimath_03767",
+      "source_index": 3767,
+      "difficulty": 3.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00587",
+      "source_id": "omnimath_00587",
+      "source_index": 587,
+      "difficulty": 5.25
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03315",
+      "source_id": "omnimath_03315",
+      "source_index": 3315,
+      "difficulty": 7.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00714",
+      "source_id": "omnimath_00714",
+      "source_index": 714,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01974",
+      "source_id": "omnimath_01974",
+      "source_index": 1974,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03901",
+      "source_id": "omnimath_03901",
+      "source_index": 3901,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02042",
+      "source_id": "omnimath_02042",
+      "source_index": 2042,
+      "difficulty": 4.75
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01921",
+      "source_id": "omnimath_01921",
+      "source_index": 1921,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00101",
+      "source_id": "omnimath_00101",
+      "source_index": 101,
+      "difficulty": 6.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03319",
+      "source_id": "omnimath_03319",
+      "source_index": 3319,
+      "difficulty": 4.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01073",
+      "source_id": "omnimath_01073",
+      "source_index": 1073,
+      "difficulty": 6.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00397",
+      "source_id": "omnimath_00397",
+      "source_index": 397,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00820",
+      "source_id": "omnimath_00820",
+      "source_index": 820,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01188",
+      "source_id": "omnimath_01188",
+      "source_index": 1188,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00236",
+      "source_id": "omnimath_00236",
+      "source_index": 236,
+      "difficulty": 6.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01113",
+      "source_id": "omnimath_01113",
+      "source_index": 1113,
+      "difficulty": 4.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00971",
+      "source_id": "omnimath_00971",
+      "source_index": 971,
+      "difficulty": 3.75
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_04423",
+      "source_id": "omnimath_04423",
+      "source_index": 4423,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_03127",
+      "source_id": "omnimath_03127",
+      "source_index": 3127,
+      "difficulty": 3.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01759",
+      "source_id": "omnimath_01759",
+      "source_index": 1759,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01827",
+      "source_id": "omnimath_01827",
+      "source_index": 1827,
+      "difficulty": 6.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02502",
+      "source_id": "omnimath_02502",
+      "source_index": 2502,
+      "difficulty": 4.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_04304",
+      "source_id": "omnimath_04304",
+      "source_index": 4304,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00177",
+      "source_id": "omnimath_00177",
+      "source_index": 177,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03824",
+      "source_id": "omnimath_03824",
+      "source_index": 3824,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02275",
+      "source_id": "omnimath_02275",
+      "source_index": 2275,
+      "difficulty": 4.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00319",
+      "source_id": "omnimath_00319",
+      "source_index": 319,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02885",
+      "source_id": "omnimath_02885",
+      "source_index": 2885,
+      "difficulty": 3.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_03782",
+      "source_id": "omnimath_03782",
+      "source_index": 3782,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00605",
+      "source_id": "omnimath_00605",
+      "source_index": 605,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_04303",
+      "source_id": "omnimath_04303",
+      "source_index": 4303,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01665",
+      "source_id": "omnimath_01665",
+      "source_index": 1665,
+      "difficulty": 6.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00417",
+      "source_id": "omnimath_00417",
+      "source_index": 417,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01919",
+      "source_id": "omnimath_01919",
+      "source_index": 1919,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00538",
+      "source_id": "omnimath_00538",
+      "source_index": 538,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02288",
+      "source_id": "omnimath_02288",
+      "source_index": 2288,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01193",
+      "source_id": "omnimath_01193",
+      "source_index": 1193,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00235",
+      "source_id": "omnimath_00235",
+      "source_index": 235,
+      "difficulty": 4.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01598",
+      "source_id": "omnimath_01598",
+      "source_index": 1598,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03350",
+      "source_id": "omnimath_03350",
+      "source_index": 3350,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_04350",
+      "source_id": "omnimath_04350",
+      "source_index": 4350,
+      "difficulty": 6.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01436",
+      "source_id": "omnimath_01436",
+      "source_index": 1436,
+      "difficulty": 3.75
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01752",
+      "source_id": "omnimath_01752",
+      "source_index": 1752,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00756",
+      "source_id": "omnimath_00756",
+      "source_index": 756,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00130",
+      "source_id": "omnimath_00130",
+      "source_index": 130,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01917",
+      "source_id": "omnimath_01917",
+      "source_index": 1917,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03800",
+      "source_id": "omnimath_03800",
+      "source_index": 3800,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01261",
+      "source_id": "omnimath_01261",
+      "source_index": 1261,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01986",
+      "source_id": "omnimath_01986",
+      "source_index": 1986,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00842",
+      "source_id": "omnimath_00842",
+      "source_index": 842,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00839",
+      "source_id": "omnimath_00839",
+      "source_index": 839,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01478",
+      "source_id": "omnimath_01478",
+      "source_index": 1478,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00065",
+      "source_id": "omnimath_00065",
+      "source_index": 65,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03778",
+      "source_id": "omnimath_03778",
+      "source_index": 3778,
+      "difficulty": 6.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00707",
+      "source_id": "omnimath_00707",
+      "source_index": 707,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03184",
+      "source_id": "omnimath_03184",
+      "source_index": 3184,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00343",
+      "source_id": "omnimath_00343",
+      "source_index": 343,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01969",
+      "source_id": "omnimath_01969",
+      "source_index": 1969,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_03384",
+      "source_id": "omnimath_03384",
+      "source_index": 3384,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02377",
+      "source_id": "omnimath_02377",
+      "source_index": 2377,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00620",
+      "source_id": "omnimath_00620",
+      "source_index": 620,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02523",
+      "source_id": "omnimath_02523",
+      "source_index": 2523,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00078",
+      "source_id": "omnimath_00078",
+      "source_index": 78,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_03642",
+      "source_id": "omnimath_03642",
+      "source_index": 3642,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00052",
+      "source_id": "omnimath_00052",
+      "source_index": 52,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00476",
+      "source_id": "omnimath_00476",
+      "source_index": 476,
+      "difficulty": 4.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01995",
+      "source_id": "omnimath_01995",
+      "source_index": 1995,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00479",
+      "source_id": "omnimath_00479",
+      "source_index": 479,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01567",
+      "source_id": "omnimath_01567",
+      "source_index": 1567,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_04238",
+      "source_id": "omnimath_04238",
+      "source_index": 4238,
+      "difficulty": 6.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_03370",
+      "source_id": "omnimath_03370",
+      "source_index": 3370,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01496",
+      "source_id": "omnimath_01496",
+      "source_index": 1496,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01756",
+      "source_id": "omnimath_01756",
+      "source_index": 1756,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01998",
+      "source_id": "omnimath_01998",
+      "source_index": 1998,
+      "difficulty": 4.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02285",
+      "source_id": "omnimath_02285",
+      "source_index": 2285,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01858",
+      "source_id": "omnimath_01858",
+      "source_index": 1858,
+      "difficulty": 3.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_04291",
+      "source_id": "omnimath_04291",
+      "source_index": 4291,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01111",
+      "source_id": "omnimath_01111",
+      "source_index": 1111,
+      "difficulty": 6.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02551",
+      "source_id": "omnimath_02551",
+      "source_index": 2551,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03701",
+      "source_id": "omnimath_03701",
+      "source_index": 3701,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00383",
+      "source_id": "omnimath_00383",
+      "source_index": 383,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_03358",
+      "source_id": "omnimath_03358",
+      "source_index": 3358,
+      "difficulty": 3.75
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00341",
+      "source_id": "omnimath_00341",
+      "source_index": 341,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00509",
+      "source_id": "omnimath_00509",
+      "source_index": 509,
+      "difficulty": 4.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01154",
+      "source_id": "omnimath_01154",
+      "source_index": 1154,
+      "difficulty": 6.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00370",
+      "source_id": "omnimath_00370",
+      "source_index": 370,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02722",
+      "source_id": "omnimath_02722",
+      "source_index": 2722,
+      "difficulty": 3.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03922",
+      "source_id": "omnimath_03922",
+      "source_index": 3922,
+      "difficulty": 8.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01292",
+      "source_id": "omnimath_01292",
+      "source_index": 1292,
+      "difficulty": 3.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03968",
+      "source_id": "omnimath_03968",
+      "source_index": 3968,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00742",
+      "source_id": "omnimath_00742",
+      "source_index": 742,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_04173",
+      "source_id": "omnimath_04173",
+      "source_index": 4173,
+      "difficulty": 7.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01305",
+      "source_id": "omnimath_01305",
+      "source_index": 1305,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01977",
+      "source_id": "omnimath_01977",
+      "source_index": 1977,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01442",
+      "source_id": "omnimath_01442",
+      "source_index": 1442,
+      "difficulty": 6.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03705",
+      "source_id": "omnimath_03705",
+      "source_index": 3705,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_04374",
+      "source_id": "omnimath_04374",
+      "source_index": 4374,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02199",
+      "source_id": "omnimath_02199",
+      "source_index": 2199,
+      "difficulty": 4.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00949",
+      "source_id": "omnimath_00949",
+      "source_index": 949,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02656",
+      "source_id": "omnimath_02656",
+      "source_index": 2656,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02202",
+      "source_id": "omnimath_02202",
+      "source_index": 2202,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01680",
+      "source_id": "omnimath_01680",
+      "source_index": 1680,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02808",
+      "source_id": "omnimath_02808",
+      "source_index": 2808,
+      "difficulty": 3.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01789",
+      "source_id": "omnimath_01789",
+      "source_index": 1789,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_04196",
+      "source_id": "omnimath_04196",
+      "source_index": 4196,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01904",
+      "source_id": "omnimath_01904",
+      "source_index": 1904,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01859",
+      "source_id": "omnimath_01859",
+      "source_index": 1859,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00645",
+      "source_id": "omnimath_00645",
+      "source_index": 645,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01852",
+      "source_id": "omnimath_01852",
+      "source_index": 1852,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00593",
+      "source_id": "omnimath_00593",
+      "source_index": 593,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02434",
+      "source_id": "omnimath_02434",
+      "source_index": 2434,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02356",
+      "source_id": "omnimath_02356",
+      "source_index": 2356,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02436",
+      "source_id": "omnimath_02436",
+      "source_index": 2436,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01658",
+      "source_id": "omnimath_01658",
+      "source_index": 1658,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01806",
+      "source_id": "omnimath_01806",
+      "source_index": 1806,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01450",
+      "source_id": "omnimath_01450",
+      "source_index": 1450,
+      "difficulty": 4.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02633",
+      "source_id": "omnimath_02633",
+      "source_index": 2633,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00367",
+      "source_id": "omnimath_00367",
+      "source_index": 367,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00447",
+      "source_id": "omnimath_00447",
+      "source_index": 447,
+      "difficulty": 3.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01534",
+      "source_id": "omnimath_01534",
+      "source_index": 1534,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01005",
+      "source_id": "omnimath_01005",
+      "source_index": 1005,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02365",
+      "source_id": "omnimath_02365",
+      "source_index": 2365,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02528",
+      "source_id": "omnimath_02528",
+      "source_index": 2528,
+      "difficulty": 4.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01781",
+      "source_id": "omnimath_01781",
+      "source_index": 1781,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02571",
+      "source_id": "omnimath_02571",
+      "source_index": 2571,
+      "difficulty": 3.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03849",
+      "source_id": "omnimath_03849",
+      "source_index": 3849,
+      "difficulty": 6.25
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03237",
+      "source_id": "omnimath_03237",
+      "source_index": 3237,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00798",
+      "source_id": "omnimath_00798",
+      "source_index": 798,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00419",
+      "source_id": "omnimath_00419",
+      "source_index": 419,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00329",
+      "source_id": "omnimath_00329",
+      "source_index": 329,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00912",
+      "source_id": "omnimath_00912",
+      "source_index": 912,
+      "difficulty": 4.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_04311",
+      "source_id": "omnimath_04311",
+      "source_index": 4311,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01800",
+      "source_id": "omnimath_01800",
+      "source_index": 1800,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03930",
+      "source_id": "omnimath_03930",
+      "source_index": 3930,
+      "difficulty": 6.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03802",
+      "source_id": "omnimath_03802",
+      "source_index": 3802,
+      "difficulty": 6.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03640",
+      "source_id": "omnimath_03640",
+      "source_index": 3640,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02529",
+      "source_id": "omnimath_02529",
+      "source_index": 2529,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01134",
+      "source_id": "omnimath_01134",
+      "source_index": 1134,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02586",
+      "source_id": "omnimath_02586",
+      "source_index": 2586,
+      "difficulty": 4.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01506",
+      "source_id": "omnimath_01506",
+      "source_index": 1506,
+      "difficulty": 5.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_03354",
+      "source_id": "omnimath_03354",
+      "source_index": 3354,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_04283",
+      "source_id": "omnimath_04283",
+      "source_index": 4283,
+      "difficulty": 6.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_04378",
+      "source_id": "omnimath_04378",
+      "source_index": 4378,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02282",
+      "source_id": "omnimath_02282",
+      "source_index": 2282,
+      "difficulty": 4.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02488",
+      "source_id": "omnimath_02488",
+      "source_index": 2488,
+      "difficulty": 4.75
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01135",
+      "source_id": "omnimath_01135",
+      "source_index": 1135,
+      "difficulty": 6.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01443",
+      "source_id": "omnimath_01443",
+      "source_index": 1443,
+      "difficulty": 4.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00880",
+      "source_id": "omnimath_00880",
+      "source_index": 880,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03624",
+      "source_id": "omnimath_03624",
+      "source_index": 3624,
+      "difficulty": 4.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02453",
+      "source_id": "omnimath_02453",
+      "source_index": 2453,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01577",
+      "source_id": "omnimath_01577",
+      "source_index": 1577,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02892",
+      "source_id": "omnimath_02892",
+      "source_index": 2892,
+      "difficulty": 3.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02337",
+      "source_id": "omnimath_02337",
+      "source_index": 2337,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00030",
+      "source_id": "omnimath_00030",
+      "source_index": 30,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00409",
+      "source_id": "omnimath_00409",
+      "source_index": 409,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03606",
+      "source_id": "omnimath_03606",
+      "source_index": 3606,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00379",
+      "source_id": "omnimath_00379",
+      "source_index": 379,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01538",
+      "source_id": "omnimath_01538",
+      "source_index": 1538,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00906",
+      "source_id": "omnimath_00906",
+      "source_index": 906,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03731",
+      "source_id": "omnimath_03731",
+      "source_index": 3731,
+      "difficulty": 6.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02172",
+      "source_id": "omnimath_02172",
+      "source_index": 2172,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_03548",
+      "source_id": "omnimath_03548",
+      "source_index": 3548,
+      "difficulty": 3.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00625",
+      "source_id": "omnimath_00625",
+      "source_index": 625,
+      "difficulty": 5.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00623",
+      "source_id": "omnimath_00623",
+      "source_index": 623,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00307",
+      "source_id": "omnimath_00307",
+      "source_index": 307,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01532",
+      "source_id": "omnimath_01532",
+      "source_index": 1532,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00169",
+      "source_id": "omnimath_00169",
+      "source_index": 169,
+      "difficulty": 8.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_02186",
+      "source_id": "omnimath_02186",
+      "source_index": 2186,
+      "difficulty": 6.25
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_01924",
+      "source_id": "omnimath_01924",
+      "source_index": 1924,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_00163",
+      "source_id": "omnimath_00163",
+      "source_index": 163,
+      "difficulty": 7.0
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_01987",
+      "source_id": "omnimath_01987",
+      "source_index": 1987,
+      "difficulty": 5.0
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_02538",
+      "source_id": "omnimath_02538",
+      "source_index": 2538,
+      "difficulty": 3.5
+    },
+    {
+      "mixed_group": "diff4_9",
+      "id": "omnimath_03596",
+      "source_id": "omnimath_03596",
+      "source_index": 3596,
+      "difficulty": 6.5
+    },
+    {
+      "mixed_group": "diff3_4",
+      "id": "omnimath_00385",
+      "source_id": "omnimath_00385",
+      "source_index": 385,
+      "difficulty": 3.5
+    }
+  ]
+}

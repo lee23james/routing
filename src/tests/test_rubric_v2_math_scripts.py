@@ -53,6 +53,20 @@ class RubricV2MathScriptsTest(unittest.TestCase):
         self.assertIn("search_trim_rubric_v2_math_points_4gpu.sh", text)
         self.assertIn("eval_math_rubric_v2_final.sh", text)
 
+    def test_math169_routing_behavior_script_uses_two_gpu_defaults(self):
+        script = SCRIPTS_DIR / "run_math169_routing_behavior_2gpu.sh"
+
+        text = script.read_text(encoding="utf-8")
+
+        self.assertIn("eval.plot_math169_routing_behavior", text)
+        self.assertIn("data/episodes/math500_episodes.jsonl", text)
+        self.assertIn("../trim/TRIM/math_eval/data/math500/test.jsonl", text)
+        self.assertIn("trim_rubric_math200_point_search_*/*.pt", text)
+        self.assertIn("trim_rubric_v2b_math200_point_search_*/*.pt", text)
+        self.assertIn('RUBRIC_DEVICE="${RUBRIC_DEVICE:-cuda:2}"', text)
+        self.assertIn('RUBRIC_V2_DEVICE="${RUBRIC_V2_DEVICE:-cuda:3}"', text)
+        self.assertIn("routing_behavior", text)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,72 @@
+{
+  "baseline": {
+    "srm_acc": 51.5,
+    "lrm_acc": 62.0,
+    "srm_flops": 42.866673,
+    "lrm_flops": 445.880613,
+    "n": 200
+  },
+  "target_98_lrm_acc": 60.76,
+  "rows": [
+    {
+      "Benchmark": "OmniMath 3-4/4-9 Overall",
+      "Method": "SRM-Only",
+      "BA@20": 51.5,
+      "BA@40": 51.5,
+      "BA@60": 51.5,
+      "BA@80": 51.5,
+      "FLOPs@98": null,
+      "FLOPs@98_pct_LRM": null
+    },
+    {
+      "Benchmark": "OmniMath 3-4/4-9 Overall",
+      "Method": "LRM-Only",
+      "BA@20": 62.0,
+      "BA@40": 62.0,
+      "BA@60": 62.0,
+      "BA@80": 62.0,
+      "FLOPs@98": 445.880613,
+      "FLOPs@98_pct_LRM": 100.0
+    },
+    {
+      "Benchmark": "OmniMath 3-4/4-9 Overall",
+      "Method": "Random Routing",
+      "BA@20": 52.70653201425241,
+      "BA@40": 55.02989901068931,
+      "BA@60": 57.35326600712621,
+      "BA@80": 59.676633003563104,
+      "FLOPs@98": 401.54907959999997,
+      "FLOPs@98_pct_LRM": 90.05753286698742
+    },
+    {
+      "Benchmark": "OmniMath 3-4/4-9 Overall",
+      "Method": "TRIM-Agg",
+      "BA@20": 55.91396874449551,
+      "BA@40": 57.24098789072623,
+      "BA@60": 60.00334643648638,
+      "BA@80": 61.71161667586064,
+      "FLOPs@98": 346.883953,
+      "FLOPs@98_pct_LRM": 77.79749621004491
+    },
+    {
+      "Benchmark": "OmniMath 3-4/4-9 Overall",
+      "Method": "TRIM-Rubric",
+      "BA@20": 56.34189042785606,
+      "BA@40": 60.133181611792544,
+      "BA@60": 61.92126539343966,
+      "BA@80": 62.5,
+      "FLOPs@98": 271.990533,
+      "FLOPs@98_pct_LRM": 61.00075335636986
+    },
+    {
+      "Benchmark": "OmniMath 3-4/4-9 Overall",
+      "Method": "TRIM-RubricV2b",
+      "BA@20": 56.13140575703004,
+      "BA@40": 59.98333609497298,
+      "BA@60": 62.0,
+      "BA@80": 62.0,
+      "FLOPs@98": 238.403413,
+      "FLOPs@98_pct_LRM": 53.46799256329182
+    }
+  ]
+}

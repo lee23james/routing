@@ -1,0 +1,449 @@
+{
+  "dataset": "omnimath_mixed_3_4_100_4_9_100_test",
+  "episodes": "/home/chencheng/routing/src/data/episodes/omnimath_mixed_3_4_100_4_9_100_test_episodes.jsonl",
+  "target_flops_tflops": 356.7044904,
+  "target_pct_lrm_flops": 80.0,
+  "baseline": {
+    "srm_acc": 51.5,
+    "lrm_acc": 62.0,
+    "srm_flops": 42.866673,
+    "lrm_flops": 445.880613,
+    "n": 200
+  },
+  "candidate_checkpoints": [
+    {
+      "curve_key": "ppo_agg",
+      "checkpoint_file": "checkpoints/trim_agg_omnimath13_to34_point_search_lam0_seed1/epoch_0040.pt",
+      "checkpoint": "trim_agg_omnimath13_to34_point_search_lam0_seed1/epoch_0040.pt",
+      "nearest_coarse_acc": 61.5,
+      "nearest_coarse_flops": 346.883953,
+      "nearest_coarse_threshold": 0.75,
+      "nearest_coarse_gap": 9.820537399999978,
+      "score": 9.820537399999978,
+      "intervals": [
+        [
+          0.69,
+          0.76,
+          346.883953,
+          445.880613
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_agg",
+      "checkpoint_file": "checkpoints/trim_agg_omnimath13_to34_point_search_lam0_seed1/final.pt",
+      "checkpoint": "trim_agg_omnimath13_to34_point_search_lam0_seed1/final.pt",
+      "nearest_coarse_acc": 61.5,
+      "nearest_coarse_flops": 346.883953,
+      "nearest_coarse_threshold": 0.75,
+      "nearest_coarse_gap": 9.820537399999978,
+      "score": 9.820537399999978,
+      "intervals": [
+        [
+          0.69,
+          0.76,
+          346.883953,
+          445.880613
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_agg",
+      "checkpoint_file": "checkpoints/trim_agg_omnimath13_to34_point_search_lam5e-6_seed1/epoch_0030.pt",
+      "checkpoint": "trim_agg_omnimath13_to34_point_search_lam5e-6_seed1/epoch_0030.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 370.087553,
+      "nearest_coarse_threshold": 0.75,
+      "nearest_coarse_gap": 13.383062600000017,
+      "score": 13.383062600000017,
+      "intervals": [
+        [
+          0.74,
+          0.81,
+          42.866673,
+          370.087553
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_agg",
+      "checkpoint_file": "checkpoints/trim_agg_omnimath13_to34_point_search_lam2e-5_seed1/epoch_0010.pt",
+      "checkpoint": "trim_agg_omnimath13_to34_point_search_lam2e-5_seed1/epoch_0010.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 411.063453,
+      "nearest_coarse_threshold": 0.7,
+      "nearest_coarse_gap": 54.358962599999984,
+      "score": 54.358962599999984,
+      "intervals": [
+        [
+          0.69,
+          0.76,
+          42.866673,
+          411.063453
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_agg",
+      "checkpoint_file": "checkpoints/trim_agg_omnimath13_to34_point_search_lam0_seed1/best.pt",
+      "checkpoint": "trim_agg_omnimath13_to34_point_search_lam0_seed1/best.pt",
+      "nearest_coarse_acc": 61.5,
+      "nearest_coarse_flops": 415.696473,
+      "nearest_coarse_threshold": 0.75,
+      "nearest_coarse_gap": 58.99198260000003,
+      "score": 58.99198260000003,
+      "intervals": [
+        [
+          0.74,
+          0.81,
+          42.866673,
+          415.696473
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_agg",
+      "checkpoint_file": "checkpoints/trim_agg_omnimath13_to34_point_search_lam1e-4_seed1/epoch_0020.pt",
+      "checkpoint": "trim_agg_omnimath13_to34_point_search_lam1e-4_seed1/epoch_0020.pt",
+      "nearest_coarse_acc": 56.49999999999999,
+      "nearest_coarse_flops": 290.753193,
+      "nearest_coarse_threshold": 0.4,
+      "nearest_coarse_gap": 65.95129739999999,
+      "score": 65.95129739999999,
+      "intervals": [
+        [
+          0.33999999999999997,
+          0.41000000000000003,
+          290.753193,
+          445.880613
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_agg",
+      "checkpoint_file": "checkpoints/trim_agg_omnimath13_to34_point_search_lam2e-5_seed1/epoch_0020.pt",
+      "checkpoint": "trim_agg_omnimath13_to34_point_search_lam2e-5_seed1/epoch_0020.pt",
+      "nearest_coarse_acc": 60.0,
+      "nearest_coarse_flops": 428.911913,
+      "nearest_coarse_threshold": 0.7,
+      "nearest_coarse_gap": 72.20742260000003,
+      "score": 72.20742260000003,
+      "intervals": [
+        [
+          0.69,
+          0.76,
+          42.866673,
+          428.911913
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_agg",
+      "checkpoint_file": "checkpoints/trim_agg_omnimath13_to34_point_search_lam2e-5_seed1/epoch_0030.pt",
+      "checkpoint": "trim_agg_omnimath13_to34_point_search_lam2e-5_seed1/epoch_0030.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 432.207653,
+      "nearest_coarse_threshold": 0.65,
+      "nearest_coarse_gap": 75.5031626,
+      "score": 75.5031626,
+      "intervals": [
+        [
+          0.64,
+          0.71,
+          72.779633,
+          432.207653
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric",
+      "checkpoint_file": "checkpoints/trim_rubric_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/epoch_0030.pt",
+      "checkpoint": "trim_rubric_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/epoch_0030.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 383.530773,
+      "nearest_coarse_threshold": 0.65,
+      "nearest_coarse_gap": 26.826282600000013,
+      "score": 26.826282600000013,
+      "intervals": [
+        [
+          0.64,
+          0.71,
+          42.866673,
+          383.530773
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric",
+      "checkpoint_file": "checkpoints/trim_rubric_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/epoch_0010.pt",
+      "checkpoint": "trim_rubric_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/epoch_0010.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 389.981693,
+      "nearest_coarse_threshold": 0.7,
+      "nearest_coarse_gap": 33.27720260000001,
+      "score": 33.27720260000001,
+      "intervals": [
+        [
+          0.69,
+          0.76,
+          42.866673,
+          389.981693
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric",
+      "checkpoint_file": "checkpoints/trim_rubric_omnimath13_to34_point_search_lam0_rub0.3_seed1/epoch_0020.pt",
+      "checkpoint": "trim_rubric_omnimath13_to34_point_search_lam0_rub0.3_seed1/epoch_0020.pt",
+      "nearest_coarse_acc": 56.99999999999999,
+      "nearest_coarse_flops": 319.404613,
+      "nearest_coarse_threshold": 0.7,
+      "nearest_coarse_gap": 37.299877400000014,
+      "score": 37.299877400000014,
+      "intervals": [
+        [
+          0.64,
+          0.71,
+          319.404613,
+          445.880613
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric",
+      "checkpoint_file": "checkpoints/trim_rubric_omnimath13_to34_point_search_lam0_rub0.3_seed1/best.pt",
+      "checkpoint": "trim_rubric_omnimath13_to34_point_search_lam0_rub0.3_seed1/best.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 423.565033,
+      "nearest_coarse_threshold": 0.7,
+      "nearest_coarse_gap": 66.86054260000003,
+      "score": 66.86054260000003,
+      "intervals": [
+        [
+          0.69,
+          0.76,
+          44.529453,
+          423.565033
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric",
+      "checkpoint_file": "checkpoints/trim_rubric_omnimath13_to34_point_search_lam1e-4_rub0.3_seed1/epoch_0010.pt",
+      "checkpoint": "trim_rubric_omnimath13_to34_point_search_lam1e-4_rub0.3_seed1/epoch_0010.pt",
+      "nearest_coarse_acc": 61.5,
+      "nearest_coarse_flops": 289.428093,
+      "nearest_coarse_threshold": 0.6,
+      "nearest_coarse_gap": 67.27639740000001,
+      "score": 67.27639740000001,
+      "intervals": [
+        [
+          0.54,
+          0.61,
+          289.428093,
+          445.880613
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric",
+      "checkpoint_file": "checkpoints/trim_rubric_omnimath13_to34_point_search_lam0_rub0.3_seed1/epoch_0040.pt",
+      "checkpoint": "trim_rubric_omnimath13_to34_point_search_lam0_rub0.3_seed1/epoch_0040.pt",
+      "nearest_coarse_acc": 62.5,
+      "nearest_coarse_flops": 284.463973,
+      "nearest_coarse_threshold": 0.75,
+      "nearest_coarse_gap": 72.24051739999999,
+      "score": 72.24051739999999,
+      "intervals": [
+        [
+          0.69,
+          0.76,
+          284.463973,
+          444.896973
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric",
+      "checkpoint_file": "checkpoints/trim_rubric_omnimath13_to34_point_search_lam0_rub0.3_seed1/final.pt",
+      "checkpoint": "trim_rubric_omnimath13_to34_point_search_lam0_rub0.3_seed1/final.pt",
+      "nearest_coarse_acc": 62.5,
+      "nearest_coarse_flops": 284.463973,
+      "nearest_coarse_threshold": 0.75,
+      "nearest_coarse_gap": 72.24051739999999,
+      "score": 72.24051739999999,
+      "intervals": [
+        [
+          0.69,
+          0.76,
+          284.463973,
+          444.896973
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric",
+      "checkpoint_file": "checkpoints/trim_rubric_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/epoch_0040.pt",
+      "checkpoint": "trim_rubric_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/epoch_0040.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 431.429253,
+      "nearest_coarse_threshold": 0.6,
+      "nearest_coarse_gap": 74.72476260000002,
+      "score": 74.72476260000002,
+      "intervals": [
+        [
+          0.59,
+          0.66,
+          186.980293,
+          431.429253
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric_v2",
+      "checkpoint_file": "checkpoints/trim_rubric_v2b_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/best.pt",
+      "checkpoint": "trim_rubric_v2b_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/best.pt",
+      "nearest_coarse_acc": 61.5,
+      "nearest_coarse_flops": 353.374913,
+      "nearest_coarse_threshold": 0.5,
+      "nearest_coarse_gap": 3.329577400000005,
+      "score": 3.329577400000005,
+      "intervals": [
+        [
+          0.44,
+          0.51,
+          353.374913,
+          439.094533
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric_v2",
+      "checkpoint_file": "checkpoints/trim_rubric_v2b_omnimath13_to34_point_search_lam0_rub0.3_seed1/epoch_0040.pt",
+      "checkpoint": "trim_rubric_v2b_omnimath13_to34_point_search_lam0_rub0.3_seed1/epoch_0040.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 372.971553,
+      "nearest_coarse_threshold": 0.75,
+      "nearest_coarse_gap": 16.267062599999974,
+      "score": 16.267062599999974,
+      "intervals": [
+        [
+          0.74,
+          0.81,
+          42.866673,
+          372.971553
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric_v2",
+      "checkpoint_file": "checkpoints/trim_rubric_v2b_omnimath13_to34_point_search_lam0_rub0.3_seed1/final.pt",
+      "checkpoint": "trim_rubric_v2b_omnimath13_to34_point_search_lam0_rub0.3_seed1/final.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 372.971553,
+      "nearest_coarse_threshold": 0.75,
+      "nearest_coarse_gap": 16.267062599999974,
+      "score": 16.267062599999974,
+      "intervals": [
+        [
+          0.74,
+          0.81,
+          42.866673,
+          372.971553
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric_v2",
+      "checkpoint_file": "checkpoints/trim_rubric_v2b_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/epoch_0010.pt",
+      "checkpoint": "trim_rubric_v2b_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/epoch_0010.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 381.302393,
+      "nearest_coarse_threshold": 0.7,
+      "nearest_coarse_gap": 24.597902599999998,
+      "score": 24.597902599999998,
+      "intervals": [
+        [
+          0.69,
+          0.76,
+          42.866673,
+          381.302393
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric_v2",
+      "checkpoint_file": "checkpoints/trim_rubric_v2b_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/epoch_0040.pt",
+      "checkpoint": "trim_rubric_v2b_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/epoch_0040.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 384.507273,
+      "nearest_coarse_threshold": 0.4,
+      "nearest_coarse_gap": 27.8027826,
+      "score": 27.8027826,
+      "intervals": [
+        [
+          0.39,
+          0.46,
+          238.403413,
+          384.507273
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric_v2",
+      "checkpoint_file": "checkpoints/trim_rubric_v2b_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/final.pt",
+      "checkpoint": "trim_rubric_v2b_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/final.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 384.507273,
+      "nearest_coarse_threshold": 0.4,
+      "nearest_coarse_gap": 27.8027826,
+      "score": 27.8027826,
+      "intervals": [
+        [
+          0.39,
+          0.46,
+          238.403413,
+          384.507273
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric_v2",
+      "checkpoint_file": "checkpoints/trim_rubric_v2b_omnimath13_to34_point_search_lam5e-6_rub0.3_seed1/best.pt",
+      "checkpoint": "trim_rubric_v2b_omnimath13_to34_point_search_lam5e-6_rub0.3_seed1/best.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 394.586573,
+      "nearest_coarse_threshold": 0.7,
+      "nearest_coarse_gap": 37.88208259999999,
+      "score": 37.88208259999999,
+      "intervals": [
+        [
+          0.69,
+          0.76,
+          42.866673,
+          394.586573
+        ]
+      ]
+    },
+    {
+      "curve_key": "ppo_rubric_v2",
+      "checkpoint_file": "checkpoints/trim_rubric_v2b_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/epoch_0030.pt",
+      "checkpoint": "trim_rubric_v2b_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/epoch_0030.pt",
+      "nearest_coarse_acc": 62.0,
+      "nearest_coarse_flops": 401.773473,
+      "nearest_coarse_threshold": 0.45,
+      "nearest_coarse_gap": 45.06898260000003,
+      "score": 45.06898260000003,
+      "intervals": [
+        [
+          0.44,
+          0.51,
+          294.525073,
+          401.773473
+        ]
+      ]
+    }
+  ],
+  "thresholds_per_interval": 201,
+  "device": "cpu"
+}

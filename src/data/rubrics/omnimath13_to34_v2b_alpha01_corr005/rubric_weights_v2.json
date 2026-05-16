@@ -1,0 +1,174 @@
+{
+  "method": "trim_rubric_v2_router_feedback",
+  "weights": {
+    "timely_escalation": 0.17265296463300076,
+    "cost_efficiency": 0.0,
+    "cascading_error_prevention": 0.14598702457328416,
+    "recovery_effectiveness": 0.0,
+    "budget_allocation": 0.0,
+    "difficulty_awareness": 0.0,
+    "confidence_calibration": 0.0,
+    "action_consistency": 0.0,
+    "marginal_gain": 0.0,
+    "no_oscillation": 0.0,
+    "early_detection": 0.10565401852418126,
+    "prm_trajectory_quality": 0.4974756838371308,
+    "critical_step_coverage": 0.07823030843240296,
+    "prm_improvement_ratio": 0.0,
+    "worst_step_rescue": 0.0
+  },
+  "active_rubrics": [
+    "timely_escalation",
+    "cascading_error_prevention",
+    "early_detection",
+    "prm_trajectory_quality",
+    "critical_step_coverage"
+  ],
+  "diagnostics": {
+    "timely_escalation": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.421451626499163,
+      "status": "low_std"
+    },
+    "cost_efficiency": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.421451626499163,
+      "status": "low_std"
+    },
+    "cascading_error_prevention": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.421451626499163,
+      "status": "low_std"
+    },
+    "recovery_effectiveness": {
+      "corr": -0.09566785887404058,
+      "pval": 0.1777998203409537,
+      "std": 0.17317682133914408,
+      "utility_std": 0.421451626499163,
+      "mean": 0.46343170877653633,
+      "status": "negative_corr"
+    },
+    "budget_allocation": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.421451626499163,
+      "status": "low_std"
+    },
+    "difficulty_awareness": {
+      "corr": -0.2821330611102197,
+      "pval": 5.177034231085413e-05,
+      "std": 0.33630343441600474,
+      "utility_std": 0.421451626499163,
+      "mean": 0.13,
+      "status": "negative_corr"
+    },
+    "confidence_calibration": {
+      "corr": -0.24867546718917213,
+      "pval": 0.00038420835215736385,
+      "std": 0.2444253464761787,
+      "utility_std": 0.421451626499163,
+      "mean": 0.6975,
+      "status": "negative_corr"
+    },
+    "action_consistency": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.421451626499163,
+      "status": "low_std"
+    },
+    "marginal_gain": {
+      "corr": -0.024391030437376462,
+      "pval": 0.7317262298395107,
+      "std": 0.03556943436019594,
+      "utility_std": 0.421451626499163,
+      "mean": 0.5067987954425269,
+      "status": "negative_corr"
+    },
+    "no_oscillation": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.421451626499163,
+      "status": "low_std"
+    },
+    "early_detection": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.421451626499163,
+      "status": "low_std"
+    },
+    "prm_trajectory_quality": {
+      "corr": 0.356036754263933,
+      "pval": 2.2899574141533658e-07,
+      "std": 0.03648509770350214,
+      "utility_std": 0.421451626499163,
+      "mean": 0.9560816968678969,
+      "status": "active"
+    },
+    "critical_step_coverage": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.421451626499163,
+      "status": "low_std"
+    },
+    "prm_improvement_ratio": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.421451626499163,
+      "status": "low_std"
+    },
+    "worst_step_rescue": {
+      "corr": 0.0,
+      "std": 0.0,
+      "utility_std": 0.421451626499163,
+      "status": "low_std"
+    }
+  },
+  "base_weights": {
+    "timely_escalation": 0.19183662737000085,
+    "cost_efficiency": 0.0,
+    "cascading_error_prevention": 0.16220780508142685,
+    "recovery_effectiveness": 0.0,
+    "budget_allocation": 0.0,
+    "difficulty_awareness": 0.0,
+    "confidence_calibration": 0.0,
+    "action_consistency": 0.0,
+    "marginal_gain": 0.0,
+    "no_oscillation": 0.0,
+    "early_detection": 0.11739335391575695,
+    "prm_trajectory_quality": 0.44163964870792305,
+    "critical_step_coverage": 0.08692256492489217,
+    "prm_improvement_ratio": 0.0,
+    "worst_step_rescue": 0.0
+  },
+  "router_feedback_weights": {
+    "timely_escalation": 0.0,
+    "cost_efficiency": 0.0,
+    "cascading_error_prevention": 0.0,
+    "recovery_effectiveness": 0.0,
+    "budget_allocation": 0.0,
+    "difficulty_awareness": 0.0,
+    "confidence_calibration": 0.0,
+    "action_consistency": 0.0,
+    "marginal_gain": 0.0,
+    "no_oscillation": 0.0,
+    "early_detection": 0.0,
+    "prm_trajectory_quality": 1.0,
+    "critical_step_coverage": 0.0,
+    "prm_improvement_ratio": 0.0,
+    "worst_step_rescue": 0.0
+  },
+  "alpha": 0.1,
+  "utility_lam": 2e-05,
+  "router_checkpoint": "checkpoints/trim_rubric_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1/epoch_0030.pt",
+  "n_rollouts": 200,
+  "episodes_path": "data/episodes/omnimath_diff1_3_train_200_episodes.jsonl",
+  "base_rubric_weights": "data/rubrics/omnimath13_to34/rubric_weights.json",
+  "base_method": "trim_rubric_static",
+  "corr_threshold": 0.05,
+  "std_threshold": 0.02,
+  "deterministic": true,
+  "max_steps": 30
+}

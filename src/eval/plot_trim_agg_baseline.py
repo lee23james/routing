@@ -50,15 +50,38 @@ DEFAULT_EPISODES = {
     "aime2025": SRC_ROOT / "data/episodes/aime2025_episodes.jsonl",
     "aime_2020_2024_part2_test": SRC_ROOT / "data/episodes/aime_2020_2024_part2_test_episodes.jsonl",
     "gpqa_diamond_test_100": SRC_ROOT / "data/episodes/gpqa_diamond_test_100_episodes.jsonl",
+    "gsm8k_test_189": SRC_ROOT / "data/episodes/gsm8k_test_189_episodes.jsonl",
+    "mmlu_stem_test_189": SRC_ROOT / "data/episodes/mmlu_stem_test_189_episodes.jsonl",
+    "omnimath7_9_test_100": SRC_ROOT / "data/episodes/omnimath7_9_test_100_episodes.jsonl",
+    "omnimath_diff3_4_test_200": SRC_ROOT / "data/episodes/omnimath_diff3_4_test_200_episodes.jsonl",
+    "omnimath_mixed_3_4_100_4_9_100_test": (
+        SRC_ROOT / "data/episodes/omnimath_mixed_3_4_100_4_9_100_test_episodes.jsonl"
+    ),
 }
 DEFAULT_CHECKPOINT_GLOB = str(SRC_ROOT / "checkpoints/trim_agg_baseline_lam*/best.pt")
 DEFAULT_OUTPUT_DIR = SRC_ROOT / "results/trim_agg_baseline/plots_copy_style"
-DATASETS = ["math500", "aime2025", "aime_2020_2024_part2_test", "gpqa_diamond_test_100", "all"]
+DATASETS = [
+    "math500",
+    "aime2025",
+    "aime_2020_2024_part2_test",
+    "gpqa_diamond_test_100",
+    "gsm8k_test_189",
+    "mmlu_stem_test_189",
+    "omnimath7_9_test_100",
+    "omnimath_diff3_4_test_200",
+    "omnimath_mixed_3_4_100_4_9_100_test",
+    "all",
+]
 DS_LABELS = {
     "math500": "MATH-500",
     "aime2025": "AIME 2025 I&II",
     "aime_2020_2024_part2_test": "AIME 2020-2024 Part II",
     "gpqa_diamond_test_100": "GPQA Diamond-100",
+    "gsm8k_test_189": "GSM8K Test-189",
+    "mmlu_stem_test_189": "MMLU-STEM Test-189",
+    "omnimath7_9_test_100": "OmniMath 7-9 Test-100",
+    "omnimath_diff3_4_test_200": "OmniMath 3-4 Test-200",
+    "omnimath_mixed_3_4_100_4_9_100_test": "OmniMath Mixed 3-4/4-9 Test-200",
     "all": "Overall",
 }
 PPO_METHODS = {
@@ -456,6 +479,111 @@ def select_even_accuracy_points(dataset: str, baseline: Dict, points: List[Dict]
     }
 
 
+def _point_selection_row(dataset: str, baseline: Dict, chosen: Dict, target: float, target_key: str) -> Dict:
+    row = {
+        "dataset": dataset,
+        "actual_acc": float(chosen["accuracy"]),
+        "avg_flops_tflops": float(chosen["avg_flops_tflops"]),
+        "pct_lrm_flops": float(chosen["avg_flops_tflops"] / baseline["lrm_flops"] * 100),
+        "regen_ratio": float(chosen.get("regen_ratio", 0.0)),
+        "checkpoint": chosen.get("checkpoint", ""),
+        "checkpoint_file": chosen.get("checkpoint_file", ""),
+        "checkpoint_dir": chosen.get("checkpoint_dir", ""),
+        "checkpoint_kind": chosen.get("checkpoint_kind"),
+        "lambda": chosen.get("lambda"),
+        "seed": chosen.get("seed"),
+        "epoch": chosen.get("epoch"),
+        "threshold": chosen.get("threshold"),
+        "correct": chosen.get("correct"),
+        "n": chosen.get("n"),
+    }
+    if target_key == "acc":
+        row["target_acc"] = float(target)
+        row["acc_gap"] = float(abs(chosen["accuracy"] - target))
+        row["target_flops_tflops"] = None
+        row["flops_gap_tflops"] = None
+    elif target_key == "flops":
+        row["target_acc"] = None
+        row["acc_gap"] = None
+        row["target_flops_tflops"] = float(target)
+        row["flops_gap_tflops"] = float(abs(chosen["avg_flops_tflops"] - target))
+    else:
+        raise ValueError(f"Unknown target_key: {target_key}")
+    return row
+
+
+def select_even_flops_points(dataset: str, baseline: Dict, points: List[Dict], n_targets: int = 8) -> Dict:
+    """Select real points closest to evenly spaced TFLOPs/query targets."""
+    if not points:
+        return {
+            "dataset": dataset,
+            "target_axis": "flops",
+            "targets": [],
+            "points": [],
+            "limited_by_flops_granularity": True,
+        }
+
+    best_by_flops = {}
+    for point in points:
+        key = round(point["avg_flops_tflops"], 10)
+        previous = best_by_flops.get(key)
+        if previous is None or (
+            -point["accuracy"],
+            point.get("regen_ratio", 0.0),
+            point.get("checkpoint", ""),
+            point.get("threshold", 0.0),
+        ) < (
+            -previous["accuracy"],
+            previous.get("regen_ratio", 0.0),
+            previous.get("checkpoint", ""),
+            previous.get("threshold", 0.0),
+        ):
+            best_by_flops[key] = point
+
+    candidates = sorted(best_by_flops.values(), key=lambda p: p["avg_flops_tflops"])
+    if len(candidates) <= n_targets:
+        targets = [point["avg_flops_tflops"] for point in candidates]
+        selected = [
+            _point_selection_row(dataset, baseline, point, point["avg_flops_tflops"], "flops")
+            for point in candidates
+        ]
+        return {
+            "dataset": dataset,
+            "target_axis": "flops",
+            "targets": [float(x) for x in targets],
+            "points": selected,
+            "limited_by_flops_granularity": len(selected) < n_targets,
+        }
+
+    lo = candidates[0]["avg_flops_tflops"]
+    hi = candidates[-1]["avg_flops_tflops"]
+    targets = np.linspace(lo, hi, n_targets)
+    used = set()
+    selected = []
+    for target in targets:
+        ranked = sorted(
+            enumerate(candidates),
+            key=lambda item: (
+                abs(item[1]["avg_flops_tflops"] - target),
+                -item[1]["accuracy"],
+                item[1].get("regen_ratio", 0.0),
+                item[1].get("checkpoint", ""),
+                item[1].get("threshold", 0.0),
+            ),
+        )
+        idx, chosen = next((idx, point) for idx, point in ranked if idx not in used)
+        used.add(idx)
+        selected.append(_point_selection_row(dataset, baseline, chosen, float(target), "flops"))
+
+    return {
+        "dataset": dataset,
+        "target_axis": "flops",
+        "targets": [float(x) for x in targets],
+        "points": sorted(selected, key=lambda row: row["avg_flops_tflops"]),
+        "limited_by_flops_granularity": len(selected) < n_targets,
+    }
+
+
 def pareto_envelope(points: List[Dict]) -> List[Dict]:
     """Return the accuracy/FLOPs upper-left frontier."""
     if not points:
@@ -843,9 +971,22 @@ def _plot_figures(plot_data: Dict, output_dir: Path) -> None:
                     continue
                 plotted_ppo_points.extend(ppo_curve)
                 marker_points = _subsample(ppo_curve, 10)
+                line_points = list(ppo_curve)
+                rightmost = max(line_points, key=lambda p: p["avg_flops_tflops"])
+                if (
+                    abs(rightmost["avg_flops_tflops"] - baseline["lrm_flops"]) > 1e-9
+                    or abs(rightmost["accuracy"] - baseline["lrm_acc"]) > 1e-9
+                ):
+                    line_points.append(
+                        {
+                            "avg_flops_tflops": baseline["lrm_flops"],
+                            "accuracy": baseline["lrm_acc"],
+                        }
+                    )
+                    line_points = sorted(line_points, key=lambda p: p["avg_flops_tflops"])
                 ax.plot(
-                    [x_value(p["avg_flops_tflops"]) for p in ppo_curve],
-                    [p["accuracy"] for p in ppo_curve],
+                    [x_value(p["avg_flops_tflops"]) for p in line_points],
+                    [p["accuracy"] for p in line_points],
                     linestyle=linestyle,
                     color=color,
                     linewidth=2.5,
@@ -972,6 +1113,29 @@ def build_plot_data(args: argparse.Namespace) -> Dict:
         "gpqa_diamond_test_100": Path(
             getattr(args, "gpqa_diamond_episodes", str(DEFAULT_EPISODES["gpqa_diamond_test_100"]))
         ),
+        "gsm8k_test_189": Path(
+            getattr(args, "gsm8k_episodes", str(DEFAULT_EPISODES["gsm8k_test_189"]))
+        ),
+        "mmlu_stem_test_189": Path(
+            getattr(args, "mmlu_stem_episodes", str(DEFAULT_EPISODES["mmlu_stem_test_189"]))
+        ),
+        "omnimath7_9_test_100": Path(
+            getattr(args, "omnimath79_episodes", str(DEFAULT_EPISODES["omnimath7_9_test_100"]))
+        ),
+        "omnimath_diff3_4_test_200": Path(
+            getattr(
+                args,
+                "omnimath34_episodes",
+                str(DEFAULT_EPISODES["omnimath_diff3_4_test_200"]),
+            )
+        ),
+        "omnimath_mixed_3_4_100_4_9_100_test": Path(
+            getattr(
+                args,
+                "omnimath_mixed_episodes",
+                str(DEFAULT_EPISODES["omnimath_mixed_3_4_100_4_9_100_test"]),
+            )
+        ),
     }
     groups = load_episode_groups(episode_paths, datasets)
     baselines = compute_baselines(groups, datasets)
@@ -1026,9 +1190,14 @@ def build_plot_data(args: argparse.Namespace) -> Dict:
         "thresholds": thresholds,
     }
     plot_data["main_results"] = build_main_results(plot_data)
+    selected_point_axis = getattr(args, "selected_point_axis", "accuracy")
+    if selected_point_axis not in {"accuracy", "flops"}:
+        raise ValueError(f"selected_point_axis must be accuracy or flops, got {selected_point_axis}")
+    selector = select_even_flops_points if selected_point_axis == "flops" else select_even_accuracy_points
+    plot_data["selected_point_axis"] = selected_point_axis
     plot_data["selected_points"] = {
         curve_key: {
-            dataset: select_even_accuracy_points(
+            dataset: selector(
                 dataset,
                 baselines[dataset],
                 raw_curves[curve_key].get(dataset, []),
@@ -1092,6 +1261,7 @@ def write_outputs(plot_data: Dict, output_dir: Path) -> None:
 
     fieldnames = [
         "dataset", "target_acc", "actual_acc", "acc_gap",
+        "target_flops_tflops", "flops_gap_tflops",
         "avg_flops_tflops", "pct_lrm_flops", "regen_ratio",
         "checkpoint", "checkpoint_file", "checkpoint_dir", "checkpoint_kind",
         "lambda", "seed", "epoch", "threshold", "correct", "n",
@@ -1131,6 +1301,7 @@ def write_outputs(plot_data: Dict, output_dir: Path) -> None:
         "# TRIM Point Search Summary",
         "",
         f"Checkpoint patterns: {json.dumps(plot_data.get('checkpoint_patterns_by_curve', {}), ensure_ascii=False)}",
+        f"Selected point axis: {plot_data.get('selected_point_axis', 'accuracy')}",
         "",
     ]
     for dataset in plot_data["datasets"]:
@@ -1138,22 +1309,46 @@ def write_outputs(plot_data: Dict, output_dir: Path) -> None:
         for curve_key, selected_by_dataset in plot_data.get("selected_points", {}).items():
             selected = selected_by_dataset.get(dataset, {})
             points = selected.get("points", [])
+            target_axis = selected.get("target_axis", plot_data.get("selected_point_axis", "accuracy"))
+            limited_key = (
+                "limited_by_flops_granularity"
+                if target_axis == "flops"
+                else "limited_by_accuracy_granularity"
+            )
             summary_lines.append(f"### {_curve_title(curve_key)}")
             summary_lines.append(f"- Selected points: {len(points)}")
-            summary_lines.append(f"- Limited by accuracy granularity: {selected.get('limited_by_accuracy_granularity')}")
+            summary_lines.append(f"- Selection axis: {target_axis}")
+            summary_lines.append(f"- Limited by {target_axis} granularity: {selected.get(limited_key)}")
             for row in points:
-                summary_lines.append(
-                    "- target={target:.2f}, actual={actual:.2f}, flops={flops:.2f}T "
-                    "({pct:.1f}% LRM), regen={regen:.2%}, ckpt={ckpt}, th={th}".format(
-                        target=row["target_acc"],
-                        actual=row["actual_acc"],
-                        flops=row["avg_flops_tflops"],
-                        pct=row["pct_lrm_flops"],
-                        regen=row["regen_ratio"],
-                        ckpt=row["checkpoint"],
-                        th=row["threshold"],
+                if target_axis == "flops" or row.get("target_acc") is None:
+                    target_flops = row.get("target_flops_tflops", row["avg_flops_tflops"])
+                    summary_lines.append(
+                        "- target_flops={target:.2f}T, actual_flops={flops:.2f}T, "
+                        "actual_acc={actual:.2f}, gap={gap:.2f}T "
+                        "({pct:.1f}% LRM), regen={regen:.2%}, ckpt={ckpt}, th={th}".format(
+                            target=target_flops,
+                            flops=row["avg_flops_tflops"],
+                            actual=row["actual_acc"],
+                            gap=row.get("flops_gap_tflops", 0.0),
+                            pct=row["pct_lrm_flops"],
+                            regen=row["regen_ratio"],
+                            ckpt=row["checkpoint"],
+                            th=row["threshold"],
+                        )
                     )
-                )
+                else:
+                    summary_lines.append(
+                        "- target_acc={target:.2f}, actual_acc={actual:.2f}, flops={flops:.2f}T "
+                        "({pct:.1f}% LRM), regen={regen:.2%}, ckpt={ckpt}, th={th}".format(
+                            target=row["target_acc"],
+                            actual=row["actual_acc"],
+                            flops=row["avg_flops_tflops"],
+                            pct=row["pct_lrm_flops"],
+                            regen=row["regen_ratio"],
+                            ckpt=row["checkpoint"],
+                            th=row["threshold"],
+                        )
+                    )
         summary_lines.append("")
 
     summary_path = output_dir / "search_summary.md"
@@ -1167,7 +1362,10 @@ def parse_args() -> argparse.Namespace:
         "--datasets",
         default="math500,aime2025",
         help="Comma-separated datasets to evaluate: math500, aime2025, "
-        "aime_2020_2024_part2_test, gpqa_diamond_test_100, all. "
+        "aime_2020_2024_part2_test, gpqa_diamond_test_100, "
+        "gsm8k_test_189, mmlu_stem_test_189, "
+        "omnimath7_9_test_100, omnimath_diff3_4_test_200, "
+        "omnimath_mixed_3_4_100_4_9_100_test, all. "
         "If math500 and aime2025 are both requested, all is added automatically.",
     )
     parser.add_argument("--math500_episodes", default=str(DEFAULT_EPISODES["math500"]))
@@ -1179,6 +1377,26 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--gpqa_diamond_episodes",
         default=str(DEFAULT_EPISODES["gpqa_diamond_test_100"]),
+    )
+    parser.add_argument(
+        "--gsm8k_episodes",
+        default=str(DEFAULT_EPISODES["gsm8k_test_189"]),
+    )
+    parser.add_argument(
+        "--mmlu_stem_episodes",
+        default=str(DEFAULT_EPISODES["mmlu_stem_test_189"]),
+    )
+    parser.add_argument(
+        "--omnimath79_episodes",
+        default=str(DEFAULT_EPISODES["omnimath7_9_test_100"]),
+    )
+    parser.add_argument(
+        "--omnimath34_episodes",
+        default=str(DEFAULT_EPISODES["omnimath_diff3_4_test_200"]),
+    )
+    parser.add_argument(
+        "--omnimath_mixed_episodes",
+        default=str(DEFAULT_EPISODES["omnimath_mixed_3_4_100_4_9_100_test"]),
     )
     parser.add_argument("--checkpoint_glob", default=DEFAULT_CHECKPOINT_GLOB)
     parser.add_argument(
@@ -1199,6 +1417,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output_dir", default=str(DEFAULT_OUTPUT_DIR))
     parser.add_argument("--device", default="cpu")
     parser.add_argument("--n_selected_points", type=int, default=8)
+    parser.add_argument(
+        "--selected_point_axis",
+        choices=["accuracy", "flops"],
+        default="accuracy",
+        help="Select exported marker points evenly by accuracy or by TFLOPs/query.",
+    )
     return parser.parse_args()
 
 

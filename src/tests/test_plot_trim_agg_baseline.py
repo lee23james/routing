@@ -21,6 +21,7 @@ from eval.plot_trim_agg_baseline import (
     parse_dataset_names,
     render_trim_agg_60_98_markdown,
     select_even_accuracy_points,
+    select_even_flops_points,
     write_outputs,
 )
 from eval.flops_eval import compute_episode_flops
@@ -98,6 +99,24 @@ class PlotTrimAggBaselineTest(unittest.TestCase):
         self.assertEqual(random["metrics"]["toy"]["acc_rank"], "second")
         self.assertEqual(ppo["metrics"]["toy"]["flops_rank"], "best")
         self.assertEqual(lrm["metrics"]["toy"]["flops_rank"], "second")
+
+    def test_compute_baselines_uses_end_to_end_lrm_correct_for_lrm_only_accuracy(self):
+        ep = {
+            "srm_steps": ["s1"],
+            "lrm_steps": ["l1"],
+            "srm_token_counts": [10],
+            "lrm_token_counts": [20],
+            "srm_correct": False,
+            "lrm_correct": True,
+        }
+
+        baselines = compute_baselines({"gsm8k_test_189": [ep]}, ["gsm8k_test_189"])
+
+        self.assertEqual(baselines["gsm8k_test_189"]["lrm_acc"], 100.0)
+        self.assertEqual(
+            baselines["gsm8k_test_189"]["lrm_flops"],
+            compute_episode_flops(ep, [1]) / 1e12,
+        )
 
     def test_build_main_results_includes_trim_rubric_when_curve_is_available(self):
         plot_data = {
@@ -331,6 +350,21 @@ class PlotTrimAggBaselineTest(unittest.TestCase):
     def test_parse_dataset_names_accepts_gpqa_and_adds_no_all_aggregate(self):
         self.assertEqual(parse_dataset_names("gpqa_diamond_test_100"), ["gpqa_diamond_test_100"])
 
+    def test_parse_dataset_names_accepts_gsm8k_and_adds_no_all_aggregate(self):
+        self.assertEqual(parse_dataset_names("gsm8k_test_189"), ["gsm8k_test_189"])
+
+    def test_parse_dataset_names_accepts_omnimath79_and_adds_no_all_aggregate(self):
+        self.assertEqual(parse_dataset_names("omnimath7_9_test_100"), ["omnimath7_9_test_100"])
+
+    def test_parse_dataset_names_accepts_omnimath34_and_adds_no_all_aggregate(self):
+        self.assertEqual(parse_dataset_names("omnimath_diff3_4_test_200"), ["omnimath_diff3_4_test_200"])
+
+    def test_parse_dataset_names_accepts_omnimath_mixed_and_adds_no_all_aggregate(self):
+        self.assertEqual(
+            parse_dataset_names("omnimath_mixed_3_4_100_4_9_100_test"),
+            ["omnimath_mixed_3_4_100_4_9_100_test"],
+        )
+
     def test_routing_flops_anchors_use_same_stepwise_endpoint_cost_as_policy_curve(self):
         ep = {
             "srm_steps": ["a", "b", "c"],
@@ -401,6 +435,29 @@ class PlotTrimAggBaselineTest(unittest.TestCase):
         self.assertEqual(actuals, sorted(actuals))
         self.assertLessEqual(max(actuals), baseline["lrm_acc"])
         self.assertEqual(selected["points"][-1]["checkpoint"], "lrm")
+
+    def test_select_even_flops_points_returns_real_points_ordered_by_flops(self):
+        baseline = {"srm_acc": 50.0, "lrm_acc": 90.0, "lrm_flops": 10.0}
+        points = [
+            {"accuracy": 70.0, "avg_flops_tflops": 3.0, "regen_ratio": 0.3, "checkpoint": "b"},
+            {"accuracy": 65.0, "avg_flops_tflops": 1.0, "regen_ratio": 0.1, "checkpoint": "a"},
+            {"accuracy": 80.0, "avg_flops_tflops": 6.0, "regen_ratio": 0.6, "checkpoint": "c"},
+            {"accuracy": 83.0, "avg_flops_tflops": 8.0, "regen_ratio": 0.8, "checkpoint": "d"},
+            {"accuracy": 81.0, "avg_flops_tflops": 8.0, "regen_ratio": 0.7, "checkpoint": "dominated"},
+            {"accuracy": 88.0, "avg_flops_tflops": 10.0, "regen_ratio": 1.0, "checkpoint": "e"},
+        ]
+
+        selected = select_even_flops_points("toy", baseline, points, n_targets=4)
+
+        self.assertEqual(selected["target_axis"], "flops")
+        self.assertEqual(len(selected["points"]), 4)
+        actual_flops = [row["avg_flops_tflops"] for row in selected["points"]]
+        self.assertEqual(actual_flops, sorted(actual_flops))
+        self.assertTrue(set(actual_flops).issubset({1.0, 3.0, 6.0, 8.0, 10.0}))
+        self.assertNotIn("dominated", [row["checkpoint"] for row in selected["points"]])
+        self.assertTrue(all(row["target_acc"] is None for row in selected["points"]))
+        self.assertTrue(all(row["target_flops_tflops"] is not None for row in selected["points"]))
+        self.assertLessEqual(max(row["flops_gap_tflops"] for row in selected["points"]), 1.0)
 
     def test_parse_checkpoint_metadata_from_point_search_paths(self):
         meta = parse_checkpoint_metadata(
@@ -477,6 +534,7 @@ class PlotTrimAggBaselineTest(unittest.TestCase):
             rubric_v2_checkpoint_glob = ""
             device = "cpu"
             n_selected_points = 8
+            selected_point_axis = "accuracy"
 
         try:
             with unittest.mock.patch(
@@ -510,6 +568,86 @@ class PlotTrimAggBaselineTest(unittest.TestCase):
         )
         self.assertEqual(plot_data["baselines"]["aime_2020_2024_part2_test"]["n"], 1)
 
+    def test_build_plot_data_uses_gsm8k_episode_argument_and_flops_selection(self):
+        gsm_path = Path(self.id()).with_suffix(".jsonl")
+        ckpt_path = Path(self.id()).with_name("epoch_0010.pt")
+        gsm_path.write_text(
+            '{"id": "g0", "srm_steps": ["a"], "lrm_steps": ["b"], '
+            '"srm_token_counts": [1], "lrm_token_counts": [2], '
+            '"srm_correct": false, "lrm_correct": true}\n',
+            encoding="utf-8",
+        )
+        ckpt_path.write_text("placeholder", encoding="utf-8")
+
+        class Args:
+            datasets = "gsm8k_test_189"
+            math500_episodes = "missing_math.jsonl"
+            aime2025_episodes = "missing_aime2025.jsonl"
+            aime_part2_episodes = "missing_aime_part2.jsonl"
+            gpqa_diamond_episodes = "missing_gpqa.jsonl"
+            gsm8k_episodes = str(gsm_path)
+            omnimath79_episodes = "missing_omni79.jsonl"
+            omnimath34_episodes = "missing_omni34.jsonl"
+            omnimath_mixed_episodes = "missing_omni_mixed.jsonl"
+            checkpoint_glob = str(ckpt_path)
+            agg_checkpoint_glob = str(ckpt_path)
+            rubric_checkpoint_glob = ""
+            rubric_v2_checkpoint_glob = ""
+            device = "cpu"
+            n_selected_points = 3
+            selected_point_axis = "flops"
+
+        try:
+            with unittest.mock.patch(
+                "eval.plot_trim_agg_baseline.evaluate_policy_threshold_curve",
+                return_value=[
+                    {
+                        "checkpoint": "epoch_0010.pt",
+                        "checkpoint_file": str(ckpt_path),
+                        "checkpoint_dir": "ckpt",
+                        "checkpoint_name": "ckpt/epoch_0010.pt",
+                        "checkpoint_kind": "epoch",
+                        "lambda": 0.0,
+                        "seed": 1,
+                        "epoch": 10,
+                        "threshold": 0.9,
+                        "accuracy": 0.0,
+                        "avg_flops_tflops": 0.000001,
+                        "regen_ratio": 0.0,
+                        "correct": 0,
+                        "n": 1,
+                    },
+                    {
+                        "checkpoint": "epoch_0010.pt",
+                        "checkpoint_file": str(ckpt_path),
+                        "checkpoint_dir": "ckpt",
+                        "checkpoint_name": "ckpt/epoch_0010.pt",
+                        "checkpoint_kind": "epoch",
+                        "lambda": 0.0,
+                        "seed": 1,
+                        "epoch": 10,
+                        "threshold": 0.5,
+                        "accuracy": 100.0,
+                        "avg_flops_tflops": 0.000002,
+                        "regen_ratio": 1.0,
+                        "correct": 1,
+                        "n": 1,
+                    },
+                ],
+            ):
+                plot_data = build_plot_data(Args())
+        finally:
+            gsm_path.unlink(missing_ok=True)
+            ckpt_path.unlink(missing_ok=True)
+
+        self.assertEqual(plot_data["datasets"], ["gsm8k_test_189"])
+        self.assertEqual(plot_data["selected_point_axis"], "flops")
+        self.assertEqual(plot_data["source_files"]["gsm8k_test_189"], str(gsm_path))
+        self.assertEqual(plot_data["baselines"]["gsm8k_test_189"]["n"], 1)
+        selected = plot_data["selected_points"]["ppo_agg"]["gsm8k_test_189"]
+        self.assertEqual(selected["target_axis"], "flops")
+        self.assertTrue(all(row["target_flops_tflops"] is not None for row in selected["points"]))
+
     def test_checkpoint_patterns_include_trim_rubric_v2_when_requested(self):
         class Args:
             checkpoint_glob = "legacy/*.pt"
@@ -523,6 +661,130 @@ class PlotTrimAggBaselineTest(unittest.TestCase):
         self.assertEqual(patterns["ppo_rubric"], ["rubric/*.pt"])
         self.assertEqual(patterns["ppo_rubric_v2"], ["rubric_v2/*.pt"])
         self.assertEqual(_method_slug("TRIM-RubricV2 (PPO)"), "trim_rubric_v2")
+
+    def test_build_plot_data_uses_omnimath34_episode_argument(self):
+        omni_path = Path(self.id()).with_suffix(".jsonl")
+        ckpt_path = Path(self.id()).with_name("epoch_0010.pt")
+        omni_path.write_text(
+            '{"id": "o0", "srm_steps": ["a"], "lrm_steps": ["b"], '
+            '"srm_token_counts": [1], "lrm_token_counts": [2], '
+            '"srm_correct": false, "lrm_correct": true}\n',
+            encoding="utf-8",
+        )
+        ckpt_path.write_text("placeholder", encoding="utf-8")
+
+        class Args:
+            datasets = "omnimath_diff3_4_test_200"
+            math500_episodes = "missing_math.jsonl"
+            aime2025_episodes = "missing_aime2025.jsonl"
+            aime_part2_episodes = "missing_aime_part2.jsonl"
+            gpqa_diamond_episodes = "missing_gpqa.jsonl"
+            omnimath79_episodes = "missing_omni79.jsonl"
+            omnimath34_episodes = str(omni_path)
+            checkpoint_glob = str(ckpt_path)
+            agg_checkpoint_glob = str(ckpt_path)
+            rubric_checkpoint_glob = ""
+            rubric_v2_checkpoint_glob = ""
+            device = "cpu"
+            n_selected_points = 11
+            selected_point_axis = "accuracy"
+
+        try:
+            with unittest.mock.patch(
+                "eval.plot_trim_agg_baseline.evaluate_policy_threshold_curve",
+                return_value=[{
+                    "checkpoint": "epoch_0010.pt",
+                    "checkpoint_file": str(ckpt_path),
+                    "checkpoint_dir": "ckpt",
+                    "checkpoint_name": "ckpt/epoch_0010.pt",
+                    "checkpoint_kind": "epoch",
+                    "lambda": 0.0,
+                    "seed": 1,
+                    "epoch": 10,
+                    "threshold": 0.5,
+                    "accuracy": 100.0,
+                    "avg_flops_tflops": 0.0,
+                    "regen_ratio": 1.0,
+                    "correct": 1,
+                    "n": 1,
+                }],
+            ):
+                plot_data = build_plot_data(Args())
+        finally:
+            omni_path.unlink(missing_ok=True)
+            ckpt_path.unlink(missing_ok=True)
+
+        self.assertEqual(plot_data["datasets"], ["omnimath_diff3_4_test_200"])
+        self.assertEqual(
+            plot_data["source_files"]["omnimath_diff3_4_test_200"],
+            str(omni_path),
+        )
+        self.assertEqual(plot_data["baselines"]["omnimath_diff3_4_test_200"]["n"], 1)
+        self.assertIn("omnimath_diff3_4_test_200", plot_data["selected_points"]["ppo_agg"])
+
+    def test_build_plot_data_uses_omnimath_mixed_episode_argument(self):
+        omni_path = Path(self.id()).with_suffix(".jsonl")
+        ckpt_path = Path(self.id()).with_name("epoch_0010.pt")
+        omni_path.write_text(
+            '{"id": "o0", "srm_steps": ["a"], "lrm_steps": ["b"], '
+            '"srm_token_counts": [1], "lrm_token_counts": [2], '
+            '"srm_correct": false, "lrm_correct": true, "mixed_group": "diff4_9"}\n',
+            encoding="utf-8",
+        )
+        ckpt_path.write_text("placeholder", encoding="utf-8")
+
+        class Args:
+            datasets = "omnimath_mixed_3_4_100_4_9_100_test"
+            math500_episodes = "missing_math.jsonl"
+            aime2025_episodes = "missing_aime2025.jsonl"
+            aime_part2_episodes = "missing_aime_part2.jsonl"
+            gpqa_diamond_episodes = "missing_gpqa.jsonl"
+            omnimath79_episodes = "missing_omni79.jsonl"
+            omnimath34_episodes = "missing_omni34.jsonl"
+            omnimath_mixed_episodes = str(omni_path)
+            checkpoint_glob = str(ckpt_path)
+            agg_checkpoint_glob = str(ckpt_path)
+            rubric_checkpoint_glob = ""
+            rubric_v2_checkpoint_glob = ""
+            device = "cpu"
+            n_selected_points = 11
+            selected_point_axis = "accuracy"
+
+        try:
+            with unittest.mock.patch(
+                "eval.plot_trim_agg_baseline.evaluate_policy_threshold_curve",
+                return_value=[{
+                    "checkpoint": "epoch_0010.pt",
+                    "checkpoint_file": str(ckpt_path),
+                    "checkpoint_dir": "ckpt",
+                    "checkpoint_name": "ckpt/epoch_0010.pt",
+                    "checkpoint_kind": "epoch",
+                    "lambda": 0.0,
+                    "seed": 1,
+                    "epoch": 10,
+                    "threshold": 0.5,
+                    "accuracy": 100.0,
+                    "avg_flops_tflops": 0.0,
+                    "regen_ratio": 1.0,
+                    "correct": 1,
+                    "n": 1,
+                }],
+            ):
+                plot_data = build_plot_data(Args())
+        finally:
+            omni_path.unlink(missing_ok=True)
+            ckpt_path.unlink(missing_ok=True)
+
+        self.assertEqual(plot_data["datasets"], ["omnimath_mixed_3_4_100_4_9_100_test"])
+        self.assertEqual(
+            plot_data["source_files"]["omnimath_mixed_3_4_100_4_9_100_test"],
+            str(omni_path),
+        )
+        self.assertEqual(plot_data["baselines"]["omnimath_mixed_3_4_100_4_9_100_test"]["n"], 1)
+        self.assertIn(
+            "omnimath_mixed_3_4_100_4_9_100_test",
+            plot_data["selected_points"]["ppo_agg"],
+        )
 
     def test_write_outputs_writes_60_98_summaries_for_each_requested_dataset(self):
         output_dir = Path(self.id()).with_suffix("")

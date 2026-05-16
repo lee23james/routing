@@ -1,0 +1,29 @@
+[
+  {
+    "path": "data/episodes/omnimath_diff4_9_stratified_test_100_episodes.jsonl",
+    "n": 100,
+    "max_new_tokens": 20000,
+    "models": {
+      "srm": {
+        "avg_tokens": 14245.69,
+        "median_tokens": 14168.0,
+        "p90_tokens": 20000,
+        "max_tokens": 20000,
+        "near_95pct_cap_count": 31,
+        "near_95pct_cap_rate": 0.31,
+        "near_cap_minus_64_count": 28,
+        "near_cap_minus_64_rate": 0.28
+      },
+      "lrm": {
+        "avg_tokens": 13619.82,
+        "median_tokens": 13296.5,
+        "p90_tokens": 20000,
+        "max_tokens": 20000,
+        "near_95pct_cap_count": 28,
+        "near_95pct_cap_rate": 0.28,
+        "near_cap_minus_64_count": 25,
+        "near_cap_minus_64_rate": 0.25
+      }
+    }
+  }
+]

@@ -23,6 +23,14 @@ GPQA_CACHE_ZIP = Path(os.environ.get(
     str(Path.home() / ".cache/vscode-tmp/gpqa_dataset.zip"),
 ))
 GPQA_CACHE_PASSWORD = os.environ.get("GPQA_CACHE_PASSWORD", "deserted-untie-orchid")
+GSM8K_DATA_DIR = Path(os.environ.get(
+    "GSM8K_DATA_DIR",
+    "/home/chencheng/RSD/external/qwen25_math_evaluation/data/gsm8k",
+))
+MMLU_STEM_DATA_DIR = Path(os.environ.get(
+    "MMLU_STEM_DATA_DIR",
+    "/home/chencheng/RSD/external/qwen25_math_evaluation/data/mmlu_stem",
+))
 
 
 def load_math500() -> List[Dict]:
@@ -234,6 +242,140 @@ def load_gpqa_diamond_test_100(seed: int = 1) -> List[Dict]:
     return items
 
 
+def _extract_gsm8k_final_answer(answer: str) -> str:
+    marker = "####"
+    if marker not in answer:
+        return str(answer).strip()
+    return answer.rsplit(marker, 1)[1].strip()
+
+
+def _load_gsm8k_split_sample(
+    *,
+    split: str,
+    dataset: str,
+    max_items: int,
+    seed: int = 1,
+) -> List[Dict]:
+    path = GSM8K_DATA_DIR / f"{split}.jsonl"
+    if not path.exists():
+        raise FileNotFoundError(f"GSM8K split not found: {path}")
+
+    items = []
+    for i, row in enumerate(load_jsonl(str(path))):
+        query = row.get("question")
+        answer = _extract_gsm8k_final_answer(str(row.get("answer", "")))
+        if not query or not answer:
+            continue
+        source_index = int(row.get("idx", i))
+        source_id = f"gsm8k_{split}_{source_index:05d}"
+        items.append({
+            "id": source_id,
+            "query": query,
+            "answer": answer,
+            "full_solution": str(row.get("answer", "")).split("####", 1)[0].strip(),
+            "dataset": dataset,
+            "split": split,
+            "source_path": str(path),
+            "source_index": source_index,
+            "source_id": source_id,
+        })
+
+    if len(items) < max_items:
+        raise ValueError(
+            f"Only found {len(items)} GSM8K {split} items for {dataset}; need {max_items}"
+        )
+    rng = random.Random(seed)
+    rng.shuffle(items)
+    selected = items[:max_items]
+    print(f"Loaded {len(selected)} GSM8K {dataset} items from {path} (seed={seed})")
+    return selected
+
+
+def load_gsm8k_train_300(seed: int = 1) -> List[Dict]:
+    """Load a fixed random GSM8K train-300 split from the local RSD data."""
+    return _load_gsm8k_split_sample(
+        split="train",
+        dataset="gsm8k_train_300",
+        max_items=300,
+        seed=seed,
+    )
+
+
+def load_gsm8k_test_189(seed: int = 1) -> List[Dict]:
+    """Load a fixed random GSM8K test-189 split from the local RSD data."""
+    return _load_gsm8k_split_sample(
+        split="test",
+        dataset="gsm8k_test_189",
+        max_items=189,
+        seed=seed,
+    )
+
+
+def _normalize_mmlu_stem_row(row: Dict, dataset: str, split: str, source_index: int) -> Dict:
+    choices = [str(choice).strip() for choice in row.get("choices", [])]
+    if len(choices) != 4:
+        raise ValueError(f"MMLU-STEM row {source_index} has {len(choices)} choices, expected 4")
+
+    answer_idx = int(row["answer"])
+    if not 0 <= answer_idx < 4:
+        raise ValueError(f"MMLU-STEM row {source_index} has invalid answer index: {answer_idx}")
+
+    query = f"{str(row['question']).strip()}\nAnswer Choices: " + " ".join(
+        f"({label}) {choice}" for label, choice in zip("ABCD", choices)
+    )
+    source_id = f"mmlu_stem_{source_index:05d}"
+    return {
+        "id": f"{dataset}_{source_index:05d}",
+        "query": query,
+        "answer": "ABCD"[answer_idx],
+        "choices": choices,
+        "dataset": dataset,
+        "split": split,
+        "source_path": str(MMLU_STEM_DATA_DIR / "test.jsonl"),
+        "source_index": source_index,
+        "source_id": source_id,
+        "subject": row.get("type", ""),
+        "task_type": "multiple_choice",
+    }
+
+
+def _load_mmlu_stem_sample(seed: int = 1) -> List[Dict]:
+    path = MMLU_STEM_DATA_DIR / "test.jsonl"
+    if not path.exists():
+        raise FileNotFoundError(f"MMLU-STEM split not found: {path}")
+
+    rows = load_jsonl(str(path))
+    if len(rows) < 389:
+        raise ValueError(f"Only found {len(rows)} MMLU-STEM rows in {path}; need 389")
+
+    indexed_rows = list(enumerate(rows))
+    rng = random.Random(seed)
+    rng.shuffle(indexed_rows)
+    return indexed_rows[:389]
+
+
+def load_mmlu_stem_train_200(seed: int = 1) -> List[Dict]:
+    """Load a fixed random MMLU-STEM train-200 split from the local RSD pool."""
+    sampled = _load_mmlu_stem_sample(seed)[:200]
+    items = [
+        _normalize_mmlu_stem_row(row, "mmlu_stem_train_200", "train", source_index)
+        for source_index, row in sampled
+    ]
+    print(f"Loaded {len(items)} MMLU-STEM train items from {MMLU_STEM_DATA_DIR / 'test.jsonl'} (seed={seed})")
+    return items
+
+
+def load_mmlu_stem_test_189(seed: int = 1) -> List[Dict]:
+    """Load the held-out 189 MMLU-STEM items from the fixed random 389 sample."""
+    sampled = _load_mmlu_stem_sample(seed)[200:389]
+    items = [
+        _normalize_mmlu_stem_row(row, "mmlu_stem_test_189", "test", source_index)
+        for source_index, row in sampled
+    ]
+    print(f"Loaded {len(items)} MMLU-STEM test items from {MMLU_STEM_DATA_DIR / 'test.jsonl'} (seed={seed})")
+    return items
+
+
 def load_math_train() -> List[Dict]:
     """Load the full local MATH train split for MATH-only point search."""
     local_path = os.path.join(TRIM_DATA_DIR, "math", "train.jsonl")
@@ -368,6 +510,230 @@ def load_omnimath(max_items: int = 0, min_diff: float = 1.0, max_diff: float = 1
         items = items[:max_items]
     print(f"Loaded {len(items)} OmniMath problems (diff {min_diff}-{max_diff})")
     return items
+
+
+def load_omnimath7_9_test_100(max_items: int = 100) -> List[Dict]:
+    """Load the first 100 valid OmniMath difficulty 7-9 problems as a test split."""
+    path = os.path.join(LOCAL_DATA_DIR, "omnimath.jsonl")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"OmniMath file not found: {path}")
+
+    items = []
+    for i, row in enumerate(load_jsonl(path)):
+        try:
+            diff = float(row.get("difficulty", 5.0))
+        except (TypeError, ValueError):
+            continue
+        if diff < 7.0 or diff > 9.0:
+            continue
+
+        answer = str(row.get("answer") or "").strip()
+        if not answer:
+            answer = _extract_boxed(row.get("solution", ""))
+        if not answer.strip():
+            continue
+
+        query = row.get("problem") or row.get("question")
+        if not query:
+            continue
+
+        source_id = f"omnimath_{i:05d}"
+        items.append({
+            "id": source_id,
+            "query": query,
+            "answer": answer.strip(),
+            "full_solution": row.get("solution", ""),
+            "difficulty": diff,
+            "source": row.get("source", ""),
+            "domain": row.get("domain", []),
+            "source_path": path,
+            "source_index": i,
+            "source_id": source_id,
+            "dataset": "omnimath7_9_test_100",
+            "split": "test",
+        })
+        if max_items > 0 and len(items) >= max_items:
+            break
+
+    print(f"Loaded {len(items)} OmniMath difficulty 7-9 test problems from {path}")
+    return items
+
+
+def load_omnimath_diff_range_sample(
+    *,
+    dataset: str,
+    split: str,
+    min_diff: float,
+    max_diff: float,
+    max_items: int,
+    seed: int = 1,
+) -> List[Dict]:
+    """Load a fixed random OmniMath sample for a half-open difficulty range."""
+    path = os.path.join(LOCAL_DATA_DIR, "omnimath.jsonl")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"OmniMath file not found: {path}")
+
+    items = []
+    for i, row in enumerate(load_jsonl(path)):
+        try:
+            diff = float(row.get("difficulty", 5.0))
+        except (TypeError, ValueError):
+            continue
+        if not (min_diff <= diff < max_diff):
+            continue
+
+        answer = str(row.get("answer") or "").strip()
+        if not answer:
+            answer = _extract_boxed(row.get("solution", ""))
+        if not answer.strip():
+            continue
+
+        query = row.get("problem") or row.get("question")
+        if not query:
+            continue
+
+        source_id = f"omnimath_{i:05d}"
+        items.append({
+            "id": source_id,
+            "query": query,
+            "answer": answer.strip(),
+            "full_solution": row.get("solution", ""),
+            "difficulty": diff,
+            "source": row.get("source", ""),
+            "domain": row.get("domain", []),
+            "source_path": path,
+            "source_index": i,
+            "source_id": source_id,
+            "dataset": dataset,
+            "split": split,
+        })
+
+    if max_items > 0:
+        if len(items) < max_items:
+            raise ValueError(
+                f"Only found {len(items)} OmniMath problems for {dataset} "
+                f"(difficulty {min_diff} <= d < {max_diff}); need {max_items}"
+            )
+        rng = random.Random(seed)
+        rng.shuffle(items)
+        items = items[:max_items]
+
+    print(
+        f"Loaded {len(items)} OmniMath {dataset} problems "
+        f"(diff {min_diff} <= d < {max_diff}, seed={seed}) from {path}"
+    )
+    return items
+
+
+def load_omnimath_diff_range_stratified_sample(
+    *,
+    dataset: str,
+    split: str,
+    min_bucket: int,
+    max_bucket: int,
+    items_per_bucket: int,
+    seed: int = 1,
+) -> List[Dict]:
+    """Load a fixed random balanced OmniMath sample over integer difficulty buckets."""
+    path = os.path.join(LOCAL_DATA_DIR, "omnimath.jsonl")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"OmniMath file not found: {path}")
+
+    buckets: Dict[int, List[Dict]] = {bucket: [] for bucket in range(min_bucket, max_bucket)}
+    for i, row in enumerate(load_jsonl(path)):
+        try:
+            diff = float(row.get("difficulty", 5.0))
+        except (TypeError, ValueError):
+            continue
+        if not (float(min_bucket) <= diff < float(max_bucket)):
+            continue
+
+        bucket = int(diff)
+        if bucket not in buckets:
+            continue
+
+        answer = str(row.get("answer") or "").strip()
+        if not answer:
+            answer = _extract_boxed(row.get("solution", ""))
+        if not answer.strip():
+            continue
+
+        query = row.get("problem") or row.get("question")
+        if not query:
+            continue
+
+        source_id = f"omnimath_{i:05d}"
+        buckets[bucket].append({
+            "id": source_id,
+            "query": query,
+            "answer": answer.strip(),
+            "full_solution": row.get("solution", ""),
+            "difficulty": diff,
+            "source": row.get("source", ""),
+            "domain": row.get("domain", []),
+            "source_path": path,
+            "source_index": i,
+            "source_id": source_id,
+            "difficulty_bucket": bucket,
+            "dataset": dataset,
+            "split": split,
+        })
+
+    rng = random.Random(seed)
+    selected = []
+    for bucket in range(min_bucket, max_bucket):
+        bucket_items = buckets[bucket]
+        if len(bucket_items) < items_per_bucket:
+            raise ValueError(
+                f"Only found {len(bucket_items)} OmniMath problems for {dataset} "
+                f"in difficulty bucket [{bucket}, {bucket + 1}); need {items_per_bucket}"
+            )
+        rng.shuffle(bucket_items)
+        selected.extend(bucket_items[:items_per_bucket])
+
+    rng.shuffle(selected)
+    print(
+        f"Loaded {len(selected)} OmniMath {dataset} problems "
+        f"(balanced buckets {min_bucket}-{max_bucket - 1}, "
+        f"{items_per_bucket}/bucket, seed={seed}) from {path}"
+    )
+    return selected
+
+
+def load_omnimath_diff1_3_train_200(seed: int = 1) -> List[Dict]:
+    """Load fixed random OmniMath 1<=difficulty<3 train sample."""
+    return load_omnimath_diff_range_sample(
+        dataset="omnimath_diff1_3_train_200",
+        split="train",
+        min_diff=1.0,
+        max_diff=3.0,
+        max_items=200,
+        seed=seed,
+    )
+
+
+def load_omnimath_diff3_4_test_200(seed: int = 1) -> List[Dict]:
+    """Load fixed random OmniMath 3<=difficulty<4 test sample."""
+    return load_omnimath_diff_range_sample(
+        dataset="omnimath_diff3_4_test_200",
+        split="test",
+        min_diff=3.0,
+        max_diff=4.0,
+        max_items=200,
+        seed=seed,
+    )
+
+
+def load_omnimath_diff4_9_stratified_test_100(seed: int = 1) -> List[Dict]:
+    """Load fixed random OmniMath 4<=difficulty<9 test sample, 20 per bucket."""
+    return load_omnimath_diff_range_stratified_sample(
+        dataset="omnimath_diff4_9_stratified_test_100",
+        split="test",
+        min_bucket=4,
+        max_bucket=9,
+        items_per_bucket=20,
+        seed=seed,
+    )
 
 
 def load_aime_1983_2024() -> List[Dict]:

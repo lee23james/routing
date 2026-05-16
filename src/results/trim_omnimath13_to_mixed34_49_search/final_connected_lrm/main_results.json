@@ -1,0 +1,78 @@
+{
+  "caption": "Main Results. Acc is measured at 60% of LRM-only FLOPs, and FLOPs denotes the computation required to reach 98% of LRM-only accuracy. The best result is bold, and the second-best result is underlined. Extra Tokens denotes whether the method requires additional token generation during the reasoning process.",
+  "datasets": [
+    "omnimath_mixed_3_4_100_4_9_100_test"
+  ],
+  "rows": [
+    {
+      "method": "SRM-Only",
+      "extra_tokens": "No",
+      "metrics": {
+        "omnimath_mixed_3_4_100_4_9_100_test": {
+          "acc_at_60": 51.5,
+          "flops_at_98_tflops": null,
+          "flops_at_98_pct": null
+        }
+      }
+    },
+    {
+      "method": "LRM-Only",
+      "extra_tokens": "No",
+      "metrics": {
+        "omnimath_mixed_3_4_100_4_9_100_test": {
+          "acc_at_60": null,
+          "flops_at_98_tflops": 445.880613,
+          "flops_at_98_pct": 100.0
+        }
+      }
+    },
+    {
+      "method": "Random Routing",
+      "extra_tokens": "Yes",
+      "metrics": {
+        "omnimath_mixed_3_4_100_4_9_100_test": {
+          "acc_at_60": 57.35326600712621,
+          "flops_at_98_tflops": 401.54907959999997,
+          "flops_at_98_pct": 90.05753286698742
+        }
+      }
+    },
+    {
+      "method": "TRIM-Agg (PPO)",
+      "extra_tokens": "Yes",
+      "metrics": {
+        "omnimath_mixed_3_4_100_4_9_100_test": {
+          "acc_at_60": 60.00334643648638,
+          "flops_at_98_tflops": 346.883953,
+          "flops_at_98_pct": 77.79749621004491
+        }
+      }
+    },
+    {
+      "method": "TRIM-Rubric (PPO)",
+      "extra_tokens": "Yes",
+      "metrics": {
+        "omnimath_mixed_3_4_100_4_9_100_test": {
+          "acc_at_60": 61.92126539343966,
+          "flops_at_98_tflops": 271.990533,
+          "flops_at_98_pct": 61.00075335636986,
+          "acc_rank": "second",
+          "flops_rank": "second"
+        }
+      }
+    },
+    {
+      "method": "TRIM-RubricV2 (PPO)",
+      "extra_tokens": "Yes",
+      "metrics": {
+        "omnimath_mixed_3_4_100_4_9_100_test": {
+          "acc_at_60": 62.0,
+          "flops_at_98_tflops": 238.403413,
+          "flops_at_98_pct": 53.46799256329182,
+          "acc_rank": "best",
+          "flops_rank": "best"
+        }
+      }
+    }
+  ]
+}

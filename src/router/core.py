@@ -40,16 +40,22 @@ def _build_messages(problem: str, accumulated: str, system_prompt: str = SYSTEM_
     ]
 
 
-def _generate_step(url: str, messages: list, max_tokens: int = MAX_TOKENS_PER_STEP) -> Dict:
+def _generate_step(
+    url: str,
+    messages: list,
+    max_tokens: int = MAX_TOKENS_PER_STEP,
+    temperature: float = 0.7,
+    timeout: int = 300,
+) -> Dict:
     """Generate one reasoning step via continuation, stopped at \\n\\n."""
     result = call_model(
         url, messages,
         max_tokens=max_tokens,
-        temperature=0.7,
+        temperature=temperature,
         stop=["\n\n"],
         think_mode=True,
         continue_final=True,
-        timeout=300,
+        timeout=timeout,
     )
     return result
 
@@ -61,6 +67,12 @@ def online_route(
     router_name: str = "custom",
     system_prompt: str = SYSTEM_PROMPT,
     max_steps: int = MAX_STEPS,
+    step_temperature: float = 0.7,
+    answer_temperature: float = 0.0,
+    step_timeout: int = 300,
+    answer_timeout: int = 300,
+    max_tokens_per_step: int = MAX_TOKENS_PER_STEP,
+    max_answer_tokens: int = MAX_ANSWER_TOKENS,
 ) -> Dict:
     """Run online step-by-step routing on a single problem.
 
@@ -88,7 +100,13 @@ def online_route(
         msgs = _build_messages(problem, accumulated, system_prompt)
 
         # SRM generates next step (stopped at \n\n by vLLM)
-        srm_result = _generate_step(SRM_URL, msgs)
+        srm_result = _generate_step(
+            SRM_URL,
+            msgs,
+            max_tokens=max_tokens_per_step,
+            temperature=step_temperature,
+            timeout=step_timeout,
+        )
         srm_step = srm_result["content"]
         srm_tokens += srm_result["tokens"]
         srm_time += srm_result["elapsed"]
@@ -97,7 +115,13 @@ def online_route(
         use_lrm = router_fn(step_idx, srm_step, steps)
 
         if use_lrm:
-            lrm_result = _generate_step(LRM_URL, msgs)
+            lrm_result = _generate_step(
+                LRM_URL,
+                msgs,
+                max_tokens=max_tokens_per_step,
+                temperature=step_temperature,
+                timeout=step_timeout,
+            )
             lrm_step = lrm_result["content"]
             lrm_tokens += lrm_result["tokens"]
             lrm_time += lrm_result["elapsed"]
@@ -118,6 +142,11 @@ def online_route(
             "model": chosen_model,
             "text": chosen_step,
             "srm_text": srm_step,
+            "srm_tokens": srm_result.get("tokens", 0),
+            "srm_finish_reason": srm_result.get("finish_reason", ""),
+            "lrm_text": lrm_step if use_lrm else "",
+            "lrm_tokens": lrm_result.get("tokens", 0) if use_lrm else 0,
+            "lrm_finish_reason": lrm_result.get("finish_reason", "") if use_lrm else "",
         })
 
         if has_think_end:
@@ -134,11 +163,11 @@ def online_route(
     ans_msgs = _build_messages(problem, accumulated + "\n\n", system_prompt)
     ans_result = call_model(
         LRM_URL, ans_msgs,
-        max_tokens=MAX_ANSWER_TOKENS,
-        temperature=0.0,
+        max_tokens=max_answer_tokens,
+        temperature=answer_temperature,
         think_mode=True,
         continue_final=True,
-        timeout=300,
+        timeout=answer_timeout,
     )
     answer_text = ans_result["content"]
     lrm_tokens += ans_result["tokens"]
@@ -171,6 +200,8 @@ def online_route(
         "regen_ratio": round(regen_ratio, 4),
         "srm_tokens": srm_tokens,
         "lrm_tokens": lrm_tokens,
+        "answer_tokens": ans_result["tokens"],
+        "answer_finish_reason": ans_result.get("finish_reason", ""),
         "srm_flops": round(srm_flops, 1),
         "lrm_flops": round(lrm_flops, 1),
         "total_flops": round(total_flops, 1),

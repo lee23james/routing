@@ -1,0 +1,13 @@
+{
+  "lam": 2e-05,
+  "lam_rubric": 0.3,
+  "seed": 1,
+  "num_epochs": 40,
+  "episodes_per_epoch": 64,
+  "ppo_epochs": 3,
+  "mini_batch_size": 64,
+  "device": "cuda:0",
+  "save_dir": "checkpoints/trim_rubric_v2b_omnimath13_to34_point_search_lam2e-5_rub0.3_seed1",
+  "save_every": 10,
+  "save_epoch_checkpoints": true
+}

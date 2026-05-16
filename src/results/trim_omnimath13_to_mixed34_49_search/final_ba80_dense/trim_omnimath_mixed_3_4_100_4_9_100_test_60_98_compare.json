@@ -1,0 +1,41 @@
+[
+  {
+    "dataset": "omnimath_mixed_3_4_100_4_9_100_test",
+    "dataset_label": "OmniMath Mixed 3-4/4-9 Test-200",
+    "method": "TRIM-Agg (PPO)",
+    "n": 200,
+    "acc_at_60_lrm_flops": 63.0,
+    "flops_at_98_lrm_acc_tflops": 189.260053,
+    "flops_at_98_lrm_acc_pct_lrm": 42.446351664991546,
+    "lrm_acc": 62.0,
+    "lrm_flops_tflops": 445.880613,
+    "target_60_lrm_flops_tflops": 267.52836779999996,
+    "target_98_lrm_acc": 60.76
+  },
+  {
+    "dataset": "omnimath_mixed_3_4_100_4_9_100_test",
+    "dataset_label": "OmniMath Mixed 3-4/4-9 Test-200",
+    "method": "TRIM-Rubric (PPO)",
+    "n": 200,
+    "acc_at_60_lrm_flops": 64.0,
+    "flops_at_98_lrm_acc_tflops": 182.087293,
+    "flops_at_98_lrm_acc_pct_lrm": 40.837678896794735,
+    "lrm_acc": 62.0,
+    "lrm_flops_tflops": 445.880613,
+    "target_60_lrm_flops_tflops": 267.52836779999996,
+    "target_98_lrm_acc": 60.76
+  },
+  {
+    "dataset": "omnimath_mixed_3_4_100_4_9_100_test",
+    "dataset_label": "OmniMath Mixed 3-4/4-9 Test-200",
+    "method": "TRIM-RubricV2 (PPO)",
+    "n": 200,
+    "acc_at_60_lrm_flops": 63.5,
+    "flops_at_98_lrm_acc_tflops": 181.688293,
+    "flops_at_98_lrm_acc_pct_lrm": 40.74819305947263,
+    "lrm_acc": 62.0,
+    "lrm_flops_tflops": 445.880613,
+    "target_60_lrm_flops_tflops": 267.52836779999996,
+    "target_98_lrm_acc": 60.76
+  }
+]
