@@ -14,6 +14,9 @@ env/
 
 # Experiment artifacts and generated data
 src/data/episodes/*.jsonl
+!src/data/episodes/gsm8k_train_300_episodes.jsonl
+!src/data/episodes/gsm8k_test_200_episodes.jsonl
+src/data/raw/
 src/data/rubrics/
 src/checkpoints/
 src/results/
